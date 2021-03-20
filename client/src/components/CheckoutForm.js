@@ -67,6 +67,9 @@ export default function CheckoutForm() {
 
     var data;
 
+    console.log("begin to print payload");
+    console.log(payload);
+
     if (payload.error) {
       setError(`Payment failed: ${payload.error.message}`);
       setProcessing(false);

@@ -26,14 +26,103 @@ function getCustomerInfo(id) {
   };
 }
 
+//this field will be get through db
 let getProductDetails = () => {
-  return { currency: "CAD", amount: 9900 };
+  /*return { currency: "CAD", amount: 9900 };*/
+  return {
+    userCode: "00001",
+    productList: [
+      {
+        name: "tea",
+        amount: 2,
+        price: 500,
+        totalPrice: 1000,
+        subProduct: [
+          { name: "111", amount: 1, price: 0.2, totalPrice: 0.2 },
+          { name: "222", amount: 1, price: 0.3, totalPrice: 0.6 },
+        ],
+      },
+
+      {
+        name: "cake",
+        amount: 1,
+        price: 1000,
+        totalPrice: 1000,
+        subProduct: [
+          { name: "111", amount: 1, price: 0.2, totalPrice: 0.2 },
+          { name: "222", amount: 1, price: 0.3, totalPrice: 0.6 },
+        ],
+      },
+    ],
+
+    totalPrice: 1500,
+    tax: 160,
+    shipping: 2,
+    otherFee: 0,
+    pickupTime: [
+      { timeBegin: "2021-4-4-15", timeEnd: "2021-4-4-15-30" },
+      { timeBegin: "2021-4-5-15", timeEnd: "2021-4-5-15-30" },
+    ],
+    currency: "CAD",
+  };
 };
 
 router_pay.get("/product-details", (req, res) => {
   let data = getProductDetails();
   res.json(data);
 });
+////////////////////payment order details,send to client when payment success!
+let getOrderDetails = () => {
+  return {
+    userCode: "00001",
+    orderNumber: "437543",
+    productList: [
+      {
+        name: "tea",
+        amount: 2,
+        price: 500,
+        totalPrice: 1000,
+        subProduct: [
+          { name: "111", amount: 1, price: 0.2, totalPrice: 0.2 },
+          { name: "222", amount: 1, price: 0.3, totalPrice: 0.6 },
+        ],
+      },
+
+      {
+        name: "cake",
+        amount: 1,
+        price: 1000,
+        totalPrice: 1000,
+        subProduct: [
+          { name: "111", amount: 1, price: 0.2, totalPrice: 0.2 },
+          { name: "222", amount: 1, price: 0.3, totalPrice: 0.6 },
+        ],
+      },
+    ],
+
+    totalPrice: 1500,
+    tax: 160,
+    shipping: 2,
+    otherFee: 0,
+    pickupTime: [
+      { timeBegin: "2021-4-4-15", timeEnd: "2021-4-4-15-30" },
+      { timeBegin: "2021-4-5-15", timeEnd: "2021-4-5-15-30" },
+    ],
+    currency: "CAD",
+    paymentMethod: "card",
+    last4: "4242",
+    paymentTime: "",
+    status: "success",
+    consumptionPoint: 0,
+    remainPoint: 100,
+    increasePoint: 5,
+    cardHolder: "chunzhou",
+    walletAmount: 100,
+    consumptionWallet: 0,
+    shopCode: 124566,
+    phoneNumber: "543666222",
+  };
+};
 
 /////////////////////////////////////used to get the card last 4 digit
 router_pay.get("/last4/:id", async (req, res) => {
@@ -78,7 +167,7 @@ router_pay.post("/create-payment-intent", async (req, res) => {
   const productDetails = getProductDetails();
 
   const paymentIntentData = {
-    amount: productDetails.amount,
+    amount: productDetails.totalPrice,
     currency: productDetails.currency,
   };
 
@@ -101,7 +190,7 @@ router_pay.post("/direct-pay", async (req, res) => {
   const productDetails = getProductDetails();
 
   const paymentIntentData = {
-    amount: productDetails.amount,
+    amount: productDetails.totalPrice,
     currency: productDetails.currency,
   };
 
