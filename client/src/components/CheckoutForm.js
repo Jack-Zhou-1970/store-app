@@ -14,7 +14,10 @@ import "regenerator-runtime/runtime";
 export default function CheckoutForm() {
   const [amount, setAmount] = useState(0);
   const [currency, setCurrency] = useState("");
+  const [last4, setLast4] = useState("");
   const [clientSecret, setClientSecret] = useState(null);
+  const [customerId, setCustomerId] = useState("");
+
   const [error, setError] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [succeeded, setSucceeded] = useState(false);
@@ -30,11 +33,17 @@ export default function CheckoutForm() {
       setCurrency(productDetails.currency);
     });
 
+    //get the card last 4
+    api.getCardLast4("1234").then((cardlast4) => {
+      setLast4(cardlast4);
+    });
+
     // Step 2: Create PaymentIntent over Stripe API
     api
       .createPaymentIntent()
-      .then((clientSecret) => {
-        setClientSecret(clientSecret);
+      .then((data) => {
+        setClientSecret(data.client_secret);
+        setCustomerId(data.customer);
       })
       .catch((err) => {
         setError(err.message);
@@ -56,17 +65,26 @@ export default function CheckoutForm() {
       },
     });
 
+    var data;
+
     if (payload.error) {
       setError(`Payment failed: ${payload.error.message}`);
       setProcessing(false);
-      console.log("[error]", payload.error);
+
+      data = { customerId: customerId, status: "fail" };
     } else {
       setError(null);
       setSucceeded(true);
       setProcessing(false);
       setMetadata(payload.paymentIntent);
-      console.log("[PaymentIntent]", payload.paymentIntent);
+      data = { customerId: customerId, status: "success" };
     }
+
+    //send status to server
+    console.log(data);
+    api.setStatus(data).then((result) => {
+      console.log(result);
+    });
   };
 
   const renderSuccess = () => {

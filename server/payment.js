@@ -7,43 +7,134 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 const router_pay = express.Router();
 const { resolve } = require("path");
 
-router_pay.get("/public-key", (req, res) => {
-  console.log(process.env.STRIPE_PUBLISHABLE_KEY);
+router_pay.use(bodyParser.json()); // process json
 
-  res.json({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
+//the function used get customer infomation
+//input:customer id
 
-  console.log("send public key ok");
-});
+var customerid = ""; //for test use
+
+//get from db
+function getCustomerInfo(id) {
+  return {
+    customerId: customerid,
+    address: "",
+    email: "njzhch@163.com",
+    name: "",
+    phone: "",
+    shipping: "",
+  };
+}
+
+let getProductDetails = () => {
+  return { currency: "CAD", amount: 9900 };
+};
 
 router_pay.get("/product-details", (req, res) => {
   let data = getProductDetails();
   res.json(data);
-  console.log("send produc-details ok");
 });
 
+/////////////////////////////////////used to get the card last 4 digit
+router_pay.get("/last4/:id", async (req, res) => {
+  var cardLast4 = "";
+
+  var customerInfo = getCustomerInfo(req.params);
+
+  if (customerInfo.customerId != "") {
+    //get paymentmethod id for client use
+    var paymentMethods = await stripe.paymentMethods.list({
+      customer: customerInfo.customerId,
+      type: "card",
+    });
+
+    cardLast4 = paymentMethods.data[0].card.last4;
+  }
+
+  res.json({ last4: cardLast4 });
+});
+
+router_pay.get("/public-key", (req, res) => {
+  res.json({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
+});
+
+///////////////used to get payment status from client/////////////
+
+router_pay.post("/payment-status", async (req, res) => {
+  var data = req.body;
+  console.log(data);
+  if (data.status == "success") {
+    //for test use , storage
+    customerid = data.customerId;
+  } else {
+    console.log("payment fail");
+  }
+
+  res.json({ status: data.status });
+});
+
+/////////////////////This is normal pay////////////////////////////////////////////////
 router_pay.post("/create-payment-intent", async (req, res) => {
-  const body = req.body;
   const productDetails = getProductDetails();
 
-  const options = {
-    ...body,
+  const paymentIntentData = {
     amount: productDetails.amount,
     currency: productDetails.currency,
   };
 
+  const customer = await stripe.customers.create();
+  paymentIntentData.customer = customer.id;
+  console.log(customer.id);
+
+  paymentIntentData.setup_future_usage = "off_session";
+
   try {
-    const paymentIntent = await stripe.paymentIntents.create(options);
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+    res.json(paymentIntent);
+  } catch (err) {
+    res.json(err);
+  }
+});
+////////////////////////////////This is direct pay"//////////////////////////////////////
+router_pay.post("/direct-pay", async (req, res) => {
+  const productDetails = getProductDetails();
+
+  const paymentIntentData = {
+    amount: productDetails.amount,
+    currency: productDetails.currency,
+  };
+
+  //get customerId from db
+  var Id = getCustomerInfo("1234").customerId;
+  console.log(Id);
+
+  //get paymentMethodsId
+  var paymentMethods = await stripe.paymentMethods.list({
+    customer: Id,
+    type: "card",
+  });
+
+  var paymentMethodsId = paymentMethods.data[0].id;
+
+  paymentIntentData.customer = Id;
+  paymentIntentData.payment_method = paymentMethodsId;
+
+  //we use to confirm it without client request
+  paymentIntentData.confirm = "true";
+
+  paymentIntentData.setup_future_usage = "off_session";
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
     res.json(paymentIntent);
   } catch (err) {
     res.json(err);
   }
 });
 
-let getProductDetails = () => {
-  return { currency: "EUR", amount: 9900 };
-};
-
-// Webhook handler for asynchronous events.
+/////////////////////////////////////// Webhook handler for asynchronous events.
 router_pay.post(
   "/webhook",
   bodyParser.raw({ type: "application/json" }),
@@ -78,7 +169,7 @@ router_pay.post(
 
     if (eventType === "payment_intent.succeeded") {
       // Fulfill any orders, e-mail receipts, etc
-      console.log("💰 Payment received!");
+      console.log("💰 Payment received successed!");
     }
 
     if (eventType === "payment_intent.payment_failed") {

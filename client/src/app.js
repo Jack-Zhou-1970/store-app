@@ -5,13 +5,16 @@ import { Switch, Route, Router } from "react-router-dom";
 
 import history from "./history";
 
-import { Payment } from "./payment";
+import { Payment, Payment_direct } from "./payment";
 
 function Main() {
   return (
     <Switch>
-      <Route path="/">
+      <Route path="/normal-pay">
         <Payment />
+      </Route>
+      <Route path="/">
+        <Payment_direct />
       </Route>
             
     </Switch>
