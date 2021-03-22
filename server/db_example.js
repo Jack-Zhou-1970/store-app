@@ -1,26 +1,27 @@
+//get userCode from email
+getUserCode("njzhch@gmail.com")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
 
+//insert register info from clent to user_table
+insertRegister(
+  "000003",
+  "njlymlym@gmail.com",
+  "7654321",
+  "13851784417",
+  "li",
+  "he",
+  "L4T 5X2",
+  "400002"
+)
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
 
-db_query_all_product(function(err, result) {
-  if (err) {
-    console.log("query All fail");
-  } else {
-    console.log("query All success");
-    console.log(result);
-  }
-});
+//get product list
 
-db_insert_product(my_db_data.product, function(err, result) {
-  if (err) {
-    console.log("insert fail");
-  } else {
-    console.log("insert success");
-  }
-});
+getProductList("400002")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
 
-db_deleteAll_product(function(err, result) {
-  if (err) {
-    console.log("delete All fail");
-  } else {
-    console.log("delete All success");
-  }
-});
+//insert address and name info after payment complete,
+insertAddressName(testData.orderDetails);

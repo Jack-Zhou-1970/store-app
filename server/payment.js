@@ -255,7 +255,8 @@ router_pay.post(
       data = req.body.data;
       eventType = req.body.type;
     }
-
+    console.log("webhook event");
+    console.log(data);
     if (eventType === "payment_intent.succeeded") {
       // Fulfill any orders, e-mail receipts, etc
       console.log("💰 Payment received successed!");
