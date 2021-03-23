@@ -17,8 +17,52 @@ const mimeType = {
 };
 
 //for test
-//the payment infomation send from clent
+//the order infomation produced by server and send to db
 const orderDetails = {
+  //from client
+  userCode: "000003",
+  address: "99 cottonwood crt",
+  city: "markham",
+  province: "on",
+  country: "canada",
+  postalCode: "l5T 5z1",
+
+  firstName: "li",
+  lastName: "he",
+  product: [
+    {
+      mainProductCode: "100001",
+      amount: 1,
+      smallProduct: [
+        { productCode: "300002", amount: 1 },
+        { productCode: "300005", amount: 2 },
+      ],
+    },
+
+    {
+      mainProductCode: "100002",
+      amount: 2,
+      smallProduct: [{ productCode: "300001", amount: 1 }],
+    },
+  ],
+
+  shipFun: "pickup",
+  rdyPickupTime: 0,
+  //from server
+  orderNumber: "D00001",
+  tax: 100,
+  shipping: 0,
+  otherFee: 0,
+  paymentMethod: "card",
+  totalAmount: "1200",
+  paymentTime: 0,
+  shopCode: "400001",
+  orderStatus: "ready",
+};
+
+//The payment detail send from client
+const paymentDetails = {
+  //from client
   userCode: "000003",
   address: "99 cottonwood crt",
   city: "markham",
@@ -44,12 +88,15 @@ const orderDetails = {
       smallProduct: [{ productName: "大尺寸", amount: 1 }],
     },
   ],
+
+  shipFun: "pickup",
+  rdyPickupTime: 0,
+  paymentMethod: "card",
   status: "success",
-  pickupTime: 2021 - 4 - 21,
-  function: "pickup",
 };
 
 module.exports = {
   mimeType: mimeType,
   orderDetails: orderDetails,
+  paymentDetails: paymentDetails,
 };

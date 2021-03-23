@@ -25,3 +25,57 @@ getProductList("400002")
 
 //insert address and name info after payment complete,
 insertAddressName(testData.orderDetails);
+
+////The function below used to insert order info after payment success
+function insertOrder() {
+  console.log("begin to insert");
+
+  var mydate = new Date();
+  console.log(mydate);
+
+  testData.orderDetails.rdyPickupTime = mydate;
+  testData.orderDetails.paymentTime = mydate;
+
+  insertOrderAfterPayment(testData.orderDetails);
+  console.log("complete insert");
+}
+
+insertOrder();
+
+//get product code from product name
+
+db_api
+  .getProductCodeFromName("mainProduct", "卡布奇诺咖啡")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+
+db_api
+  .getProductCodeFromName("middleProduct", "尺寸")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+
+db_api
+  .getProductCodeFromName("smallProduct", "草莓")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+
+//get price from productCode
+db_api
+  .getPriceFromCode("mainProduct", "100001")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+
+db_api
+  .getPriceFromCode("smallProduct", "300003")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+
+//this function is used to process price,return price info with json*/
+fun_api.calPrice(testData.paymentDetails).then((result) => {
+  console.log(result);
+  console.log("begin to print small product");
+  for (var i = 0; i < result[1].length; i++) {
+    console.log(result[1][i].smallProduct);
+    console.log("////////////////////////////");
+  }
+});
