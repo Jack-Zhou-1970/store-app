@@ -74,8 +74,36 @@ db_api
 fun_api.calPrice(testData.paymentDetails).then((result) => {
   console.log(result);
   console.log("begin to print small product");
-  for (var i = 0; i < result[1].length; i++) {
-    console.log(result[1][i].smallProduct);
+  for (var i = 0; i < result[0].length; i++) {
+    console.log(result[0][i].smallProduct);
     console.log("////////////////////////////");
   }
 });
+
+//find price and amount in promotion table according productCode
+var date = new Date();
+
+db_api
+  .getPriceAmountFromPromotion("100001", date)
+  .then((result) => console.log(result));
+
+//find taxRate fro userCode
+db_api.getTaxRateFromUserCode("000003").then((result) => console.log(result));
+
+//Get userInfo from userCode;
+db_api
+  .getUserInfoFromUserCode("000003")
+  .then((result) => console.log(result))
+  .catch((e) => console.log(e));
+
+//get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
+fun_api.billInfoToClient(testData.paymentDetails).then((result) => {
+  console.log(result);
+});
+
+////this is direct-pay,direct-pay only to store order info  no need to store user_table
+date = new Date();
+
+testData.paymentComplete.pickupTime = date;
+
+fun_api.storeDbAfterDirectPay(testData.paymentComplete);

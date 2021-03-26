@@ -64,10 +64,11 @@ async function insertAddressName_sql(
   postalCode,
   firstName,
   lastName,
+  customerId,
   userCode
 ) {
   var result = await sqlQuery(
-    "update user_table set address=?,city=?,province=?,country=?,postalCode=?,firstName=?,lastName=? where userCode = ? ",
+    "update user_table set address=?,city=?,province=?,country=?,postalCode=?,firstName=?,lastName=?,customerId=? where userCode = ? ",
     [
       address,
       city,
@@ -76,6 +77,7 @@ async function insertAddressName_sql(
       postalCode,
       firstName,
       lastName,
+      customerId,
       userCode,
     ]
   );
@@ -83,8 +85,8 @@ async function insertAddressName_sql(
   return dbToJson(result);
 }
 
-function insertAddressName(input_obj) {
-  insertAddressName_sql(
+async function insertAddressName(input_obj) {
+  var result = await insertAddressName_sql(
     input_obj.address,
     input_obj.city,
     input_obj.province,
@@ -92,10 +94,10 @@ function insertAddressName(input_obj) {
     input_obj.postalCode,
     input_obj.firstName,
     input_obj.lastName,
+    input_obj.customerId,
     input_obj.userCode
-  )
-    .then((result) => console.log(result))
-    .catch((e) => console.log(e));
+  );
+  return result;
 }
 
 //The function below used to insert order info after payment success
@@ -251,11 +253,76 @@ async function getPriceFromCode(productType, productCode) {
   return dbToJson(result)[0].price;
 }
 
+//find price and amount in promotion table according productCode
+async function getPriceAmountFromPromotion(mainProductCode, dateNow) {
+  var result = await sqlQuery(
+    "select price,amount from promotion_table where mainProductCode = ? and (?>beginTime)and(?<endTime)",
+    [mainProductCode, dateNow, dateNow]
+  );
+
+  return dbToJson(result);
+}
+
+//find taxRate fro userCode
+async function getTaxRateFromUserCode(userCode) {
+  var result = await sqlQuery(
+    "select tax from shop_table a inner join user_table b on b.userCode = ? and b.pickupShop = a.shopCode ",
+    [userCode]
+  );
+
+  return dbToJson(result);
+}
+
+//Get other from order_table accordding orderNumber;
+async function getOtherFeeFromOrderNumber(orderNumber) {
+  var result = await sqlQuery(
+    "select otherFee from order_table where orderNumber = ?",
+    [orderNumber]
+  );
+
+  return dbToJson(result);
+}
+
+//Get userInfo from userCode;
+async function getUserInfoFromUserCode(userCode) {
+  //first get info from user_table
+  var result1 = await sqlQuery(
+    "select email,firstName,lastName,pickupShop from user_table where userCode =?",
+    [userCode]
+  );
+
+  result1 = dbToJson(result1);
+
+  //get shop address from pickupShop
+
+  var result2 = await sqlQuery(
+    "select address from shop_table where shopCode =?",
+    [result1[0].pickupShop]
+  );
+
+  result1[0].shopAddress = dbToJson(result2)[0].address;
+
+  return result1;
+}
+
+async function getShopCodeFromAddress(address) {
+  result = await sqlQuery("select shopCode from shop_table where address = ?", [
+    address,
+  ]);
+
+  return dbToJson(result)[0].shopCode;
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
   insertAddressName: insertAddressName, //insert address and name info after payment complete,
-  insertOrderAfterPayment: insertOrderAfterPayment, ////The function below used to insert order info after payment success
+  insertOrderAfterPayment: insertOrderAfterPayment, //// insert order info after payment success
   getProductCodeFromName: getProductCodeFromName, //get product code from product name
   getPriceFromCode: getPriceFromCode, ////get price from peoductCode
+  getPriceAmountFromPromotion: getPriceAmountFromPromotion, //find price and amount in promotion table according productCode
+  getTaxRateFromUserCode: getTaxRateFromUserCode, //find taxRate fro userCode
+  getOtherFeeFromOrderNumber: getOtherFeeFromOrderNumber, //Get other from order_table accordding orderNumber;
+  getUserInfoFromUserCode: getUserInfoFromUserCode, //Get userInfo from userCode
+  getShopCodeFromAddress: getShopCodeFromAddress, //get shopCode from shop address
 };
