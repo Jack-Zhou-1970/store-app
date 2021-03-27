@@ -1,36 +1,18 @@
-const mimeType = {
-  ".ico": "image/x-icon",
-  ".html": "text/html",
-  ".js": "text/javascript",
-  ".json": "application/json",
-  ".css": "text/css",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".wav": "audio/wav",
-  ".mp3": "audio/mpeg",
-  ".svg": "image/svg+xml",
-  ".pdf": "application/pdf",
-  ".zip": "application/zip",
-  ".doc": "application/msword",
-  ".eot": "application/vnd.ms-fontobject",
-  ".ttf": "application/x-font-ttf",
-};
-
 //for test
 
 //The payment detail send from client before payment is complete
-const paymentDetails = {
+export const paymentDetails = {
   //from client
   userCode: "C21032780577",
-  email: "njzhch@163.com",
-  address: "99 cottonwood crt",
-  city: "markham",
-  province: "on",
-  country: "canada",
-  postalCode: "l5T 5z1",
+  email: "",
+  address: "",
+  city: "",
+  province: "",
+  country: "",
+  postalCode: "",
 
-  firstName: "li",
-  lastName: "he",
+  firstName: "",
+  lastName: "",
   product: [
     {
       mainProductName: "珍珠奶茶",
@@ -53,12 +35,12 @@ const paymentDetails = {
   shipFun: "pickup",
   rdyPickupTime: 0,
   paymentMethod: "card",
-  paymentInstendId: "aa",
+  paymentInstendId: "",
 };
 
 //The paymentComplete send from server  after payment is complete
-const paymentComplete = {
-  userCode: "000003",
+export const paymentComplete = {
+  userCode: "C21032780577",
   orderNumber: "D21032657999",
   email: "njlymlym@gmail.com",
   address: "99 cottonwood ct",
@@ -69,7 +51,7 @@ const paymentComplete = {
   firstName: "li",
   lastName: "he",
   shopAddress: "174 MKCEE",
-  pickupTime: 2021 - 03 - 26,
+  pickupTime: 0,
   paymentMethod: "card",
   shipFun: "pickup",
   last4: "4242",
@@ -127,7 +109,7 @@ const paymentComplete = {
 };
 
 //used to upload user register info to server
-const userInfo = {
+export const userInfo = {
   userCode: "000004",
   email: "njzhch@163.com",
   password: "123456",
@@ -145,7 +127,7 @@ const userInfo = {
 
 //the data is sent to server by client when it is open the app,and server will send back to clent with userCode
 
-const loginInfo = {
+export const loginInfo = {
   userCode: "",
   email: "njzhch@163.com",
   password: "123456",
@@ -153,14 +135,5 @@ const loginInfo = {
   allShopAddress: [],
   firstName: "",
   lastName: "",
-  last4: "",
-  status: "success",
-};
-
-module.exports = {
-  mimeType: mimeType,
-  paymentDetails: paymentDetails,
-  paymentComplete: paymentComplete,
-  userInfo: userInfo,
-  loginInfo: loginInfo,
+  status: "fail",
 };

@@ -8,6 +8,9 @@ import api from "../api";
 
 import history from "../history";
 
+//test data
+import { loginInfo } from "../public_data";
+
 function Direct_payform(props) {
   function Directpay_btn() {
     return (
@@ -47,8 +50,8 @@ export class Direct_payform_manage extends React.Component {
   }
 
   componentDidMount() {
-    api.getCardLast4("1234").then((cardlast4) => {
-      if (cardlast4 == "") {
+    api.getUserInfo(loginInfo).then((result) => {
+      if (result[0].last4 == "") {
         this.setState({ enable: false });
       } else {
         this.setState({ enable: true });

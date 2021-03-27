@@ -101,9 +101,25 @@ fun_api.billInfoToClient(testData.paymentDetails).then((result) => {
   console.log(result);
 });
 
-////this is direct-pay,direct-pay only to store order info  no need to store user_table
+//this is direct-pay,direct-pay only to store order info  no need to store user_table
 date = new Date();
 
 testData.paymentComplete.pickupTime = date;
 
 fun_api.storeDbAfterDirectPay(testData.paymentComplete);
+
+//this is card pay
+date = new Date();
+
+testData.paymentComplete.pickupTime = date;
+
+fun_api.storeDbAfterCardPay(testData.paymentComplete);
+
+//insert resgister info to dB
+
+fun_api
+  .insertRegisterInfo(testData.userInfo)
+  .then((result) => console.log(result));
+
+//get user code and other info from password and email
+fun_api.getUserCode(testData.loginInfo).then((result) => console.log(result));

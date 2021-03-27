@@ -11,6 +11,9 @@ import api from "../api";
 
 import "regenerator-runtime/runtime";
 
+//test data
+import { paymentDetails } from "../public_data";
+
 export default function CheckoutForm() {
   const [amount, setAmount] = useState(0);
   const [currency, setCurrency] = useState("");
@@ -28,26 +31,26 @@ export default function CheckoutForm() {
   useEffect(() => {
     // Step 1: Fetch product details such as amount and currency from
     // API to make sure it can't be tampered with in the client.
-    api.getProductDetails().then((productDetails) => {
-      setAmount(productDetails.amount / 100);
-      setCurrency(productDetails.currency);
-    });
 
-    //get the card last 4
-    api.getCardLast4("1234").then((cardlast4) => {
-      setLast4(cardlast4);
-    });
+    console.log("before get bill");
+    api.getBillInfo(paymentDetails).then((billInfo) => {
+      console.log(billInfo);
+      setAmount(billInfo.TotalPrice.totalPriceAfterTax / 100);
+      setCurrency("CAD");
 
-    // Step 2: Create PaymentIntent over Stripe API
-    api
-      .createPaymentIntent()
-      .then((data) => {
-        setClientSecret(data.client_secret);
-        setCustomerId(data.customer);
-      })
-      .catch((err) => {
-        setError(err.message);
-      });
+      // Step 2: Create PaymentIntent over Stripe API
+
+      console.log("get bill info complete,begin create payment");
+      api
+        .createPaymentIntent(paymentDetails)
+        .then((data) => {
+          setClientSecret(data.client_secret);
+          setCustomerId(data.customer);
+        })
+        .catch((err) => {
+          setError(err.message);
+        });
+    });
   }, []);
 
   const handleSubmit = async (ev) => {
@@ -66,9 +69,6 @@ export default function CheckoutForm() {
     });
 
     var data;
-
-    console.log("begin to print payload");
-    console.log(payload);
 
     if (payload.error) {
       setError(`Payment failed: ${payload.error.message}`);

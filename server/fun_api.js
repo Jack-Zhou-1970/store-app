@@ -1,9 +1,8 @@
 var async = require("async");
 
-const testData = require("./public_data");
-
 const db_api = require("./db_api");
 const { json } = require("body-parser");
+const { getUserCodeFromEmail } = require("./db_api");
 
 //the function used to random
 function getRandomNum(Min, Max) {
@@ -18,6 +17,14 @@ function gerCode(type) {
   switch (type) {
     case "orderNumber":
       firstLetter = "D";
+      break;
+
+    case "userCode":
+      firstLetter = "C";
+      break;
+
+    case "tempUserCode":
+      firstLetter = "T";
       break;
 
     default:
@@ -55,10 +62,6 @@ function calShipFee(userCode) {
 function getPickupTime(userCode) {
   var date = new Date();
   return date;
-}
-
-function getLast4(userCode) {
-  return "4242";
 }
 
 //cal main product price ,accodding product_big_table and promotion table
@@ -195,7 +198,7 @@ async function billInfoToClient(paymentDetails_obj) {
 
   jsonBillInfo.shipFun = paymentDetails_obj.shipFun;
 
-  jsonBillInfo.last4 = getLast4(paymentDetails_obj.userCode);
+  jsonBillInfo.last4 = await getLast4(paymentDetails_obj.userCode);
 
   jsonBillInfo.subPrice = priceInfo[0];
 
@@ -242,11 +245,118 @@ async function storeDbAfterCardPay(paymentComplete_obj) {
   await db_api.insertAddressName(paymentComplete_obj);
 }
 
+//insert resgister info to dB
+
+async function insertRegisterInfo(userInfo_obj) {
+  //first judge if it is already register
+
+  var result = await db_api.getUserCodeFromEmail(userInfo_obj.email);
+
+  if (result.length > 0) {
+    userInfo_obj.status = "fail";
+    userInfo_obj.userCode = gerCode("tempUserCode");
+    return userInfo_obj;
+  }
+
+  //ger a userCode
+  userCode = gerCode("userCode");
+
+  var pickupShop = await db_api.getShopCodeFromAddress(
+    userInfo_obj.shopAddress
+  );
+
+  result = await db_api.insertRegister(
+    userCode,
+    userInfo_obj.email,
+    userInfo_obj.password,
+    userInfo_obj.phone,
+    userInfo_obj.firstName,
+    userInfo_obj.lastName,
+    userInfo_obj.address,
+    pickupShop
+  );
+
+  //success
+  userInfo_obj.userCode = userCode;
+  userInfo_obj.status = "success";
+
+  return userInfo_obj;
+}
+
+//get all shop address
+
+async function getAllShopAdd() {
+  var arrShop = [];
+
+  var result = await db_api.getAllShopAddress();
+
+  for (var i = 0; i < result.length; i++) {
+    arrShop.push(result[i].address);
+  }
+
+  return arrShop;
+}
+
+//get last4 from usercode
+
+async function getLast4(userCode) {
+  const payment = require("./payment");
+  //first get customerId
+
+  var result = await db_api.getCustomerIdFromUserCode(userCode);
+
+  if (result[0].customerId == null) {
+    return "";
+  }
+
+  var customerId = result[0].customerId;
+
+  var paymentMethods = await payment.stripe.paymentMethods.list({
+    customer: customerId,
+    type: "card",
+  });
+
+  var cardLast4 = paymentMethods.data[0].card.last4;
+  return cardLast4;
+}
+
+//get userCode and other info from email and password  and send to client
+async function getUserCode(userInfo_obj) {
+  var result = await db_api.getUserCodeFromEmailPwd(
+    userInfo_obj.email,
+    userInfo_obj.password
+  );
+  if (result.length == 0) {
+    userInfo_obj.userCode = gerCode("tempUserCode");
+    userInfo_obj.lastName = "customer";
+
+    userInfo_obj.allShopAddress = await getAllShopAdd();
+    userInfo_obj.shopAddress = userInfo_obj.allShopAddress[0];
+    userInfo_obj.last4 = "";
+    userInfo_obj.status = "fail";
+    return userInfo_obj;
+  } else {
+    userInfo_obj.userCode = result[0].userCode;
+    userInfo_obj.lastName = result[0].lastName;
+    userInfo_obj.firstName = result[0].firstName;
+
+    var result1 = await db_api.getShopAddressFromShopCode(result[0].pickupShop);
+    userInfo_obj.shopAddress = result1[0].address;
+    userInfo_obj.allShopAddress = await getAllShopAdd();
+    var last4 = await getLast4(userInfo_obj.userCode);
+    userInfo_obj.last4 = last4;
+    userInfo_obj.status = "success";
+    return userInfo_obj;
+  }
+}
+
 module.exports = {
-  calPrice: calPrice /*this function is used to process price,return price info with json*/,
+  calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
   getRandomNum: getRandomNum, //random a number
   gerCode: gerCode, //ger code
   storeDbAfterDirectPay: storeDbAfterDirectPay, //this is direct-pay,direct-pay only to store order info  no need to store user_table
-  storeDbAfterCardPay: storeDbAfterCardPay, ////this is card-pay, must store address info
+  storeDbAfterCardPay: storeDbAfterCardPay, //this is card-pay, must store address info
+  insertRegisterInfo: insertRegisterInfo, //insert resgister info  to dB
+  getUserCode: getUserCode, //get userCode and other info from email and password  and send to client
 };

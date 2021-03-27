@@ -25,21 +25,12 @@ async function insertRegister(
   phone,
   firstName,
   lastName,
-  postalCode,
+  address,
   pickupShop
 ) {
   var result = await sqlQuery(
-    "insert into user_table (userCode,email,password,phone,firstName,lastName,postalCode,pickupShop) values(?,?,?,?,?,?,?,?)",
-    [
-      userCode,
-      email,
-      password,
-      phone,
-      firstName,
-      lastName,
-      postalCode,
-      pickupShop,
-    ]
+    "insert into user_table (userCode,email,password,phone,firstName,lastName,address,pickupShop) values(?,?,?,?,?,?,?,?)",
+    [userCode, email, password, phone, firstName, lastName, address, pickupShop]
   );
 
   return dbToJson(result);
@@ -283,6 +274,16 @@ async function getOtherFeeFromOrderNumber(orderNumber) {
   return dbToJson(result);
 }
 
+//get shop address from shop code
+async function getShopAddressFromShopCode(shopCode) {
+  var result = await sqlQuery(
+    "select address from shop_table where shopCode =?",
+    [shopCode]
+  );
+
+  return dbToJson(result);
+}
+
 //Get userInfo from userCode;
 async function getUserInfoFromUserCode(userCode) {
   //first get info from user_table
@@ -313,6 +314,39 @@ async function getShopCodeFromAddress(address) {
   return dbToJson(result)[0].shopCode;
 }
 
+//get userCode and other info from email,password
+async function getUserCodeFromEmailPwd(email, password) {
+  result = await sqlQuery(
+    "select userCode,firstName,lastName,pickupShop from user_table where email = ? and password = ?",
+    [email, password]
+  );
+  return dbToJson(result);
+}
+
+//get userCode from email used to judge if client has already register
+async function getUserCodeFromEmail(email) {
+  result = await sqlQuery("select userCode from user_table where email = ?", [
+    email,
+  ]);
+  return dbToJson(result);
+}
+
+//get all shop address
+async function getAllShopAddress() {
+  result = await sqlQuery("select address from shop_table");
+  return dbToJson(result);
+}
+
+//get customerId from userCode
+async function getCustomerIdFromUserCode(userCode) {
+  var result = await sqlQuery(
+    "select customerId from user_table where userCode =?",
+    [userCode]
+  );
+
+  return dbToJson(result);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -325,4 +359,9 @@ module.exports = {
   getOtherFeeFromOrderNumber: getOtherFeeFromOrderNumber, //Get other from order_table accordding orderNumber;
   getUserInfoFromUserCode: getUserInfoFromUserCode, //Get userInfo from userCode
   getShopCodeFromAddress: getShopCodeFromAddress, //get shopCode from shop address
+  getUserCodeFromEmail: getUserCodeFromEmail, //get userCode from email used to judge if client has already register
+  getUserCodeFromEmailPwd: getUserCodeFromEmailPwd, //get userCode and other info  from email,password
+  getShopAddressFromShopCode: getShopAddressFromShopCode, //get shop address from shop code
+  getAllShopAddress: getAllShopAddress, //get all shop address
+  getCustomerIdFromUserCode: getCustomerIdFromUserCode, //get customerId from userCode
 };

@@ -8,7 +8,7 @@ var router_get = require("./process_get");
 
 var router_db = require("./db_get");
 
-var router_pay = require("./payment");
+var payment = require("./payment");
 
 var app = express();
 
@@ -18,7 +18,7 @@ app.use("/", router_file);
 
 app.use("/get", router_get);
 
-app.use("/pay", router_pay);
+app.use("/pay", payment.router_pay);
 
 app.use("/dbget", router_db.router_db_get);
 
