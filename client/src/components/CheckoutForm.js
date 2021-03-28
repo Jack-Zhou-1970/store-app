@@ -21,6 +21,8 @@ export default function CheckoutForm() {
   const [clientSecret, setClientSecret] = useState(null);
   const [customerId, setCustomerId] = useState("");
 
+  const [billInfo, setBillInfo] = useState("");
+
   const [error, setError] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [succeeded, setSucceeded] = useState(false);
@@ -29,18 +31,17 @@ export default function CheckoutForm() {
   const elements = useElements();
 
   useEffect(() => {
-    // Step 1: Fetch product details such as amount and currency from
-    // API to make sure it can't be tampered with in the client.
+    // Step 1:get bill info and display to customer to confirm
 
-    console.log("before get bill");
     api.getBillInfo(paymentDetails).then((billInfo) => {
-      console.log(billInfo);
+      //important save bill infomation for future use
+      setBillInfo(billInfo);
+
       setAmount(billInfo.TotalPrice.totalPriceAfterTax / 100);
       setCurrency("CAD");
 
       // Step 2: Create PaymentIntent over Stripe API
 
-      console.log("get bill info complete,begin create payment");
       api
         .createPaymentIntent(paymentDetails)
         .then((data) => {
@@ -68,24 +69,28 @@ export default function CheckoutForm() {
       },
     });
 
-    var data;
+    var bill = new Object();
 
     if (payload.error) {
       setError(`Payment failed: ${payload.error.message}`);
       setProcessing(false);
 
-      data = { customerId: customerId, status: "fail" };
+      bill = { ...billInfo, customerId: customerId, status: "fail" };
     } else {
       setError(null);
       setSucceeded(true);
       setProcessing(false);
       setMetadata(payload.paymentIntent);
-      data = { customerId: customerId, status: "success" };
+
+      bill = { ...billInfo, customerId: customerId, status: "success" };
     }
 
+    setBillInfo(bill);
+
     //send status to server
-    console.log(data);
-    api.setStatus(data).then((result) => {
+
+    api.setBillInfo(bill).then((result) => {
+      console.log("payment complete");
       console.log(result);
     });
   };

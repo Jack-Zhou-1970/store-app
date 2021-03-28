@@ -34,13 +34,14 @@ router_pay.get("/public-key", (req, res) => {
   res.json({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
 
-///////////////used to get payment status from client/////////////
+///////////////payment complete /////////////
 
-router_pay.post("/payment-status", async (req, res) => {
+router_pay.post("/paymentComplete", async (req, res) => {
   var data = req.body;
-  console.log(data);
+
   if (data.status == "success") {
-    //for test use , storage
+    console.log("payment success");
+    fun_api.storeDbAfterCardPay(data);
     customerid = data.customerId;
   } else {
     console.log("payment fail");
@@ -52,6 +53,7 @@ router_pay.post("/payment-status", async (req, res) => {
 /////////////////////This is normal pay////////////////////////////////////////////////
 router_pay.post("/create-payment-intent", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
+
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
     currency: "CAD",
@@ -73,26 +75,33 @@ router_pay.post("/create-payment-intent", async (req, res) => {
 });
 ////////////////////////////////This is direct pay"//////////////////////////////////////
 router_pay.post("/direct-pay", async (req, res) => {
-  const productDetails = getProductDetails();
+  const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
   const paymentIntentData = {
-    amount: productDetails.totalPrice,
-    currency: productDetails.currency,
+    amount: priceTotal.totalPriceAfterTax,
+    currency: "CAD",
   };
 
-  //get customerId from db
-  var Id = getCustomerInfo("1234").customerId;
-  console.log(Id);
+  const db_api = require("./db_api");
+
+  var result = await db_api.getCustomerIdFromUserCode(req.body.userCode);
+
+  if (result[0].customerId == null) {
+    res.json({ status: "fail" });
+    return;
+  }
+
+  var customerId = result[0].customerId;
 
   //get paymentMethodsId
   var paymentMethods = await stripe.paymentMethods.list({
-    customer: Id,
+    customer: customerId,
     type: "card",
   });
 
   var paymentMethodsId = paymentMethods.data[0].id;
 
-  paymentIntentData.customer = Id;
+  paymentIntentData.customer = customerId;
   paymentIntentData.payment_method = paymentMethodsId;
 
   //we use to confirm it without client request
@@ -102,10 +111,14 @@ router_pay.post("/direct-pay", async (req, res) => {
 
   try {
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
-
-    res.json(paymentIntent);
+    if (paymentIntent.status == "succeeded") {
+      var billInfo = await fun_api.billInfoToClient(req.body);
+      await fun_api.storeDbAfterDirectPay(billInfo);
+    }
+    billInfo.status = "success";
+    res.json(billInfo);
   } catch (err) {
-    res.json(err);
+    res.json({ status: "fail" });
   }
 });
 

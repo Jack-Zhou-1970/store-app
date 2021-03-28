@@ -151,16 +151,27 @@ async function calPrice(paymentDetails_obj) {
   var taxRate = await db_api.getTaxRateFromUserCode(
     paymentDetails_obj.userCode
   );
-  var tax = totalAmountBeforeTax * taxRate[0].tax;
+
+  var taxRates;
+
+  if (taxRate.length == 0) {
+    taxRates = 0.13;
+  } else {
+    taxRates = taxRate[0].tax;
+  }
+  var tax = totalAmountBeforeTax * taxRates;
+
   var shipFee = calShipFee(paymentDetails_obj.userCode);
   var otherFee = paymentDetails_obj.otherFee;
 
   var totalAmountAfterTax = totalAmountBeforeTax + tax + shipFee + otherFee;
 
+  totalAmountAfterTax = Math.round(totalAmountAfterTax);
+
   jsonTotal = new Object();
 
   jsonTotal.totalPriceBeforeTax = totalAmountBeforeTax;
-  jsonTotal.taxRate = taxRate[0].tax;
+  jsonTotal.taxRate = taxRates;
   jsonTotal.tax = (tax * 100) / 100;
   jsonTotal.shipFee = shipFee;
   jsonTotal.otherFee = otherFee;
@@ -172,17 +183,33 @@ async function calPrice(paymentDetails_obj) {
 //get bill information,this info is used to send to client and diaplay to the user to confirrm
 
 async function billInfoToClient(paymentDetails_obj) {
-  var userInfo = await db_api.getUserInfoFromUserCode(
-    paymentDetails_obj.userCode
-  );
-
   var priceInfo = await calPrice(paymentDetails_obj);
 
   var jsonBillInfo = new Object();
 
+  jsonBillInfo.subPrice = priceInfo[0];
+
+  jsonBillInfo.TotalPrice = priceInfo[1];
+
   jsonBillInfo.orderNumber = gerCode("orderNumber");
 
   jsonBillInfo.userCode = paymentDetails_obj.userCode;
+
+  jsonBillInfo.pickupTime = getPickupTime(paymentDetails_obj.userCode);
+
+  jsonBillInfo.paymentMethod = paymentDetails_obj.paymentMethod;
+
+  jsonBillInfo.shipFun = paymentDetails_obj.shipFun;
+
+  jsonBillInfo.shopAddress = paymentDetails_obj.shopAddress;
+
+  var userInfo = await db_api.getUserInfoFromUserCode(
+    paymentDetails_obj.userCode
+  );
+
+  if (userInfo.length == 0) {
+    return jsonBillInfo;
+  }
 
   jsonBillInfo.email = userInfo[0].email;
 
@@ -192,17 +219,7 @@ async function billInfoToClient(paymentDetails_obj) {
 
   jsonBillInfo.shopAddress = userInfo[0].shopAddress;
 
-  jsonBillInfo.pickupTime = getPickupTime(paymentDetails_obj.userCode);
-
-  jsonBillInfo.paymentMethod = paymentDetails_obj.paymentMethod;
-
-  jsonBillInfo.shipFun = paymentDetails_obj.shipFun;
-
   jsonBillInfo.last4 = await getLast4(paymentDetails_obj.userCode);
-
-  jsonBillInfo.subPrice = priceInfo[0];
-
-  jsonBillInfo.TotalPrice = priceInfo[1];
 
   jsonBillInfo.paymentInstendId = paymentDetails_obj.paymentInstendId;
 
@@ -232,7 +249,8 @@ async function storeDbAfterDirectPay(paymentComplete_obj) {
 
   orderDetails.orderStatus = "pendding";
   orderDetails.shipFun = paymentComplete_obj.shipFun;
-  orderDetails.rdyPickupTime = paymentComplete_obj.pickupTime;
+  /* orderDetails.rdyPickupTime = paymentComplete_obj.pickupTime;*/
+  orderDetails.rdyPickupTime = date; //this is for test,must modify
   orderDetails.product = paymentComplete_obj.subPrice;
 
   await db_api.insertOrderAfterPayment(orderDetails);
@@ -241,6 +259,14 @@ async function storeDbAfterDirectPay(paymentComplete_obj) {
 //this is card-pay, must store address info
 async function storeDbAfterCardPay(paymentComplete_obj) {
   await storeDbAfterDirectPay(paymentComplete_obj);
+
+  var userInfo = await db_api.getUserInfoFromUserCode(
+    paymentComplete_obj.userCode
+  );
+
+  if (userInfo.length == 0) {
+    return;
+  }
 
   await db_api.insertAddressName(paymentComplete_obj);
 }
@@ -329,7 +355,10 @@ async function getUserCode(userInfo_obj) {
   if (result.length == 0) {
     userInfo_obj.userCode = gerCode("tempUserCode");
     userInfo_obj.lastName = "customer";
-
+    userInfo_obj.firstName = "";
+    userInfo_obj.address = "";
+    userInfo_obj.phone = "";
+    userInfo_obj.email = "";
     userInfo_obj.allShopAddress = await getAllShopAdd();
     userInfo_obj.shopAddress = userInfo_obj.allShopAddress[0];
     userInfo_obj.last4 = "";

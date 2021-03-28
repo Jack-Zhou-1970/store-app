@@ -294,6 +294,10 @@ async function getUserInfoFromUserCode(userCode) {
 
   result1 = dbToJson(result1);
 
+  if (result1.length == 0) {
+    return result1;
+  }
+
   //get shop address from pickupShop
 
   var result2 = await sqlQuery(
