@@ -351,6 +351,56 @@ async function getCustomerIdFromUserCode(userCode) {
   return dbToJson(result);
 }
 
+//update paymentinstend by orderNumber
+async function UpdatePaymentInstend_db(orderNumber, paymentInstend) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set paymentInstend=? where orderNumber = ? and orderStatus = 'readyPayment'",
+    [paymentInstend, orderNumber]
+  );
+
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
+//update order status by ordernumber and paymentInstend
+async function updateOrderStatus_db(orderNumber, paymentInstend, orderStatus) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set orderStatus=? where orderNumber = ? and paymentInstend = ?",
+    [orderStatus, orderNumber, paymentInstend]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
+//update order status and intend by ordernumber
+async function updateOrderStatusInstend_db(
+  orderNumber,
+  paymentInstend,
+  orderStatus
+) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set paymentInstend=?,orderStatus=? where orderNumber = ?",
+    [paymentInstend, orderStatus, orderNumber]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
+//get order status by orderNumber and paymentInstend ,ued to verify
+async function getOrderStatusByOrdetNumberInstend(orderNumber, paymentInstend) {
+  var result = await sqlQuery(
+    "select orderStatus from order_table where orderNumber=? and paymentInstend=?",
+    [orderNumber, paymentInstend]
+  );
+  return dbToJson(result);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -368,4 +418,8 @@ module.exports = {
   getShopAddressFromShopCode: getShopAddressFromShopCode, //get shop address from shop code
   getAllShopAddress: getAllShopAddress, //get all shop address
   getCustomerIdFromUserCode: getCustomerIdFromUserCode, //get customerId from userCode
+  UpdatePaymentInstend_db: UpdatePaymentInstend_db, //update paymentmentinstend by orderNumber
+  updateOrderStatus_db: updateOrderStatus_db, ////update order status by ordernumber and paymentInstend
+  updateOrderStatusInstend_db: updateOrderStatusInstend_db, ////update order status and intend by ordernumber
+  getOrderStatusByOrdetNumberInstend: getOrderStatusByOrdetNumberInstend, //get order status by orderNumber and paymentInstend ,ued to verify
 };

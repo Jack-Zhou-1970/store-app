@@ -8,27 +8,9 @@ const fun_api = require("./fun_api");
 
 const router_pay = express.Router();
 const { resolve } = require("path");
+const { UpdateOrderStatus } = require("./db_api");
 
 router_pay.use(bodyParser.json()); // process json
-
-/////////////////////////////////////used to get the card last 4 digit
-router_pay.get("/last4/:id", async (req, res) => {
-  var cardLast4 = "";
-
-  var customerInfo = getCustomerInfo(req.params);
-
-  if (customerInfo.customerId != "") {
-    //get paymentmethod id for client use
-    var paymentMethods = await stripe.paymentMethods.list({
-      customer: customerInfo.customerId,
-      type: "card",
-    });
-
-    cardLast4 = paymentMethods.data[0].card.last4;
-  }
-
-  res.json({ last4: cardLast4 });
-});
 
 router_pay.get("/public-key", (req, res) => {
   res.json({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
@@ -40,14 +22,19 @@ router_pay.post("/paymentComplete", async (req, res) => {
   var data = req.body;
 
   if (data.status == "success") {
-    console.log("payment success");
-    fun_api.storeDbAfterCardPay(data);
-    customerid = data.customerId;
+    var result = await fun_api.updateOrderStatus(data, "requireCapture");
+    if (result == "success") {
+      await fun_api.storeDbAfterCardPay(data);
+      console.log("!!!!!payment success");
+      res.json({ status: "requireCapture" });
+    } else {
+      console.log("!!!!!payment fail");
+      res.json({ status: "fail" });
+    }
   } else {
     console.log("payment fail");
+    res.json({ status: "fail" });
   }
-
-  res.json({ status: data.status });
 });
 
 /////////////////////This is normal pay////////////////////////////////////////////////
@@ -57,16 +44,18 @@ router_pay.post("/create-payment-intent", async (req, res) => {
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
     currency: "CAD",
+    capture_method: "manual",
   };
 
   const customer = await stripe.customers.create();
   paymentIntentData.customer = customer.id;
-  console.log(customer.id);
 
   paymentIntentData.setup_future_usage = "off_session";
 
   try {
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+    await fun_api.updatePaymentInstend(req.body, paymentIntent.id);
 
     res.json(paymentIntent);
   } catch (err) {
@@ -80,6 +69,7 @@ router_pay.post("/direct-pay", async (req, res) => {
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
     currency: "CAD",
+    capture_method: "manual",
   };
 
   const db_api = require("./db_api");
@@ -111,12 +101,12 @@ router_pay.post("/direct-pay", async (req, res) => {
 
   try {
     const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
-    if (paymentIntent.status == "succeeded") {
-      var billInfo = await fun_api.billInfoToClient(req.body);
-      await fun_api.storeDbAfterDirectPay(billInfo);
+
+    if (paymentIntent.status == "requires_capture") {
+      req.body.paymentInstend = paymentIntent.id;
+      await fun_api.updateOrderStatusInstend(req.body, "requireCapture");
+      res.json({ status: "requireCapture" });
     }
-    billInfo.status = "success";
-    res.json(billInfo);
   } catch (err) {
     res.json({ status: "fail" });
   }

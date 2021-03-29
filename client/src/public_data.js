@@ -3,7 +3,8 @@
 //The payment detail send from client before payment is complete
 export const paymentDetails = {
   //from client
-  userCode: "T11111111111",
+  userCode: "C21032780577",
+  orderNumber: "",
   email: "",
   address: "",
   city: "",
@@ -36,7 +37,8 @@ export const paymentDetails = {
   shipFun: "pickup",
   rdyPickupTime: 0,
   paymentMethod: "card",
-  paymentInstendId: "",
+  paymentInstend: "",
+  customerId: "",
 };
 
 //used to upload user register info to server
@@ -60,7 +62,7 @@ export const userInfo = {
 
 export const loginInfo = {
   userCode: "",
-  email: "njzhch@166.com",
+  email: "njzhch@163.com",
   password: "123456",
   shopAddress: "",
   allShopAddress: [],

@@ -30,6 +30,7 @@
     "@popperjs/core": "^2.8.0",
     "@stripe/react-stripe-js": "^1.0.0",
     "@stripe/stripe-js": "^1.0.0",
+    "antd": "^4.14.1",
     "async": "^3.2.0",
     "axios": "^0.21.1",
     "babel-plugin-transform-regenerator": "^6.26.0",

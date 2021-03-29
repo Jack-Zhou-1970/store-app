@@ -230,7 +230,14 @@ async function billInfoToClient(paymentDetails_obj) {
 
 //this is direct-pay,direct-pay only to store order info  no need to store user_table
 
-async function storeDbAfterDirectPay(paymentComplete_obj) {
+//order status
+const RDY_PAYMENT = "readyPayment";
+const REQ_CAP = "requireCapture";
+const PAY_COMPLETE = "payComplete";
+const RDY_PICK = "readyPickup";
+const ALL_COMPLETE = "allComplete";
+
+async function storeDbBeforePayment(paymentComplete_obj, status) {
   var orderDetails = new Object();
 
   orderDetails.orderNumber = paymentComplete_obj.orderNumber;
@@ -247,7 +254,7 @@ async function storeDbAfterDirectPay(paymentComplete_obj) {
     paymentComplete_obj.shopAddress
   );
 
-  orderDetails.orderStatus = "pendding";
+  orderDetails.orderStatus = status;
   orderDetails.shipFun = paymentComplete_obj.shipFun;
   /* orderDetails.rdyPickupTime = paymentComplete_obj.pickupTime;*/
   orderDetails.rdyPickupTime = date; //this is for test,must modify
@@ -258,8 +265,6 @@ async function storeDbAfterDirectPay(paymentComplete_obj) {
 
 //this is card-pay, must store address info
 async function storeDbAfterCardPay(paymentComplete_obj) {
-  await storeDbAfterDirectPay(paymentComplete_obj);
-
   var userInfo = await db_api.getUserInfoFromUserCode(
     paymentComplete_obj.userCode
   );
@@ -379,13 +384,57 @@ async function getUserCode(userInfo_obj) {
   }
 }
 
+//update paymenInstend when create payment complete
+async function updatePaymentInstend(paymentDetails_obj, paymentInstend) {
+  await db_api.UpdatePaymentInstend_db(
+    paymentDetails_obj.orderNumber,
+    paymentInstend
+  );
+}
+
+//update orderStatus by orderNumber and paymentInstend when payment complete
+async function updateOrderStatus(paymentDetails_obj, orderStatus) {
+  await db_api.updateOrderStatus_db(
+    paymentDetails_obj.orderNumber,
+    paymentDetails_obj.paymentInstend,
+    orderStatus
+  );
+
+  var result = await db_api.getOrderStatusByOrdetNumberInstend(
+    paymentDetails_obj.orderNumber,
+    paymentDetails_obj.paymentInstend
+  );
+
+  status = "fail";
+
+  if (result.length > 0) {
+    if (result[0].orderStatus == "requireCapture") {
+      status = "success";
+    }
+  }
+
+  return status;
+}
+
+//use only direct_pay complete
+async function updateOrderStatusInstend(paymentDetails_obj, orderStatus) {
+  var result = await db_api.updateOrderStatusInstend_db(
+    paymentDetails_obj.orderNumber,
+    paymentDetails_obj.paymentInstend,
+    orderStatus
+  );
+}
+
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
   getRandomNum: getRandomNum, //random a number
   gerCode: gerCode, //ger code
-  storeDbAfterDirectPay: storeDbAfterDirectPay, //this is direct-pay,direct-pay only to store order info  no need to store user_table
-  storeDbAfterCardPay: storeDbAfterCardPay, //this is card-pay, must store address info
+  storeDbBeforePayment: storeDbBeforePayment, //inerset order info from user to db before payment
+  storeDbAfterCardPay: storeDbAfterCardPay, //this is card-pay, must store address info and customerId
   insertRegisterInfo: insertRegisterInfo, //insert resgister info  to dB
   getUserCode: getUserCode, //get userCode and other info from email and password  and send to client
+  updatePaymentInstend: updatePaymentInstend, //update paymenInstend
+  updateOrderStatus: updateOrderStatus, //update orderStatus by orderNumber and paymentInstend
+  updateOrderStatusInstend: updateOrderStatusInstend, ////use only direct_pay complete
 };

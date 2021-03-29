@@ -17,12 +17,11 @@ import { paymentDetails } from "../public_data";
 export default function CheckoutForm() {
   const [amount, setAmount] = useState(0);
   const [currency, setCurrency] = useState("");
-  const [last4, setLast4] = useState("");
+
   const [clientSecret, setClientSecret] = useState(null);
   const [customerId, setCustomerId] = useState("");
 
   const [billInfo, setBillInfo] = useState("");
-
   const [error, setError] = useState(null);
   const [metadata, setMetadata] = useState(null);
   const [succeeded, setSucceeded] = useState(false);
@@ -41,6 +40,8 @@ export default function CheckoutForm() {
       setCurrency("CAD");
 
       // Step 2: Create PaymentIntent over Stripe API
+
+      paymentDetails.orderNumber = billInfo.orderNumber;
 
       api
         .createPaymentIntent(paymentDetails)
@@ -69,29 +70,36 @@ export default function CheckoutForm() {
       },
     });
 
-    var bill = new Object();
+    var payment = new Object();
 
     if (payload.error) {
       setError(`Payment failed: ${payload.error.message}`);
       setProcessing(false);
 
-      bill = { ...billInfo, customerId: customerId, status: "fail" };
+      payment = {
+        ...paymentDetails,
+        paymentInstend: payload.paymentIntent.id,
+        customerId: customerId,
+        status: "fail",
+      };
     } else {
       setError(null);
       setSucceeded(true);
       setProcessing(false);
       setMetadata(payload.paymentIntent);
 
-      bill = { ...billInfo, customerId: customerId, status: "success" };
+      payment = {
+        ...paymentDetails,
+        paymentInstend: payload.paymentIntent.id,
+        customerId: customerId,
+        status: "success",
+      };
     }
-
-    setBillInfo(bill);
 
     //send status to server
 
-    api.setBillInfo(bill).then((result) => {
+    api.setPayment(payment).then((result) => {
       console.log("payment complete");
-      console.log(result);
     });
   };
 
