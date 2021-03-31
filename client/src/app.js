@@ -6,6 +6,15 @@ import { Switch, Route, Router } from "react-router-dom";
 import history from "./history";
 
 import { Payment, Payment_direct } from "./payment";
+import { Home } from "./home";
+
+//for redux
+import { createStore } from "redux";
+import { Provider } from "react-redux";
+
+import { orderInfoReducer } from "./reducer";
+
+export const store = createStore(orderInfoReducer);
 
 function Main() {
   return (
@@ -23,9 +32,11 @@ function Main() {
 
 function App() {
   return (
-    <Router history={history}>
-      <Main />
-    </Router>
+    <Provider store={store}>
+      <Router history={history}>
+        <Main />
+      </Router>
+    </Provider>
   );
 }
 
