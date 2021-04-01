@@ -16,11 +16,12 @@ import { loginInfo, paymentDetails, orderInfoIni } from "../public_data";
 
 //redux
 import { store } from "../app";
+import { object } from "prop-types";
 
 function SmallProduct(props) {
   return (
     <p>
-      {props.productName} amount:{props.amount}
+      {props.productName} 数量:{props.amount}
     </p>
   );
 }
@@ -40,21 +41,45 @@ function ProductList(props) {
   );
 }
 
+function ButtonGroup(props) {
+  return (
+    <Col>
+      <Button className="gutter-row" onClick={props.handle_click}>
+        {props.name}
+      </Button>
+    </Col>
+  );
+}
+
 class ProductList_manage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       orderProduct: [],
     };
+
+    this.handle_add_click = this.handle_add_click.bind(this);
+    this.handle_delete_click = this.handle_delete_click.bind(this);
   }
 
   componentDidMount() {
-    this.setState({ orderProduct: store.getState().orderInfo.orderProduct });
+    this.setState({ orderProduct: store.getState() });
   }
+
+  handle_add_click() {
+    store.dispatch({
+      type: "ADD_ORDER_PRODUCT",
+      productList: { mainProductName: "坚果奶茶", amount: 1, smallProduct: [] },
+    });
+    this.setState({ orderProduct: store.getState() });
+  }
+
+  handle_delete_click() {}
 
   render() {
     var mainProductList = [];
     var smallProductList = [];
+
     mainProductList = this.state.orderProduct.map((item, index) => {
       smallProductList = item.smallProduct.map((item1, index1) => {
         return (
@@ -66,7 +91,7 @@ class ProductList_manage extends React.Component {
         );
       }); //smallProductList;
 
-      var string = item.mainProductName + " amount:" + item.amount;
+      var string = item.mainProductName + " 数量:" + item.amount;
 
       return (
         <ProductList key={string} mainProductNameAndAmount={string}>
@@ -76,9 +101,16 @@ class ProductList_manage extends React.Component {
     }); //mainProductList;
 
     return (
-      <Row justify="center">
-        <Col>{mainProductList}</Col>
-      </Row>
+      <div>
+        <Row justify="center" style={{ marginBottom: "5%" }}>
+          <Col>{mainProductList}</Col>
+        </Row>
+        <Row justify="center" gutter={16} style={{ marginBottom: "5%" }}>
+          <ButtonGroup name={"add"} handle_click={this.handle_add_click} />
+
+          <ButtonGroup name={"del"} handle_click={this.handle_delete_click} />
+        </Row>
+      </div>
     );
   }
 }
@@ -104,7 +136,7 @@ function Direct_payform(props) {
   return (
     <div>
       {props.enable && Directpay_btn()}
-      <Row justify="center">
+      <Row justify="center" style={{ marginBottom: "5%" }}>
         <Button type="dashed" onClick={props.handle_normal_pay}>
           Normal pay
         </Button>

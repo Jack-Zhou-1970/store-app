@@ -1,16 +1,13 @@
 import { orderInfoIni } from "./public_data";
 
-export const orderInfoReducer = (state, action) => {
-  if (!state)
-    return {
-      orderInfo: orderInfoIni,
-    };
+let index = 0;
+
+export const orderInfoReducer = (state = orderInfoIni.orderProduct, action) => {
   switch (action.type) {
     case "ADD_ORDER_PRODUCT":
-      return {
-        ...state,
-        orderProduct: state.orderProduct.push(action.orderProduct),
-      };
+      var newState = [...state, action.productList];
+
+      return newState;
     case "DEL_ORDER_PRODUCT":
       return {
         ...state,
