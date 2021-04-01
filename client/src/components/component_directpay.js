@@ -79,15 +79,42 @@ class ProductList_manage extends React.Component {
   handle_add_click() {
     store.dispatch({
       type: "ADD_ORDER_PRODUCT",
-      productList: { mainProductName: "坚果奶茶", amount: 1, smallProduct: [] },
+      productList: {
+        mainProductName: "坚果奶茶",
+        amount: 1,
+        smallProduct: [
+          { productName: "中尺寸", amount: 1 },
+          { productName: "草莓", amount: 2 },
+        ],
+      },
     });
   }
 
-  handle_delete_click() {}
+  handle_delete_click() {
+    store.dispatch({
+      type: "DEC_ORDER_PRODUCT",
+      productList: {
+        mainProductName: "坚果奶茶",
+        amount: 1,
+        smallProduct: [
+          { productName: "草莓", amount: 2 },
+          { productName: "中尺寸", amount: 2 },
+        ],
+      },
+    });
+  }
+
   handle_update_click() {
     store.dispatch({
-      type: "UPDATE_USER_INFO",
-      payload: "BC",
+      type: "ADD_ORDER_PRODUCT",
+      productList: {
+        mainProductName: "坚果奶茶",
+        amount: 1,
+        smallProduct: [
+          { productName: "中尺寸", amount: 2 },
+          { productName: "草莓", amount: 2 },
+        ],
+      },
     });
   }
 
@@ -99,7 +126,7 @@ class ProductList_manage extends React.Component {
       smallProductList = item.smallProduct.map((item1, index1) => {
         return (
           <SmallProduct
-            key={item1.productName}
+            key={index1}
             productName={item1.productName}
             amount={item1.amount}
           />
@@ -109,7 +136,7 @@ class ProductList_manage extends React.Component {
       var string = item.mainProductName + " 数量:" + item.amount;
 
       return (
-        <ProductList key={string} mainProductNameAndAmount={string}>
+        <ProductList key={index} mainProductNameAndAmount={string}>
           {smallProductList}
         </ProductList>
       );

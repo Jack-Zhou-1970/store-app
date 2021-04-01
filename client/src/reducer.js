@@ -1,10 +1,21 @@
 import { orderInfoIni, loginInfo } from "./public_data";
 
+//this function used to process orderInfo reducer
+
+function SortByName(a, b) {
+  var aName = a.productName.toLowerCase();
+  var bName = b.productName.toLowerCase();
+  return aName < bName ? -1 : aName > bName ? 1 : 0;
+}
+
 function addOrderProduct(orderInfo, productList) {
   function findMainProductName(inputProduct) {
-    return inputProduct.mainProductName == productList.mainProductName;
+    return (
+      inputProduct.mainProductName == productList.mainProductName &&
+      JSON.stringify(inputProduct.smallProduct.sort(SortByName)) ==
+        JSON.stringify(productList.smallProduct.sort(SortByName))
+    );
   }
-
   //if productList is not exist ,then add a new array
   if (orderInfo.orderProduct.find(findMainProductName) == undefined) {
     //insert
@@ -13,7 +24,11 @@ function addOrderProduct(orderInfo, productList) {
   } else {
     //modified amount
     var newOrderProduct = orderInfo.orderProduct.map((item) => {
-      if (item.mainProductName == productList.mainProductName) {
+      if (
+        item.mainProductName == productList.mainProductName &&
+        JSON.stringify(item.smallProduct.sort(SortByName)) ==
+          JSON.stringify(productList.smallProduct.sort(SortByName))
+      ) {
         item.amount = item.amount + productList.amount;
       }
 
@@ -24,12 +39,39 @@ function addOrderProduct(orderInfo, productList) {
   }
 }
 
+function decOrderProduct(orderInfo, productList) {
+  var newOrderProduct = orderInfo.orderProduct.map((item) => {
+    if (
+      item.mainProductName == productList.mainProductName &&
+      JSON.stringify(item.smallProduct.sort(SortByName)) ==
+        JSON.stringify(productList.smallProduct.sort(SortByName))
+    ) {
+      item.amount = item.amount - 1;
+    }
+    if (item.amount > 0) {
+      return item;
+    }
+  });
+
+  return newOrderProduct.filter((item) => {
+    return item != undefined;
+  });
+}
+
 export const orderInfoReducer = (state = orderInfoIni, action) => {
   switch (action.type) {
     case "ADD_ORDER_PRODUCT":
       var newState = {
         ...state,
         orderProduct: addOrderProduct(state, action.productList),
+      };
+
+      return newState;
+
+    case "DEC_ORDER_PRODUCT":
+      var newState = {
+        ...state,
+        orderProduct: decOrderProduct(state, action.productList),
       };
 
       return newState;
