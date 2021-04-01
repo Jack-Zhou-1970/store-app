@@ -17,6 +17,7 @@ import { loginInfo, paymentDetails, orderInfoIni } from "../public_data";
 //redux
 import { store } from "../app";
 import { object } from "prop-types";
+import { connect } from "react-redux";
 
 function SmallProduct(props) {
   return (
@@ -54,16 +55,9 @@ function ButtonGroup(props) {
 class ProductList_manage extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      orderProduct: [],
-    };
 
     this.handle_add_click = this.handle_add_click.bind(this);
     this.handle_delete_click = this.handle_delete_click.bind(this);
-  }
-
-  componentDidMount() {
-    this.setState({ orderProduct: store.getState() });
   }
 
   handle_add_click() {
@@ -71,7 +65,6 @@ class ProductList_manage extends React.Component {
       type: "ADD_ORDER_PRODUCT",
       productList: { mainProductName: "坚果奶茶", amount: 1, smallProduct: [] },
     });
-    this.setState({ orderProduct: store.getState() });
   }
 
   handle_delete_click() {}
@@ -80,7 +73,7 @@ class ProductList_manage extends React.Component {
     var mainProductList = [];
     var smallProductList = [];
 
-    mainProductList = this.state.orderProduct.map((item, index) => {
+    mainProductList = this.props.orderProduct.map((item, index) => {
       smallProductList = item.smallProduct.map((item1, index1) => {
         return (
           <SmallProduct
@@ -114,6 +107,14 @@ class ProductList_manage extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    orderProduct: state,
+  };
+};
+
+ProductList_manage = connect(mapStateToProps)(ProductList_manage);
 
 /* */
 //////////////////////////////////////////////////////////////////////////
