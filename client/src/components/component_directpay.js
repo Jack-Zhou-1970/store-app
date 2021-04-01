@@ -4,7 +4,7 @@ import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-
+import { Descriptions } from "antd";
 import { Card } from "antd";
 
 import "antd/dist/antd.css";
@@ -52,12 +52,28 @@ function ButtonGroup(props) {
   );
 }
 
+function UserInfo(props) {
+  return (
+    <Descriptions title="客户信息">
+      <Descriptions.Item label="用户姓名">
+        {props.lastName} {props.firstName}
+      </Descriptions.Item>
+      <Descriptions.Item label="电话"> {props.phone}</Descriptions.Item>
+      <Descriptions.Item label="省份"> {props.province}</Descriptions.Item>
+      <Descriptions.Item label="邮箱"> {props.email}</Descriptions.Item>
+      <Descriptions.Item label="地址">{props.address}</Descriptions.Item>
+      <Descriptions.Item label="邮编">{props.postalCode}</Descriptions.Item>
+    </Descriptions>
+  );
+}
+
 class ProductList_manage extends React.Component {
   constructor(props) {
     super(props);
 
     this.handle_add_click = this.handle_add_click.bind(this);
     this.handle_delete_click = this.handle_delete_click.bind(this);
+    this.handle_update_click = this.handle_update_click.bind(this);
   }
 
   handle_add_click() {
@@ -68,6 +84,12 @@ class ProductList_manage extends React.Component {
   }
 
   handle_delete_click() {}
+  handle_update_click() {
+    store.dispatch({
+      type: "UPDATE_USER_INFO",
+      payload: "BC",
+    });
+  }
 
   render() {
     var mainProductList = [];
@@ -98,10 +120,24 @@ class ProductList_manage extends React.Component {
         <Row justify="center" style={{ marginBottom: "5%" }}>
           <Col>{mainProductList}</Col>
         </Row>
+        <Row justify="center" style={{ marginBottom: "2%", marginLeft: "10%" }}>
+          <UserInfo
+            lastName={this.props.lastName}
+            firstName={this.props.firstName}
+            phone={this.props.phone}
+            address={this.props.address}
+            email={this.props.email}
+            province={this.props.province}
+            postalCode={this.props.postalCode}
+          />
+        </Row>
         <Row justify="center" gutter={16} style={{ marginBottom: "5%" }}>
           <ButtonGroup name={"add"} handle_click={this.handle_add_click} />
-
           <ButtonGroup name={"del"} handle_click={this.handle_delete_click} />
+          <ButtonGroup
+            name={"update"}
+            handle_click={this.handle_update_click}
+          />
         </Row>
       </div>
     );
@@ -110,7 +146,14 @@ class ProductList_manage extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    orderProduct: state,
+    orderProduct: state.orderInfoReducer.orderProduct,
+    lastName: state.userInfoReducer.lastName,
+    firstName: state.userInfoReducer.firstName,
+    phone: state.userInfoReducer.phone,
+    address: state.userInfoReducer.address,
+    email: state.userInfoReducer.email,
+    province: state.userInfoReducer.province,
+    postalCode: state.userInfoReducer.postalCode,
   };
 };
 

@@ -67,13 +67,15 @@ export const loginInfo = {
   email: "njzhch@163.com",
   password: "123456",
   shopAddress: "",
+  phone: "4372314578",
   allShopAddress: [],
-  city: "", //new card  payment used
-  province: "", //new card  payment used
-  country: "", //new card  payment used
-  postalCode: "", //new card  payment used
-  firstName: "", //new card  payment used
-  lastName: "", //new card  payment used
+  address: "99 cottonwood crt", //new card  payment used
+  city: "thornhill", //new card  payment used
+  province: "ON", //new card  payment used
+  country: "canada", //new card  payment used
+  postalCode: "L3T 5X1", //new card  payment used
+  firstName: "LI", //new card  payment used
+  lastName: "HE", //new card  payment used
 
   status: "success",
 };
@@ -127,24 +129,9 @@ export const productList = [
 //The data is orderInfo reducer  and send to server
 export const orderInfoIni = {
   orderNumber: "",
-  orderProduct: [
-    {
-      mainProductName: "珍珠奶茶",
-      amount: 1,
-      smallProduct: [
-        { productName: "中尺寸", amount: 1 },
-        { productName: "草莓", amount: 2 },
-      ],
-    },
+  orderProduct: [],
 
-    {
-      mainProductName: "卡布奇诺咖啡",
-      amount: 2,
-      smallProduct: [{ productName: "大尺寸", amount: 1 }],
-    },
-  ],
-
-  otherFee: 200,
+  otherFee: 0,
   paymentMethod: "card",
 
   shipFun: "pickup",

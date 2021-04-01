@@ -1,11 +1,36 @@
-import { orderInfoIni } from "./public_data";
+import { orderInfoIni, loginInfo } from "./public_data";
 
-let index = 0;
+function addOrderProduct(orderInfo, productList) {
+  function findMainProductName(inputProduct) {
+    return inputProduct.mainProductName == productList.mainProductName;
+  }
 
-export const orderInfoReducer = (state = orderInfoIni.orderProduct, action) => {
+  //if productList is not exist ,then add a new array
+  if (orderInfo.orderProduct.find(findMainProductName) == undefined) {
+    //insert
+
+    return [...orderInfo.orderProduct, productList];
+  } else {
+    //modified amount
+    var newOrderProduct = orderInfo.orderProduct.map((item) => {
+      if (item.mainProductName == productList.mainProductName) {
+        item.amount = item.amount + productList.amount;
+      }
+
+      return item;
+    });
+
+    return newOrderProduct;
+  }
+}
+
+export const orderInfoReducer = (state = orderInfoIni, action) => {
   switch (action.type) {
     case "ADD_ORDER_PRODUCT":
-      var newState = [...state, action.productList];
+      var newState = {
+        ...state,
+        orderProduct: addOrderProduct(state, action.productList),
+      };
 
       return newState;
     case "DEL_ORDER_PRODUCT":
@@ -32,6 +57,16 @@ export const orderInfoReducer = (state = orderInfoIni.orderProduct, action) => {
         shipFun: action.shipFun,
         rdyPickupTime: action.rdyPickupTime,
       };
+    default:
+      return state;
+  }
+};
+
+export const userInfoReducer = (state = loginInfo, action) => {
+  switch (action.type) {
+    case "UPDATE_USER_INFO":
+      return { ...state, province: action.payload };
+
     default:
       return state;
   }

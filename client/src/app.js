@@ -11,10 +11,16 @@ import { Home } from "./home";
 //for redux
 import { createStore } from "redux";
 import { Provider } from "react-redux";
+import { combineReducers } from "redux";
 
-import { orderInfoReducer } from "./reducer";
+import { orderInfoReducer, userInfoReducer } from "./reducer";
 
-export const store = createStore(orderInfoReducer);
+const rootReducer = combineReducers({
+  orderInfoReducer,
+  userInfoReducer,
+});
+
+export const store = createStore(rootReducer);
 
 function Main() {
   return (
