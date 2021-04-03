@@ -26,11 +26,26 @@ async function insertRegister(
   firstName,
   lastName,
   address,
-  pickupShop
+  pickupShop,
+  verifyCode,
+  verifyTime,
+  status
 ) {
   var result = await sqlQuery(
-    "insert into user_table (userCode,email,password,phone,firstName,lastName,address,pickupShop) values(?,?,?,?,?,?,?,?)",
-    [userCode, email, password, phone, firstName, lastName, address, pickupShop]
+    "insert into user_table (userCode,email,password,phone,firstName,lastName,address,pickupShop,verifyCode,verifyTime,status) values(?,?,?,?,?,?,?,?,?,?,?)",
+    [
+      userCode,
+      email,
+      password,
+      phone,
+      firstName,
+      lastName,
+      address,
+      pickupShop,
+      verifyCode,
+      verifyTime,
+      status,
+    ]
   );
 
   return dbToJson(result);
@@ -314,14 +329,15 @@ async function getShopCodeFromAddress(address) {
   result = await sqlQuery("select shopCode from shop_table where address = ?", [
     address,
   ]);
-
-  return dbToJson(result)[0].shopCode;
+  if (dbToJson(result).length > 0) {
+    return dbToJson(result)[0].shopCode;
+  } else return "";
 }
 
 //get userCode and other info from email,password
 async function getUserCodeFromEmailPwd(email, password) {
   result = await sqlQuery(
-    "select userCode,firstName,lastName,pickupShop from user_table where email = ? and password = ?",
+    "select userCode,firstName,lastName,pickupShop from user_table where email = ? and password = ? and status='success'",
     [email, password]
   );
   return dbToJson(result);
@@ -329,9 +345,16 @@ async function getUserCodeFromEmailPwd(email, password) {
 
 //get userCode from email used to judge if client has already register
 async function getUserCodeFromEmail(email) {
-  result = await sqlQuery("select userCode from user_table where email = ?", [
-    email,
-  ]);
+  result = await sqlQuery(
+    "select userCode,status from user_table where email = ?",
+    [email]
+  );
+  return dbToJson(result);
+}
+
+//delete user table by email
+async function deleteFromEmail(email) {
+  result = await sqlQuery("delete from user_table  where email = ?", [email]);
   return dbToJson(result);
 }
 
@@ -422,4 +445,5 @@ module.exports = {
   updateOrderStatus_db: updateOrderStatus_db, ////update order status by ordernumber and paymentInstend
   updateOrderStatusInstend_db: updateOrderStatusInstend_db, ////update order status and intend by ordernumber
   getOrderStatusByOrdetNumberInstend: getOrderStatusByOrdetNumberInstend, //get order status by orderNumber and paymentInstend ,ued to verify
+  deleteFromEmail: deleteFromEmail, //delete from user table by email
 };

@@ -8,6 +8,7 @@ import history from "./history";
 import { Payment, Payment_direct } from "./payment";
 import { Home } from "./home";
 import { Login } from "./login";
+import { Register } from "./register";
 
 //for redux
 import { createStore } from "redux";
@@ -36,6 +37,9 @@ function Main() {
       </Route>
       <Route path="/payment">
         <Payment_direct />
+      </Route>
+      <Route path="/register">
+        <Register />
       </Route>
       <Route path="/home">
         <Home />

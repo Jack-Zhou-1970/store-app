@@ -4,6 +4,15 @@ const db_api = require("./db_api");
 const { json } = require("body-parser");
 const { getUserCodeFromEmail } = require("./db_api");
 
+const mailSend = require("./email");
+
+let emailOptions = {
+  from: '"jackzhou"<njzhch@gmail.com>',
+  to: "njzhch@163.com",
+  subject: "Wellcome world-tea",
+  text: "Thank you to register word-tea ,verified code is ",
+};
+
 //the function used to random
 function getRandomNum(Min, Max) {
   var Range = Max - Min;
@@ -283,14 +292,23 @@ async function insertRegisterInfo(userInfo_obj) {
 
   var result = await db_api.getUserCodeFromEmail(userInfo_obj.email);
 
-  if (result.length > 0) {
+  if (result.length > 0 && result[0].status == "success") {
     userInfo_obj.status = "fail";
     userInfo_obj.userCode = gerCode("tempUserCode");
     return userInfo_obj;
   }
 
+  if (result.length > 0 && result[0].status == "pendding") {
+    //delete
+
+    await db_api.deleteFromEmail(userInfo_obj.email);
+  }
+
   //ger a userCode
-  userCode = gerCode("userCode");
+  var userCode = gerCode("userCode");
+  var verifyCode = getRandomNum(10000, 99999).toString();
+  var verifyTime = new Date();
+  var status = "pendding";
 
   var pickupShop = await db_api.getShopCodeFromAddress(
     userInfo_obj.shopAddress
@@ -304,11 +322,15 @@ async function insertRegisterInfo(userInfo_obj) {
     userInfo_obj.firstName,
     userInfo_obj.lastName,
     userInfo_obj.address,
-    pickupShop
+    pickupShop,
+    verifyCode,
+    verifyTime,
+    status
   );
 
   //success
   userInfo_obj.userCode = userCode;
+  userInfo_obj.verifyCode = verifyCode;
   userInfo_obj.status = "success";
 
   return userInfo_obj;
@@ -425,6 +447,23 @@ async function updateOrderStatusInstend(paymentDetails_obj, orderStatus) {
   );
 }
 
+//the function is used to process user register
+async function processRegister(input_obj) {
+  var result = await insertRegisterInfo(input_obj);
+
+  if (result.status == "fail") {
+    return result;
+  } else {
+    //send email
+    emailOptions.to = result.email;
+    emailOptions.text =
+      "Thank you to register world-tea ,verified code is  " + result.verifyCode;
+    mailSend.mailerSend(emailOptions);
+    result.verifyCode = "";
+    return result;
+  }
+}
+
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -437,4 +476,5 @@ module.exports = {
   updatePaymentInstend: updatePaymentInstend, //update paymenInstend
   updateOrderStatus: updateOrderStatus, //update orderStatus by orderNumber and paymentInstend
   updateOrderStatusInstend: updateOrderStatusInstend, ////use only direct_pay complete
+  processRegister: processRegister, //the function is used to process user register
 };

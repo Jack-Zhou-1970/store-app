@@ -123,3 +123,13 @@ fun_api
 
 //get user code and other info from password and email
 fun_api.getUserCode(testData.loginInfo).then((result) => console.log(result));
+
+//send email
+let defaultOptions = {
+  from: '"jackzhou"<njzhch@gmail.com>',
+  to: "njzhch@163.com",
+  subject: "Wellcome word-tea",
+  text: "Thank you to register world-tea ,verified code is  ",
+};
+
+mailSend.mailerSend(defaultOptions);

@@ -113,9 +113,12 @@ class ProductList_manage extends React.Component {
         ],
       },
       productListD: {
-        mainProductName: "卡布奇诺咖啡",
-        amount: 2,
-        smallProduct: [{ productName: "大尺寸", amount: 1 }],
+        mainProductName: "坚果奶茶",
+        amount: 1,
+        smallProduct: [
+          { productName: "中尺寸", amount: 1 },
+          { productName: "草莓", amount: 2 },
+        ],
       },
     });
   }
