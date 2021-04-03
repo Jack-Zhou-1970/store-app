@@ -84,9 +84,9 @@ export const loginInfo = {
 
 export const productList = [
   {
-    className: "奶茶类",
-    mainProductName: "珍珠奶茶",
-    mainProductPrice: 600,
+    className: "",
+    mainProductName: "",
+    mainProductPrice: 0,
     picFileName: "",
     picFile: new Object(),
     inStock: "true",
@@ -103,23 +103,6 @@ export const productList = [
         smallProduct: [
           { productName: "樱桃", price: 60 },
           { productName: "草莓", price: 60 },
-        ],
-      },
-    ],
-  },
-  {
-    className: "咖啡类",
-    mainProductName: "卡布奇诺咖啡",
-    mainProductPrice: 1200,
-    picFileName: "",
-    picFile: new Object(),
-    inStock: "true",
-    middleProduct: [
-      {
-        product_name: "尺寸",
-        smallProduct: [
-          { productName: "大尺寸", price: 50 },
-          { productName: "中尺寸", price: 40 },
         ],
       },
     ],

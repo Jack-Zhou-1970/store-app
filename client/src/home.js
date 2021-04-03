@@ -1,4 +1,3 @@
-import { func } from "prop-types";
 import React from "react";
 
 import { Classlist } from "./components/component_home";

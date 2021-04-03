@@ -1,23 +1,25 @@
-import { orderInfoIni, loginInfo } from "./public_data";
+import { func } from "prop-types";
+import { orderInfoIni, loginInfo, productList } from "./public_data";
 
-//this function used to process orderInfo reducer
+//these function used to process orderInfo reducer
 
 function SortByName(a, b) {
   var aName = a.productName.toLowerCase();
   var bName = b.productName.toLowerCase();
   return aName < bName ? -1 : aName > bName ? 1 : 0;
 }
-
+/////////////
+function findProductName(inputProduct) {
+  return (
+    inputProduct.mainProductName == this.mainProductName &&
+    JSON.stringify(inputProduct.smallProduct.sort(SortByName)) ==
+      JSON.stringify(this.smallProduct.sort(SortByName))
+  );
+}
+////////////
 function addOrderProduct(orderInfo, productList) {
-  function findMainProductName(inputProduct) {
-    return (
-      inputProduct.mainProductName == productList.mainProductName &&
-      JSON.stringify(inputProduct.smallProduct.sort(SortByName)) ==
-        JSON.stringify(productList.smallProduct.sort(SortByName))
-    );
-  }
   //if productList is not exist ,then add a new array
-  if (orderInfo.orderProduct.find(findMainProductName) == undefined) {
+  if (orderInfo.orderProduct.find(findProductName, productList) == undefined) {
     //insert
 
     return [...orderInfo.orderProduct, productList];
@@ -38,6 +40,7 @@ function addOrderProduct(orderInfo, productList) {
     return newOrderProduct;
   }
 }
+/////////////
 
 function decOrderProduct(orderInfo, productList) {
   var newOrderProduct = orderInfo.orderProduct.map((item) => {
@@ -57,7 +60,47 @@ function decOrderProduct(orderInfo, productList) {
     return item != undefined;
   });
 }
+////////////////////////
 
+function updateOrderProduct(orderInfo, productListS, productListD) {
+  //first delete productListS
+
+  var array1 = orderInfo.orderProduct.map((item) => {
+    if (
+      item.mainProductName == productListS.mainProductName &&
+      JSON.stringify(item.smallProduct.sort(SortByName)) ==
+        JSON.stringify(productListS.smallProduct.sort(SortByName))
+    ) {
+      return null;
+    } else {
+      return item;
+    }
+  });
+
+  array1 = array1.filter((item) => {
+    return item != undefined;
+  });
+
+  if (array1.find(findProductName, productListD) == undefined) {
+    return [...array1, productListD];
+  } else {
+    var array2 = array1.map((item) => {
+      if (
+        item.mainProductName == productListD.mainProductName &&
+        JSON.stringify(item.smallProduct.sort(SortByName)) ==
+          JSON.stringify(productListD.smallProduct.sort(SortByName))
+      ) {
+        item.amount = item.amount + productListD.amount;
+        return item;
+      } else {
+        return item;
+      }
+    });
+
+    return array2;
+  }
+}
+///////////////////
 export const orderInfoReducer = (state = orderInfoIni, action) => {
   switch (action.type) {
     case "ADD_ORDER_PRODUCT":
@@ -75,6 +118,19 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
       };
 
       return newState;
+
+    case "UPDATE_ORDER_PRODUCT":
+      var newState = {
+        ...state,
+        orderProduct: updateOrderProduct(
+          state,
+          action.productListS,
+          action.productListD
+        ),
+      };
+
+      return newState;
+
     case "DEL_ORDER_PRODUCT":
       return {
         ...state,
@@ -87,6 +143,7 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         ...state,
         orderProduct: [],
       };
+
     case "MOD_OTHER_FEE":
       return {
         ...state,
@@ -107,7 +164,17 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
 export const userInfoReducer = (state = loginInfo, action) => {
   switch (action.type) {
     case "UPDATE_USER_INFO":
-      return { ...state, province: action.payload };
+      return action.payload;
+
+    default:
+      return state;
+  }
+};
+
+export const productListReducer = (state = productList, action) => {
+  switch (action.type) {
+    case "UPDATE_PRODUCT_INFO":
+      return action.payload;
 
     default:
       return state;

@@ -7,17 +7,23 @@ import history from "./history";
 
 import { Payment, Payment_direct } from "./payment";
 import { Home } from "./home";
+import { Login } from "./login";
 
 //for redux
 import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { combineReducers } from "redux";
 
-import { orderInfoReducer, userInfoReducer } from "./reducer";
+import {
+  orderInfoReducer,
+  userInfoReducer,
+  productListReducer,
+} from "./reducer";
 
 const rootReducer = combineReducers({
   orderInfoReducer,
   userInfoReducer,
+  productListReducer,
 });
 
 export const store = createStore(rootReducer);
@@ -28,8 +34,14 @@ function Main() {
       <Route path="/normal-pay">
         <Payment />
       </Route>
-      <Route path="/">
+      <Route path="/payment">
         <Payment_direct />
+      </Route>
+      <Route path="/home">
+        <Home />
+      </Route>
+      <Route path="/">
+        <Login />
       </Route>
             
     </Switch>

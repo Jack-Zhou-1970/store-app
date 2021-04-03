@@ -16,7 +16,7 @@ import { loginInfo, paymentDetails, orderInfoIni } from "../public_data";
 
 //redux
 import { store } from "../app";
-import { object } from "prop-types";
+
 import { connect } from "react-redux";
 
 function SmallProduct(props) {
@@ -92,28 +92,30 @@ class ProductList_manage extends React.Component {
 
   handle_delete_click() {
     store.dispatch({
-      type: "DEC_ORDER_PRODUCT",
+      type: "ADD_ORDER_PRODUCT",
       productList: {
-        mainProductName: "坚果奶茶",
+        mainProductName: "卡布奇诺咖啡",
         amount: 1,
-        smallProduct: [
-          { productName: "草莓", amount: 2 },
-          { productName: "中尺寸", amount: 2 },
-        ],
+        smallProduct: [{ productName: "大尺寸", amount: 1 }],
       },
     });
   }
 
   handle_update_click() {
     store.dispatch({
-      type: "ADD_ORDER_PRODUCT",
-      productList: {
+      type: "UPDATE_ORDER_PRODUCT",
+      productListS: {
         mainProductName: "坚果奶茶",
         amount: 1,
         smallProduct: [
-          { productName: "中尺寸", amount: 2 },
+          { productName: "中尺寸", amount: 1 },
           { productName: "草莓", amount: 2 },
         ],
+      },
+      productListD: {
+        mainProductName: "卡布奇诺咖啡",
+        amount: 2,
+        smallProduct: [{ productName: "大尺寸", amount: 1 }],
       },
     });
   }
@@ -229,6 +231,10 @@ export class Direct_payform_manage extends React.Component {
   }
 
   componentDidMount() {
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", function (event) {
+      window.history.pushState(null, document.title, window.location.href);
+    });
     api.getUserInfo(loginInfo).then((result) => {
       if (result.last4 == "") {
         this.setState({ enable: false });

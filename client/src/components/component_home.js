@@ -57,18 +57,5 @@ import css from "./component_home.css";
 }*/
 
 export function Classlist(props) {
-  return (
-    <div>
-      <ul>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-        <li>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</li>
-      </ul>
-    </div>
-  );
+  return <div>这里是世界茶饮首页</div>;
 }
