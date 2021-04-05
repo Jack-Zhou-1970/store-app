@@ -6,11 +6,15 @@ import { Form, Input, Button, message, Select, Modal } from "antd";
 
 import history from "../history";
 import { store } from "../app";
+import { connect } from "react-redux";
 
 import api from "../api";
+import Item from "antd/lib/list/Item";
 
-const err1 = () => {
-  message.error("该邮箱已经被注册过，请换一个邮箱注册", 2);
+import { storageLogin } from "./component_login";
+
+const err1 = (msg) => {
+  message.error(msg, 2);
 };
 
 function RegisterForm(props) {
@@ -18,7 +22,7 @@ function RegisterForm(props) {
   const refPassword = useRef(null);
   const refPasswordC = useRef(null);
   const refPhone = useRef(null);
-  const refAddress = useRef(null);
+  const refNickName = useRef(null);
   const refShopAddress = useRef(null);
 
   function handle_submit() {
@@ -27,10 +31,14 @@ function RegisterForm(props) {
       refPassword.current.state.value,
       refPasswordC.current.state.value,
       refPhone.current.state.value,
-      refAddress.current.state.value,
+      refNickName.current.state.value,
       refShopAddress.current.props.value
     );
   }
+
+  const allShopAddress = props.allShopAddress.map((item, index) => {
+    return <Option value={item}>{item}</Option>;
+  });
 
   return (
     <Form name="basic" initialValues={{ remember: false }}>
@@ -64,11 +72,11 @@ function RegisterForm(props) {
         <Input style={{ height: "5%" }} ref={refPhone} />
       </Form.Item>
       <Form.Item
-        label="地址"
-        name="address"
-        rules={[{ required: true, message: "请输入地址" }]}
+        label="昵称"
+        name="nickName"
+        rules={[{ required: true, message: "请输入昵称" }]}
       >
-        <Input style={{ height: "5%" }} ref={refAddress} />
+        <Input style={{ height: "5%", width: "50%" }} ref={refNickName} />
       </Form.Item>
 
       <Form.Item
@@ -77,8 +85,7 @@ function RegisterForm(props) {
         rules={[{ required: true, message: "选择自取门店!" }]}
       >
         <Select placeholder="选择自取门店" ref={refShopAddress}>
-          <Option value="ON">ON</Option>
-          <Option value="BC">BC</Option>
+          {allShopAddress}
         </Select>
       </Form.Item>
       <Form.Item>
@@ -119,30 +126,48 @@ class RegisterForm_manage extends React.Component {
 
     this.code = React.createRef();
 
+    this.input_obj = new Object();
+
     this.handle_submit = this.handle_submit.bind(this);
     this.handle_ok = this.handle_ok.bind(this);
     this.handle_cancel = this.handle_cancel.bind(this);
   }
 
-  async handle_submit(mail, password, passwordC, phone, address, shopAddress) {
-    var input_obj = new Object();
-    input_obj.email = mail;
-    input_obj.password = password;
-    input_obj.phone = phone;
-    input_obj.address = address;
-    input_obj.shopAddress = shopAddress;
+  async handle_submit(mail, password, passwordC, phone, nickName, shopAddress) {
+    this.input_obj.email = api.encrypt(mail);
+    this.input_obj.password = api.encrypt(password);
+    this.input_obj.phone = api.encrypt(phone);
+    this.input_obj.nickName = nickName;
+    this.input_obj.shopAddress = shopAddress;
 
-    var result = await api.sendRegister(input_obj);
+    var result = await api.sendRegister(this.input_obj);
     if (result.status != "success") {
-      err1();
+      err1("该邮箱可能已被注册过，请换一个邮箱注册！");
     } else {
       this.setState({ isModalVisible: true });
     }
   }
 
-  handle_ok() {
-    console.log(this.code.current.state.value);
-    this.setState({ isModalVisible: false });
+  async handle_ok() {
+    this.input_obj.verifyCode = this.code.current.state.value;
+    var result = await api.sendVerifyCode(this.input_obj);
+
+    if (result.status == "success") {
+      result.email = api.decrypt(result.email);
+      if (result.phone != null) {
+        result.phone = api.decrypt(result.phone);
+      }
+      store.dispatch({
+        type: "UPDATE_USER_INFO",
+        payload: result,
+      });
+      storageLogin(this.input_obj);
+      history.push("/payment");
+      this.setState({ isModalVisible: false });
+    } else {
+      err1("校验码错误，您需要重新注册！");
+      this.setState({ isModalVisible: false });
+    }
   }
 
   handle_cancel() {
@@ -153,6 +178,7 @@ class RegisterForm_manage extends React.Component {
     return (
       <div>
         <RegisterForm
+          allShopAddress={this.props.allShopAddress}
           handle_submit={this.handle_submit}
           onCancel={() => this.setState({ isModalVisible: false })}
         />
@@ -161,10 +187,15 @@ class RegisterForm_manage extends React.Component {
           visible={this.state.isModalVisible}
           onOk={this.handle_ok}
           onCancel={this.handle_cancel}
+          width={200}
+          closable={false}
+          centered={true}
+          cancelButtonProps={{ disabled: true }}
+          maskClosable={false}
           okText="确认"
           cancelText="取消"
         >
-          <div style={{ width: "20%" }}>
+          <div style={{ width: "80%" }}>
             <Input ref={this.code} />
           </div>
         </Modal>
@@ -172,3 +203,11 @@ class RegisterForm_manage extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    allShopAddress: state.userInfoReducer.allShopAddress,
+  };
+};
+
+RegisterForm_manage = connect(mapStateToProps)(RegisterForm_manage);

@@ -65,6 +65,7 @@ export const userInfo = {
 export const loginInfo = {
   userCode: "",
   email: "njzhch@163.com",
+  nickName: "customer",
   password: "123456",
   shopAddress: "",
   phone: "4372314578",

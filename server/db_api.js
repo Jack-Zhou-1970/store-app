@@ -23,24 +23,20 @@ async function insertRegister(
   email,
   password,
   phone,
-  firstName,
-  lastName,
-  address,
+  nickName,
   pickupShop,
   verifyCode,
   verifyTime,
   status
 ) {
   var result = await sqlQuery(
-    "insert into user_table (userCode,email,password,phone,firstName,lastName,address,pickupShop,verifyCode,verifyTime,status) values(?,?,?,?,?,?,?,?,?,?,?)",
+    "insert into user_table (userCode,email,password,phone,nickName,pickupShop,verifyCode,verifyTime,status) values(?,?,?,?,?,?,?,?,?)",
     [
       userCode,
       email,
       password,
       phone,
-      firstName,
-      lastName,
-      address,
+      nickName,
       pickupShop,
       verifyCode,
       verifyTime,
@@ -303,7 +299,7 @@ async function getShopAddressFromShopCode(shopCode) {
 async function getUserInfoFromUserCode(userCode) {
   //first get info from user_table
   var result1 = await sqlQuery(
-    "select email,firstName,lastName,pickupShop from user_table where userCode =?",
+    "select email,firstName,lastName,nickName,pickupShop from user_table where userCode =?",
     [userCode]
   );
 
@@ -352,9 +348,20 @@ async function getUserCodeFromEmail(email) {
   return dbToJson(result);
 }
 
+//get verifycode from email used to judge if register complete
+async function getVerifyCodeFromEmail(email) {
+  result = await sqlQuery(
+    "select verifyCode,password from user_table where email = ? and status = 'pendding'",
+    [email]
+  );
+  return dbToJson(result);
+}
+
 //delete user table by email
 async function deleteFromEmail(email) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
   result = await sqlQuery("delete from user_table  where email = ?", [email]);
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
   return dbToJson(result);
 }
 
@@ -415,6 +422,18 @@ async function updateOrderStatusInstend_db(
   return dbToJson(result);
 }
 
+//update status from user_table when register complete
+async function updateStatusFromEmail(email, status) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update user_table set status=? where email = ?",
+    [status, email]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
 //get order status by orderNumber and paymentInstend ,ued to verify
 async function getOrderStatusByOrdetNumberInstend(orderNumber, paymentInstend) {
   var result = await sqlQuery(
@@ -446,4 +465,6 @@ module.exports = {
   updateOrderStatusInstend_db: updateOrderStatusInstend_db, ////update order status and intend by ordernumber
   getOrderStatusByOrdetNumberInstend: getOrderStatusByOrdetNumberInstend, //get order status by orderNumber and paymentInstend ,ued to verify
   deleteFromEmail: deleteFromEmail, //delete from user table by email
+  getVerifyCodeFromEmail: getVerifyCodeFromEmail, //get verifycode from email used to judge if register complete
+  updateStatusFromEmail: updateStatusFromEmail, ////update status from user_table when register complete
 };

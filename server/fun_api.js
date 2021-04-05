@@ -1,5 +1,10 @@
 var async = require("async");
 
+const NodeRSA = require("node-rsa");
+
+const prv_key =
+  "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAxuHz0jnMVsov9qiXxDPlpORadw5UuLTDG200S3zNDE6NgaTdx45MyLN5FCbuSif3wZ1DWJyJJFuHs9nwrD8+RQIDAQABAkAYDX+lbyQNYwqF9EHWksg1NwDR4UPRytrF2GE4t/E8iZTFdthEazAebAJU1EpAMVH1yCk64NZoauHJqDM71pnBAiEA9LVydtUbXESrnuhvxBhh3yBwT5aNiXl94uN6UbrLQXkCIQDQDzJpKsut3RtFkcJvO8zfv4hTMxoh7Z4z0MLxbtecLQIgU79pbive0kQaLCdGYOkrTa6PYV2YEO2IXMcXTLNN7pkCIFhpbMmF1wFtyK36b34nEjsuP7bjK0Kpn6VzG7POny6NAiA1jQPTepR2HDXdS4sAO25ryB4ST9n4kXzotK3EIOrdgA==";
+
 const db_api = require("./db_api");
 const { json } = require("body-parser");
 const { getUserCodeFromEmail } = require("./db_api");
@@ -319,9 +324,7 @@ async function insertRegisterInfo(userInfo_obj) {
     userInfo_obj.email,
     userInfo_obj.password,
     userInfo_obj.phone,
-    userInfo_obj.firstName,
-    userInfo_obj.lastName,
-    userInfo_obj.address,
+    userInfo_obj.nickName,
     pickupShop,
     verifyCode,
     verifyTime,
@@ -381,9 +384,8 @@ async function getUserCode(userInfo_obj) {
   );
   if (result.length == 0) {
     userInfo_obj.userCode = gerCode("tempUserCode");
-    userInfo_obj.lastName = "customer";
-    userInfo_obj.firstName = "";
-    userInfo_obj.address = "";
+    userInfo_obj.nickName = "customer";
+
     userInfo_obj.phone = "";
     userInfo_obj.email = "";
     userInfo_obj.allShopAddress = await getAllShopAdd();
@@ -393,11 +395,12 @@ async function getUserCode(userInfo_obj) {
     return userInfo_obj;
   } else {
     userInfo_obj.userCode = result[0].userCode;
-    userInfo_obj.lastName = result[0].lastName;
-    userInfo_obj.firstName = result[0].firstName;
+    userInfo_obj.nickName = result[0].nickName;
 
     var result1 = await db_api.getShopAddressFromShopCode(result[0].pickupShop);
-    userInfo_obj.shopAddress = result1[0].address;
+    if (result1.length > 0) {
+      userInfo_obj.shopAddress = result1[0].address;
+    }
     userInfo_obj.allShopAddress = await getAllShopAdd();
     var last4 = await getLast4(userInfo_obj.userCode);
     userInfo_obj.last4 = last4;
@@ -454,13 +457,42 @@ async function processRegister(input_obj) {
   if (result.status == "fail") {
     return result;
   } else {
+    prikey = new NodeRSA(prv_key, "pkcs8-private");
+    prikey.setOptions({ encryptionScheme: "pkcs1" });
+
+    var email = prikey.decrypt(result.email, "utf8");
+
     //send email
-    emailOptions.to = result.email;
+    emailOptions.to = email;
     emailOptions.text =
       "Thank you to register world-tea ,verified code is  " + result.verifyCode;
     mailSend.mailerSend(emailOptions);
     result.verifyCode = "";
     return result;
+  }
+}
+
+//The  function used to verify the code
+async function processVerifyCode(input_obj) {
+  input_obj.status = "fail";
+
+  var result = await db_api.getVerifyCodeFromEmail(input_obj.email);
+
+  if (result.length == 0) {
+    return input_obj;
+  }
+
+  if (result[0].verifyCode == input_obj.verifyCode) {
+    await db_api.updateStatusFromEmail(input_obj.email, "success");
+    input_obj.password = result[0].password;
+    var result1 = await getUserCode(input_obj);
+    result1.status = "success";
+
+    return result1;
+  } else {
+    //delete
+    await db_api.deleteFromEmail(input_obj.email);
+    return input_obj;
   }
 }
 
@@ -477,4 +509,5 @@ module.exports = {
   updateOrderStatus: updateOrderStatus, //update orderStatus by orderNumber and paymentInstend
   updateOrderStatusInstend: updateOrderStatusInstend, ////use only direct_pay complete
   processRegister: processRegister, //the function is used to process user register
+  processVerifyCode: processVerifyCode, //The  function used to verify the code
 };
