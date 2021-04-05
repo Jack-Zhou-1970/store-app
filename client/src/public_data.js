@@ -85,25 +85,59 @@ export const loginInfo = {
 
 export const productList = [
   {
-    className: "",
-    mainProductName: "",
-    mainProductPrice: 0,
-    picFileName: "",
-    picFile: new Object(),
-    inStock: "true",
-    middleProduct: [
+    catalogName: "奶茶类",
+    product: [
       {
-        product_name: "尺寸",
-        smallProduct: [
-          { productName: "大尺寸", price: 50 },
-          { productName: "中尺寸", price: 40 },
+        mainProductName: "珍珠奶茶",
+        productIntro: "",
+        price: 500,
+        picFileName: "",
+        productMiddle: [
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 50 }],
+          },
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 60 }],
+          },
         ],
       },
       {
-        product_name: "加料",
-        smallProduct: [
-          { productName: "樱桃", price: 60 },
-          { productName: "草莓", price: 60 },
+        mainProductName: "草莓奶茶",
+        productIntro: "",
+        price: 600,
+        picFileName: "",
+        productMiddle: [
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 50 }],
+          },
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 60 }],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    className: "咖啡类",
+    product: [
+      {
+        mainProductName: "卡布奇诺咖啡",
+        productIntro: "",
+        price: 1200,
+        picFileName: "",
+        productMiddle: [
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 50 }],
+          },
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 60 }],
+          },
         ],
       },
     ],

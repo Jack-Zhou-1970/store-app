@@ -157,10 +157,72 @@ const loginInfo = {
   status: "success",
 };
 
+const productList = [
+  {
+    catalogName: "奶茶类",
+    product: [
+      {
+        mainProductName: "珍珠奶茶",
+        productIntro: "",
+        price: 500,
+        picFileName: "",
+        productMiddle: [
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 50 }],
+          },
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 60 }],
+          },
+        ],
+      },
+      {
+        mainProductName: "草莓奶茶",
+        productIntro: "",
+        price: 600,
+        picFileName: "",
+        productMiddle: [
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 50 }],
+          },
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 60 }],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    className: "咖啡类",
+    product: [
+      {
+        mainProductName: "卡布奇诺咖啡",
+        productIntro: "",
+        price: 1200,
+        picFileName: "",
+        productMiddle: [
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 50 }],
+          },
+          {
+            middleProductName: "",
+            productSmall: [{ smallProductName: "", smallPrice: 60 }],
+          },
+        ],
+      },
+    ],
+  },
+];
+
 module.exports = {
   mimeType: mimeType,
   paymentDetails: paymentDetails,
   paymentComplete: paymentComplete,
   userInfo: userInfo,
   loginInfo: loginInfo,
+  productList: productList,
 };

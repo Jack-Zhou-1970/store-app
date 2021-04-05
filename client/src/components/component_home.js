@@ -1,61 +1,47 @@
 import React from "react";
 
+import { Layout } from "antd";
+
+const { Header, Content } = Layout;
+
 import { List } from "antd";
 import { Row, Col } from "antd";
-import css from "./component_home.css";
 
-/*export function Classlist(props) {
-  const data = [
-    {
-      title: "Title 1",
-    },
-    {
-      title: "Title 2",
-    },
-    {
-      title: "Title 3",
-    },
-    {
-      title: "Title 4",
-    },
-    {
-      title: "Title 5",
-    },
-    {
-      title: "Title 6",
-    },
-    {
-      title: "Title 7",
-    },
-    {
-      title: "Title 8",
-    },
-    {
-      title: "Title 9",
-    },
-    {
-      title: "Title 10",
-    },
-    {
-      title: "Title 11",
-    },
-    {
-      title: "Title 12",
-    },
-  ];
+//redux
+import { store } from "../app";
 
+import { connect } from "react-redux";
+
+export function Home_container(props) {
   return (
-    <div>
-      <List
-        grid={{ gutter: 16, column: 4 }}
-        dataSource={data}
-        renderItem={(item) => <List.Item>{item.title}</List.Item>}
-        style={{ overflowX: "auto" }}
-      />
-    </div>
+    <Layout>
+      <Header style={{ backgroundColor: "white" }}>{props.header}</Header>
+      <Content>
+        <ListCatalog />
+      </Content>
+    </Layout>
   );
-}*/
-
-export function Classlist(props) {
-  return <div>这里是世界茶饮首页</div>;
 }
+
+function ListCatalog(props) {
+  return (
+    <List
+      grid={{ gutter: 2, column: 8 }}
+      style={{ marginLeft: "10%" }}
+      dataSource={props.data}
+      renderItem={(item) => (
+        <List.Item>
+          <div>{item.catalogName}</div>
+        </List.Item>
+      )}
+    />
+  );
+}
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.productListReducer,
+  };
+};
+
+ListCatalog = connect(mapStateToProps)(ListCatalog);

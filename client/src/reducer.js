@@ -171,7 +171,7 @@ export const userInfoReducer = (state = loginInfo, action) => {
   }
 };
 
-export const productListReducer = (state = productList, action) => {
+export const productListReducer = (state = [], action) => {
   switch (action.type) {
     case "UPDATE_PRODUCT_INFO":
       return action.payload;

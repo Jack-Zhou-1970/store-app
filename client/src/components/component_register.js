@@ -162,7 +162,7 @@ class RegisterForm_manage extends React.Component {
         payload: result,
       });
       storageLogin(this.input_obj);
-      history.push("/payment");
+      history.push("/home");
       this.setState({ isModalVisible: false });
     } else {
       err1("校验码错误，您需要重新注册！");

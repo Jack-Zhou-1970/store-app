@@ -496,6 +496,128 @@ async function processVerifyCode(input_obj) {
   }
 }
 
+function findCatalog(inputObject) {
+  return inputObject.catalogName == this.className;
+}
+
+function findProduct(inputObject) {
+  return inputObject.mainProductName == this.productName_main;
+}
+
+function findProductMiddle(inputObject) {
+  return inputObject.middleProductName == this.productName_middle;
+}
+function findProductSmall(inputObject) {
+  return inputObject.smallProductName == this.productName_small;
+}
+
+//Get productList from ShopAddress
+async function getProductListFromShopCode(shopAddress) {
+  //first get shopcode from shopaddress
+  var shopCode = await db_api.getShopCodeFromAddress(shopAddress);
+  if (shopCode == "") {
+    return null;
+  }
+
+  var product_db = await db_api.getProductList(shopCode);
+
+  var productList = [];
+
+  //console.log(productList.);
+  for (var i = 0; i < product_db.length; i++) {
+    //judge if catalog is exist
+    var index = -1;
+    index = productList.findIndex(findCatalog, product_db[i]);
+    if (index == -1) {
+      //insert we dind not find catalog ,insert catalog ,product,productMiddle,and productSmall
+      var productList_o = new Object();
+      productList_o.catalogName = product_db[i].className;
+      productList_o.product = [];
+      var product_o = new Object();
+      product_o.mainProductName = product_db[i].productName_main;
+      product_o.productIntro = product_db[i].productIntro_c;
+      product_o.price = product_db[i].price_main;
+      product_o.picFileName = product_db[i].picFileName;
+      product_o.productMiddle = [];
+      var productMiddle_o = new Object();
+      productMiddle_o.middleProductName = product_db[i].productName_middle;
+      productMiddle_o.productSmall = [];
+      var productSmall_o = new Object();
+      productSmall_o.smallProductName = product_db[i].productName_small;
+      productSmall_o.smallPrice = product_db[i].price_small;
+      //begin to push
+      productMiddle_o.productSmall.push(productSmall_o);
+      product_o.productMiddle.push(productMiddle_o);
+      productList_o.product.push(product_o);
+      productList.push(productList_o);
+      continue;
+    }
+    //product calaog find,let us check product
+
+    var index2 = -1;
+    index2 = productList[index].product.findIndex(findProduct, product_db[i]);
+    if (index2 == -1) {
+      //insert
+      //catalog find,but we can not find product ,so we need to insert product to this catalog
+      product_o = new Object();
+      product_o.mainProductName = product_db[i].productName_main;
+      product_o.productIntro = product_db[i].productIntro_c;
+      product_o.price = product_db[i].price_main;
+      product_o.picFileName = product_db[i].picFileName;
+      product_o.productMiddle = [];
+      productMiddle_o = new Object();
+      productMiddle_o.middleProductName = product_db[i].productName_middle;
+      productMiddle_o.productSmall = [];
+      productSmall_o = new Object();
+      productSmall_o.smallProductName = product_db[i].productName_small;
+      productSmall_o.smallPrice = product_db[i].price_small;
+      //begin to push
+      productMiddle_o.productSmall.push(productSmall_o);
+      product_o.productMiddle.push(productMiddle_o);
+      productList[index].product.push(product_o);
+      continue;
+    }
+
+    //product catalog and product find,let us check productMiddle
+    var index3 = -1;
+    index3 = productList[index].product[index2].productMiddle.findIndex(
+      findProductMiddle,
+      product_db[i]
+    );
+    if (index3 == -1) {
+      //catalog and product find,but we can not find productMiddle ,so we need to insert productMiddle to this product
+      productMiddle_o = new Object();
+      productMiddle_o.middleProductName = product_db[i].productName_middle;
+      productMiddle_o.productSmall = [];
+      productSmall_o = new Object();
+      productSmall_o.smallProductName = product_db[i].productName_small;
+      productSmall_o.smallPrice = product_db[i].price_small;
+      //begin to push
+      productMiddle_o.productSmall.push(productSmall_o);
+      productList[index].product[index2].productMiddle.push(productMiddle_o);
+      continue;
+    }
+
+    //product catalog , product,productmiddle find,let us check productsmall
+    var index4 = -1;
+    index4 = productList[index].product[index2].productMiddle[
+      index3
+    ].productSmall.findIndex(findProductSmall, product_db[i]);
+    if (index4 == -1) {
+      //we find catalog ,product and productMiddle ,but we can not find productsmall ,so we need to insert productsmall to product middle
+      productSmall_o = new Object();
+      productSmall_o.smallProductName = product_db[i].productName_small;
+      productSmall_o.smallPrice = product_db[i].price_small;
+      //begin to push
+      productList[index].product[index2].productMiddle[
+        index3
+      ].productSmall.push(productSmall_o);
+      continue;
+    }
+  }
+
+  return productList;
+}
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -510,4 +632,5 @@ module.exports = {
   updateOrderStatusInstend: updateOrderStatusInstend, ////use only direct_pay complete
   processRegister: processRegister, //the function is used to process user register
   processVerifyCode: processVerifyCode, //The  function used to verify the code
+  getProductListFromShopCode: getProductListFromShopCode, //Get productList from ShopAddress
 };
