@@ -1,5 +1,5 @@
 import { func } from "prop-types";
-import { orderInfoIni, loginInfo, productList } from "./public_data";
+import { orderInfoIni, loginInfo, actionIni } from "./public_data";
 
 //these function used to process orderInfo reducer
 
@@ -175,6 +175,25 @@ export const productListReducer = (state = [], action) => {
   switch (action.type) {
     case "UPDATE_PRODUCT_INFO":
       return action.payload;
+
+    default:
+      return state;
+  }
+};
+
+export const actionReducer = (state = actionIni, action) => {
+  switch (action.type) {
+    case "UPDATE_CLASS_INFO":
+      return {
+        ...state,
+        className: action.className,
+      };
+
+    case "UPDATE_SELECT_INFO":
+      return {
+        ...state,
+        productName: action.productName,
+      };
 
     default:
       return state;

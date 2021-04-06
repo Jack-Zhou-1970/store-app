@@ -156,4 +156,9 @@ export const orderInfoIni = {
   rdyPickupTime: new Date(),
 };
 
-//reducer = loginInfo+productList+orderInfo
+export const actionIni = {
+  className: "全部产品",
+  productName: "",
+};
+
+//reducer = loginInfo+productList+orderInfo+action

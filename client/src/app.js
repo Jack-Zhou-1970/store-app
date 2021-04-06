@@ -19,12 +19,14 @@ import {
   orderInfoReducer,
   userInfoReducer,
   productListReducer,
+  actionReducer,
 } from "./reducer";
 
 const rootReducer = combineReducers({
   orderInfoReducer,
   userInfoReducer,
   productListReducer,
+  actionReducer,
 });
 
 export const store = createStore(rootReducer);
