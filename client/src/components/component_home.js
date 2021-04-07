@@ -1,6 +1,6 @@
 import React from "react";
 
-import { List, Card, Button } from "antd";
+import { List, Card, Button, Slider, Radio } from "antd";
 import { Row, Col } from "antd";
 
 import { history1 } from "../history";
@@ -24,11 +24,205 @@ export function Home_productDetail() {
       <Col xs={12}>
         <ProductIntro />
       </Col>
-      <Col xs={12}>
-        <h3>请选择规格</h3>
+      <Col xs={10} style={{ marginLeft: "2%" }}>
+        <h3>请选择规格:</h3>
+        <MidSmallProduct />
       </Col>
     </Row>
   );
+}
+
+function findSmallPrice(inputProduct) {
+  return inputProduct.smallPrice > 0;
+}
+
+function findMiddleProductName(input) {
+  return input == this;
+}
+
+//the function used to display small product
+function MidSmallProduct(props) {
+  var midClass_np = [];
+  var midClass_p = [];
+  var midClassGroup_np = [];
+  var midClassGroup_np_c = [];
+  var midClassGroup_p = [];
+  var midClassGroup_p_c = [];
+  var smallProduct;
+  var i, j, k, l;
+
+  for (i = 0; i < props.data.length; i++) {
+    for (j = 0; j < props.data[i].product.length; j++) {
+      if (props.data[i].product[j].mainProductName == props.mainProductName) {
+        for (k = 0; k < props.data[i].product[j].productMiddle.length; k++) {
+          if (
+            props.data[i].product[j].productMiddle[k].productSmall.find(
+              findSmallPrice
+            ) == undefined
+          ) {
+            for (
+              l = 0;
+              l < props.data[i].product[j].productMiddle[k].productSmall.length;
+              l++
+            ) {
+              smallProduct = (
+                <SmallproductNP_S
+                  smallProductName={
+                    props.data[i].product[j].productMiddle[k].productSmall[l]
+                      .smallProductName
+                  }
+                />
+              );
+
+              midClass_np.push(smallProduct);
+            }
+          } else {
+            for (
+              l = 0;
+              l < props.data[i].product[j].productMiddle[k].productSmall.length;
+              l++
+            ) {
+              smallProduct = (
+                <SmallproductP_S
+                  smallProductName={
+                    props.data[i].product[j].productMiddle[k].productSmall[l]
+                      .smallProductName
+                  }
+                  smallPrice={
+                    props.data[i].product[j].productMiddle[k].productSmall[l]
+                      .smallPrice
+                  }
+                />
+              );
+              midClass_p.push(smallProduct);
+            }
+          }
+          if (
+            midClassGroup_np_c.find(
+              findMiddleProductName,
+              props.data[i].product[j].productMiddle[k].middleProductName
+            ) == undefined
+          ) {
+            midClassGroup_np.push(midClass_np);
+
+            if (midClass_np.length > 0) {
+              midClassGroup_np_c.push(
+                props.data[i].product[j].productMiddle[k].middleProductName
+              );
+            }
+          }
+
+          midClass_np = [];
+
+          if (
+            midClassGroup_p_c.find(
+              findMiddleProductName,
+              props.data[i].product[j].productMiddle[k].middleProductName
+            ) == undefined
+          ) {
+            midClassGroup_p.push(midClass_p);
+
+            if (midClass_p.length > 0) {
+              midClassGroup_p_c.push(
+                props.data[i].product[j].productMiddle[k].middleProductName
+              );
+            }
+          }
+          midClass_p = [];
+        }
+      }
+    }
+  }
+
+  var smallproductGroupNP = [];
+  var smallproductGroupP = [];
+
+  for (i = 0; i < midClassGroup_np.length; i++) {
+    var smallproductNP = (
+      <SmallproductNP middleProductName={midClassGroup_np_c[i]}>
+        {midClassGroup_np[i]}
+      </SmallproductNP>
+    );
+
+    smallproductGroupNP.push(smallproductNP);
+  }
+
+  for (i = 0; i < midClassGroup_p.length; i++) {
+    var smallproductP = (
+      <SmallproductP middleProductName={midClassGroup_p_c[i]}>
+        {midClassGroup_p[i]}
+      </SmallproductP>
+    );
+
+    smallproductGroupP.push(smallproductP);
+  }
+
+  return (
+    <div>
+      <SmallproductNP_container>{smallproductGroupNP}</SmallproductNP_container>
+      <SmallproductP_container>{smallproductGroupP}</SmallproductP_container>
+    </div>
+  );
+}
+
+const mapStateToProps_MidSmallProduct = (state) => {
+  return {
+    data: state.productListReducer,
+    mainProductName: state.actionReducer.productName,
+  };
+};
+
+MidSmallProduct = connect(mapStateToProps_MidSmallProduct)(MidSmallProduct);
+
+function SmallproductP_S(props) {
+  var price = "$" + (props.smallPrice / 100).toString();
+  return (
+    <Row style={{ marginTop: "4%" }}>
+      <Col xs={4}>
+        <h4>{props.smallProductName}</h4>
+      </Col>
+      <Col xs={12}>
+        <Slider defaultValue={0} min={0} max={3} step={1} dots={true} />
+      </Col>
+      <Col xs={2} style={{ marginLeft: "5%" }}>
+        {price}
+      </Col>
+    </Row>
+  );
+}
+
+function SmallproductNP_S(props) {
+  return (
+    <Radio.Button value={props.smallProductName}>
+      {props.smallProductName}
+    </Radio.Button>
+  );
+}
+
+function SmallproductNP(props) {
+  return (
+    <div style={{ marginTop: "5%" }}>
+      <h3>{props.middleProductName}</h3>
+      <Radio.Group>{props.children}</Radio.Group>
+    </div>
+  );
+}
+
+function SmallproductP(props) {
+  return (
+    <div style={{ marginTop: "5%" }}>
+      <h3>{props.middleProductName}</h3>
+      {props.children}
+    </div>
+  );
+}
+
+function SmallproductNP_container(props) {
+  return <div>{props.children}</div>;
+}
+
+function SmallproductP_container(props) {
+  return <div>{props.children}</div>;
 }
 
 function ProductIntro(props) {
@@ -106,7 +300,7 @@ function ProductCard(props) {
   }
 
   return (
-    <Col xs={12} sm={12} md={12} lg={12} xl={6}>
+    <Col xs={12} sm={12} md={12} lg={12} xl={6} style={{ marginTop: "5%" }}>
       <Card
         hoverable
         style={{ width: "50%" }}
@@ -114,7 +308,7 @@ function ProductCard(props) {
         onClick={card_handle_click}
       >
         <h3>{props.mainProductName}</h3>
-        <h4 style={{ marginLeft: "5%", marginRight: "5%" }}>
+        <h4 style={{ marginLeft: "5%", marginRight: "2%" }}>
           {props.productIntro}
         </h4>
         <h5>{price}</h5>
@@ -131,6 +325,10 @@ function ProductCard_container(props) {
   );
 }
 
+function findProductName(inputProduct) {
+  return inputProduct.mainProductName == this.mainProductName;
+}
+/*puductList_o.push(props.data[i].product[j]);*/
 function ProductByClass(props) {
   //when user click product
   function handle_click(mainProductName) {
@@ -142,27 +340,37 @@ function ProductByClass(props) {
   }
 
   //ready to render
-  const card_list = props.data.map((item) => {
+  var puductList = [];
+  var puductList_o = [];
+
+  for (var i = 0; i < props.data.length; i++) {
     if (
-      item.catalogName == props.catalogName ||
+      props.data[i].catalogName == props.catalogName ||
       props.catalogName == "全部产品"
     ) {
-      for (var i = 0; i < item.product.length; i++) {
-        return (
+      for (var j = 0; j < props.data[i].product.length; j++) {
+        var productCard = (
           <ProductCard
-            key={i}
-            price={item.product[i].price}
-            picFile={item.product[i].picFile}
-            mainProductName={item.product[i].mainProductName}
-            productIntro={item.product[i].productIntro}
+            key={j}
+            price={props.data[i].product[j].price}
+            picFile={props.data[i].product[j].picFile}
+            mainProductName={props.data[i].product[j].mainProductName}
+            productIntro={props.data[i].product[j].productIntro}
             handle_click={handle_click}
           />
         );
+        if (
+          puductList_o.find(findProductName, props.data[i].product[j]) ==
+          undefined
+        ) {
+          puductList.push(productCard);
+          puductList_o.push(props.data[i].product[j]);
+        }
       }
     }
-  });
+  }
 
-  return <ProductCard_container>{card_list}</ProductCard_container>;
+  return <ProductCard_container>{puductList}</ProductCard_container>;
 }
 
 const mapStateToProps_ProductList = (state) => {
