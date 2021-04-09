@@ -21,10 +21,10 @@ export function Home_header(props) {
 export function Home_productDetail() {
   return (
     <Row style={{ marginLeft: "5%", marginTop: "5%" }}>
-      <Col xs={12}>
+      <Col xs={10}>
         <ProductIntro />
       </Col>
-      <Col xs={10} style={{ marginLeft: "2%" }}>
+      <Col xs={12} style={{ marginLeft: "2%" }}>
         <h3>请选择规格:</h3>
         <MidSmallProduct />
       </Col>
@@ -40,6 +40,27 @@ function findMiddleProductName(input) {
   return input == this;
 }
 
+function findSmallPrice_T(productMiddle, middleProductName, smallProductName) {
+  var price_t = 0;
+  if (productMiddle != undefined) {
+    for (var i = 0; i < productMiddle.length; i++) {
+      if (productMiddle[i].middleProductName == middleProductName) {
+        for (var j = 0; j < productMiddle[i].productSmall.length; j++) {
+          if (
+            productMiddle[i].productSmall[j].smallProductName ==
+            smallProductName
+          ) {
+            price_t = productMiddle[i].productSmall[j].smallPrice_T;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return price_t;
+}
+
 //the function used to display small product
 function MidSmallProduct(props) {
   var midClass_np = [];
@@ -50,7 +71,45 @@ function MidSmallProduct(props) {
   var midClassGroup_p_c = [];
   var smallProduct;
   var i, j, k, l;
+  var payload;
 
+  //event function
+  function handle_smallProductNP_change(midClassName, smallProductName) {
+    payload = new Object();
+    payload.middleProductName = midClassName;
+    payload.smallProductName = smallProductName;
+    payload.smallPrice = 0;
+    payload.amount = 0;
+    payload.onlyOne = true;
+
+    store.dispatch({
+      type: "UPDATE_MIDSMALL_INFO",
+      payload: payload,
+    });
+  }
+
+  function handle_smallProductP_change(
+    midClassName,
+    smallProductName,
+    smallPrice,
+    value
+  ) {
+    payload = new Object();
+    payload.middleProductName = midClassName;
+    payload.smallProductName = smallProductName;
+    payload.smallPrice = smallPrice;
+    payload.amount = value;
+    payload.onlyOne = false;
+
+    store.dispatch({
+      type: "UPDATE_MIDSMALL_INFO",
+      payload: payload,
+    });
+  }
+
+  console.log(props.productMiddle);
+
+  //display function
   for (i = 0; i < props.data.length; i++) {
     for (j = 0; j < props.data[i].product.length; j++) {
       if (props.data[i].product[j].mainProductName == props.mainProductName) {
@@ -82,6 +141,12 @@ function MidSmallProduct(props) {
               l < props.data[i].product[j].productMiddle[k].productSmall.length;
               l++
             ) {
+              var price_t = findSmallPrice_T(
+                props.productMiddle,
+                props.data[i].product[j].productMiddle[k].middleProductName,
+                props.data[i].product[j].productMiddle[k].productSmall[l]
+                  .smallProductName
+              );
               smallProduct = (
                 <SmallproductP_S
                   smallProductName={
@@ -92,6 +157,11 @@ function MidSmallProduct(props) {
                     props.data[i].product[j].productMiddle[k].productSmall[l]
                       .smallPrice
                   }
+                  middleProductName={
+                    props.data[i].product[j].productMiddle[k].middleProductName
+                  }
+                  price_t={price_t}
+                  handle_smallProductP_change={handle_smallProductP_change}
                 />
               );
               midClass_p.push(smallProduct);
@@ -139,7 +209,10 @@ function MidSmallProduct(props) {
 
   for (i = 0; i < midClassGroup_np.length; i++) {
     var smallproductNP = (
-      <SmallproductNP middleProductName={midClassGroup_np_c[i]}>
+      <SmallproductNP
+        middleProductName={midClassGroup_np_c[i]}
+        handle_smallProductNP_change={handle_smallProductNP_change}
+      >
         {midClassGroup_np[i]}
       </SmallproductNP>
     );
@@ -169,23 +242,46 @@ const mapStateToProps_MidSmallProduct = (state) => {
   return {
     data: state.productListReducer,
     mainProductName: state.actionReducer.productName,
+    productMiddle: state.productDetailReducer.productMiddle,
   };
 };
 
 MidSmallProduct = connect(mapStateToProps_MidSmallProduct)(MidSmallProduct);
 
 function SmallproductP_S(props) {
-  var price = "$" + (props.smallPrice / 100).toString();
+  function handle_smallProductP_change(value) {
+    props.handle_smallProductP_change(
+      props.middleProductName,
+      props.smallProductName,
+      props.smallPrice,
+      value
+    );
+  }
+
+  var price = "单份$" + (props.smallPrice / 100).toString();
+  var price_t_s = "$" + (props.price_t / 100).toString();
   return (
     <Row style={{ marginTop: "4%" }}>
-      <Col xs={4}>
-        <h4>{props.smallProductName}</h4>
+      <Col xs={6}>
+        <h4>
+          {props.smallProductName}
+          {price}
+        </h4>
       </Col>
-      <Col xs={12}>
-        <Slider defaultValue={0} min={0} max={3} step={1} dots={true} />
+
+      <Col xs={10}>
+        <Slider
+          style={{ marginLeft: "0%" }}
+          defaultValue={0}
+          min={0}
+          max={3}
+          step={1}
+          dots={true}
+          onChange={handle_smallProductP_change}
+        />
       </Col>
-      <Col xs={2} style={{ marginLeft: "5%" }}>
-        {price}
+      <Col xs={4} style={{ marginLeft: "5%" }}>
+        {price_t_s}
       </Col>
     </Row>
   );
@@ -200,10 +296,15 @@ function SmallproductNP_S(props) {
 }
 
 function SmallproductNP(props) {
+  function handle_smallProductNP_change(e) {
+    props.handle_smallProductNP_change(props.middleProductName, e.target.value);
+  }
   return (
     <div style={{ marginTop: "5%" }}>
       <h3>{props.middleProductName}</h3>
-      <Radio.Group>{props.children}</Radio.Group>
+      <Radio.Group onChange={handle_smallProductNP_change}>
+        {props.children}
+      </Radio.Group>
     </div>
   );
 }
@@ -224,7 +325,7 @@ function SmallproductNP_container(props) {
 function SmallproductP_container(props) {
   return <div>{props.children}</div>;
 }
-
+/////////////////////////////////////////////////////////////
 function ProductIntro(props) {
   var product_detail = props.productList.map((item) => {
     for (var i = 0; i < item.product.length; i++) {
@@ -296,7 +397,7 @@ function ProductCard(props) {
   var price = "价格：" + "$" + (props.price / 100).toString();
 
   function card_handle_click() {
-    props.handle_click(props.mainProductName);
+    props.handle_click(props.mainProductName, props.price);
   }
 
   return (
@@ -331,7 +432,18 @@ function findProductName(inputProduct) {
 /*puductList_o.push(props.data[i].product[j]);*/
 function ProductByClass(props) {
   //when user click product
-  function handle_click(mainProductName) {
+  function handle_click(mainProductName, price) {
+    var product = new Object();
+    product.productName = mainProductName;
+    product.price = price;
+    product.amount = 0;
+    product.totalPrice = 0;
+
+    store.dispatch({
+      type: "UPDATE_PRODUCTDETAIL_INFO",
+      product: product,
+    });
+
     store.dispatch({
       type: "UPDATE_SELECT_INFO",
       productName: mainProductName,

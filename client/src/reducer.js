@@ -1,3 +1,4 @@
+import { useForm } from "antd/lib/form/Form";
 import { func } from "prop-types";
 import { orderInfoIni, loginInfo, actionIni } from "./public_data";
 
@@ -160,7 +161,7 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
       return state;
   }
 };
-
+///////////////////////////////////////////////////////////////////
 export const userInfoReducer = (state = loginInfo, action) => {
   switch (action.type) {
     case "UPDATE_USER_INFO":
@@ -180,7 +181,7 @@ export const productListReducer = (state = [], action) => {
       return state;
   }
 };
-
+///////////////////////////////////////////////////////////////////////////
 export const actionReducer = (state = actionIni, action) => {
   switch (action.type) {
     case "UPDATE_CLASS_INFO":
@@ -193,6 +194,107 @@ export const actionReducer = (state = actionIni, action) => {
       return {
         ...state,
         productName: action.productName,
+      };
+
+    default:
+      return state;
+  }
+};
+
+/////the function below is used to process product detail
+function updateMidSmall(state, input_obj) {
+  function findMidName(inputMiddle) {
+    return inputMiddle.middleProductName == this;
+  }
+
+  function findSmallName(inputSmall) {
+    return inputSmall.smallProductName == this;
+  }
+  var i, j;
+
+  var productMiddle = new Object();
+  productMiddle.middleProductName = input_obj.middleProductName;
+  productMiddle.productSmall = [];
+  var productSmall = new Object();
+  productSmall.smallProductName = input_obj.smallProductName;
+  productSmall.smallPrice = input_obj.smallPrice;
+  productSmall.amount = input_obj.amount;
+  productSmall.smallPrice_T = productSmall.smallPrice * productSmall.amount;
+  productMiddle.productSmall.push(productSmall);
+
+  var productMiddleNew = [];
+  productMiddleNew.push(productMiddle);
+
+  if (state.productMiddle == undefined) {
+    return productMiddleNew;
+  }
+
+  if (state.productMiddle.length == 0) {
+    return productMiddleNew;
+  }
+
+  if (
+    state.productMiddle.find(findMidName, input_obj.middleProductName) ==
+    undefined
+  ) {
+    //just insert
+
+    return [...state.productMiddle, productMiddle];
+  }
+
+  for (i = 0; i < state.productMiddle.length; i++) {
+    if (
+      state.productMiddle[i].middleProductName == input_obj.middleProductName
+    ) {
+      if (
+        state.productMiddle[i].productSmall.find(
+          findSmallName,
+          input_obj.smallProductName
+        ) == undefined
+      ) {
+        if (input_obj.onlyOne == true) {
+          state.productMiddle[i].productSmall = [];
+        }
+        state.productMiddle[i].productSmall.push(productSmall);
+        break;
+      } else {
+        //find, let update
+        for (j = 0; j < state.productMiddle[i].productSmall.length; j++) {
+          if (
+            state.productMiddle[i].productSmall[j].smallProductName ==
+            input_obj.smallProductName
+          ) {
+            state.productMiddle[i].productSmall[j].smallPrice =
+              input_obj.smallPrice;
+            state.productMiddle[i].productSmall[j].amount = input_obj.amount;
+            state.productMiddle[i].productSmall[j].smallPrice_T =
+              input_obj.smallPrice * input_obj.amount;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return state.productMiddle;
+}
+
+export const productDetailReducer = (state = [], action) => {
+  switch (action.type) {
+    case "UPDATE_PRODUCTDETAIL_INFO":
+      return {
+        ...state,
+        productName: action.product.productName,
+        price: action.product.price,
+        amount: action.product.amount,
+        totalPrice: action.product.price * action.product.amount,
+        productMiddle: [],
+      };
+
+    case "UPDATE_MIDSMALL_INFO":
+      return {
+        ...state,
+        productMiddle: updateMidSmall(state, action.payload).slice(0),
       };
 
     default:

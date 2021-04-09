@@ -20,6 +20,7 @@ import {
   userInfoReducer,
   productListReducer,
   actionReducer,
+  productDetailReducer,
 } from "./reducer";
 
 const rootReducer = combineReducers({
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   userInfoReducer,
   productListReducer,
   actionReducer,
+  productDetailReducer,
 });
 
 export const store = createStore(rootReducer);
