@@ -9,6 +9,7 @@ import { Payment, Payment_direct } from "./payment";
 import { Home } from "./home";
 import { Login } from "./login";
 import { Register } from "./register";
+import { ShoppingCart } from "./shoppingcart";
 
 //for redux
 import { createStore } from "redux";
@@ -47,6 +48,9 @@ function Main() {
       </Route>
       <Route path="/home">
         <Home />
+      </Route>
+      <Route path="/cart">
+        <ShoppingCart />
       </Route>
       <Route path="/">
         <Login />

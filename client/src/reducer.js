@@ -107,7 +107,7 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
     case "ADD_ORDER_PRODUCT":
       var newState = {
         ...state,
-        orderProduct: addOrderProduct(state, action.productList),
+        orderProduct: addOrderProduct(state, action.productList).slice(0),
       };
 
       return newState;
@@ -115,7 +115,7 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
     case "DEC_ORDER_PRODUCT":
       var newState = {
         ...state,
-        orderProduct: decOrderProduct(state, action.productList),
+        orderProduct: decOrderProduct(state, action.productList).slice(0),
       };
 
       return newState;
@@ -127,7 +127,7 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
           state,
           action.productListS,
           action.productListD
-        ),
+        ).slice(0),
       };
 
       return newState;
@@ -135,9 +135,9 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
     case "DEL_ORDER_PRODUCT":
       return {
         ...state,
-        orderProduct: state.orderProduct.filter(
-          (item) => item.mainProductName !== action.mainProductName
-        ),
+        orderProduct: state.orderProduct
+          .filter((item) => item.mainProductName !== action.mainProductName)
+          .slice(0),
       };
     case "DEL_ALL_ORDER_PRODUCT":
       return {
@@ -295,6 +295,13 @@ export const productDetailReducer = (state = [], action) => {
       return {
         ...state,
         productMiddle: updateMidSmall(state, action.payload).slice(0),
+      };
+
+    case "UPDATE_MAINPRODUCT_AMOUNT":
+      return {
+        ...state,
+        amount: action.amount,
+        totalPrice: state.price * action.amount,
       };
 
     default:
