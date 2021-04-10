@@ -48,9 +48,9 @@ export function Home_productDetail() {
   );
 }
 
-//the functio  below used to display mid small area
+//the function  below used to display mid small area
 
-//the funcio  used to display total price  and two button
+//the funtion  used to display total price  and two button
 
 function calTotalPrice(productDetail) {
   var smallTotalPrice = 0;
@@ -67,7 +67,8 @@ function calTotalPrice(productDetail) {
       }
     }
   }
-  return smallTotalPrice + productDetail.totalPrice;
+
+  return (smallTotalPrice + productDetail.price) * productDetail.amount;
 }
 
 function checkValidate(productDetail) {
@@ -513,7 +514,7 @@ const mapStateToProps_ProductDetail = (state) => {
 
 ProductIntro = connect(mapStateToProps_ProductDetail)(ProductIntro);
 
-function MainProductAmountPrice(props) {
+function MainProductAmountPrice() {
   function handleChange(value) {
     store.dispatch({
       type: "UPDATE_MAINPRODUCT_AMOUNT",
@@ -521,7 +522,6 @@ function MainProductAmountPrice(props) {
     });
   }
 
-  var price = "价格:" + "$" + (props.totalPrice / 100).toString();
   return (
     <Row style={{ marginTop: "2%" }}>
       <Col xs={4}>
@@ -541,22 +541,9 @@ function MainProductAmountPrice(props) {
           <Option value="5">5杯</Option>
         </Select>
       </Col>
-      <Col xs={8}>
-        <h4>{price}</h4>
-      </Col>
     </Row>
   );
 }
-
-const mapStateToProps_mainprice = (state) => {
-  return {
-    totalPrice: state.productDetailReducer.totalPrice,
-  };
-};
-
-MainProductAmountPrice = connect(mapStateToProps_mainprice)(
-  MainProductAmountPrice
-);
 
 //the function  used to display productList area
 export function Home_ProductList() {

@@ -101,7 +101,7 @@ async function calPrice(paymentDetails_obj) {
   var priceMainProduct = [];
   var priceSmallProduct = [];
 
-  var mainProductPrice = 0;
+  var totalPrice = 0;
   var smallProductPrice = 0;
 
   for (var i = 0; i < paymentDetails_obj.product.length; i++) {
@@ -122,8 +122,6 @@ async function calPrice(paymentDetails_obj) {
 
     jsonMainProduct.price = mainPrice;
     jsonMainProduct.amount = paymentDetails_obj.product[i].amount;
-    jsonMainProduct.totalPrice = jsonMainProduct.price * jsonMainProduct.amount;
-    mainProductPrice = mainProductPrice + jsonMainProduct.totalPrice;
 
     for (
       var j = 0;
@@ -155,12 +153,18 @@ async function calPrice(paymentDetails_obj) {
       priceSmallProduct.push(jsonSmallProduct);
     }
 
+    jsonMainProduct.totalPrice =
+      (jsonMainProduct.price + smallProductPrice) * jsonMainProduct.amount;
+    totalPrice = totalPrice + jsonMainProduct.totalPrice;
+
     jsonMainProduct.smallProduct = priceSmallProduct;
-    priceSmallProduct = [];
     priceMainProduct.push(jsonMainProduct);
+
+    priceSmallProduct = [];
+    smallProductPrice = 0;
   }
 
-  var totalAmountBeforeTax = mainProductPrice + smallProductPrice;
+  var totalAmountBeforeTax = totalPrice;
 
   var taxRate = await db_api.getTaxRateFromUserCode(
     paymentDetails_obj.userCode

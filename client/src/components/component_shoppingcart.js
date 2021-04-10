@@ -1,6 +1,7 @@
 import React from "react";
+import { useState } from "react";
 
-import { Button, Select, message, Image } from "antd";
+import { Button, message, Image, Modal } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -17,9 +18,10 @@ function findMainPrice(productList, mainProductName) {
 
   for (var i = 0; i < productList.length; i++) {
     for (var j = 0; j < productList[i].product.length; j++) {
-      if (productList[i].product[j].mainProductName == mainProductName)
+      if (productList[i].product[j].mainProductName == mainProductName) {
         price = productList[i].product[j].price;
-      break;
+        break;
+      }
     }
   }
   return price;
@@ -54,12 +56,40 @@ function findSmallPrice(productList, smallProductName) {
   return price;
 }
 
+function calShopSingle(productList, orderProduct) {
+  var smallTotal = 0;
+
+  for (var j = 0; j < orderProduct.smallProduct.length; j++) {
+    var smallPrice = findSmallPrice(
+      productList,
+      orderProduct.smallProduct[j].productName
+    );
+    smallTotal = smallTotal + smallPrice * orderProduct.smallProduct[j].amount;
+  }
+
+  return (
+    (smallTotal + findMainPrice(productList, orderProduct.mainProductName)) *
+    orderProduct.amount
+  );
+}
+
+function calShopTotal(productList, orderProduct) {
+  var priceTotal = 0;
+  for (var i = 0; i < orderProduct.length; i++) {
+    priceTotal = priceTotal + calShopSingle(productList, orderProduct[i]);
+  }
+
+  return priceTotal;
+}
+
+///////////////////////////////////////////////////////
+
 const err = (msg) => {
   message.error(msg, 2);
 };
 
 function ShopCard(props) {
-  var price = "$" + (props.price / 100).toString();
+  var price = "价格：$" + (props.price / 100).toString();
   var smallProductList = props.smallProductList.map((item, index) => {
     if (item.amount == 0) {
       return (
@@ -75,6 +105,14 @@ function ShopCard(props) {
       );
     }
   });
+
+  function handle_add() {
+    props.handle_add(props.mainProductName, props.smallProductList);
+  }
+
+  function handle_dec() {
+    props.handle_dec(props.mainProductName, props.smallProductList);
+  }
   return (
     <div>
       <Row style={{ marginLeft: "15%" }}>
@@ -83,30 +121,121 @@ function ShopCard(props) {
         </Col>
         <Col xs={12} style={{ marginLeft: "5%" }}>
           <Row>
-            <Col xs={12}>{props.mainProductName}</Col>
-            <Col xs={6} style={{ marginLeft: "10%" }}>
-              <Select style={{ width: "80%" }} placeholder={props.amount}>
-                <Option value="0">0杯</Option>
-                <Option value="1">1杯</Option>
-                <Option value="2">2杯</Option>
-                <Option value="3">3杯</Option>
-                <Option value="4">4杯</Option>
-                <Option value="5">5杯</Option>
-              </Select>
+            <Col xs={12}>
+              <h3>{props.mainProductName}</h3>
+            </Col>
+            <Col xs={10} style={{ marginLeft: "0%" }}>
+              <Button style={{ marginRight: "5%" }} onClick={handle_dec}>
+                -
+              </Button>
+              {props.amount}
+              <Button
+                type="primary "
+                style={{ marginLeft: "5%" }}
+                onClick={handle_add}
+              >
+                +
+              </Button>
             </Col>
           </Row>
-          <Row style={{ marginTop: "5%" }}>{smallProductList}</Row>
+          <div style={{ marginTop: "5%" }}>{smallProductList}</div>
+          <div style={{ marginTop: "10%" }}>
+            <h3>{price}</h3>
+          </div>
         </Col>
       </Row>
     </div>
   );
 }
 
+function OrderTotal(props) {
+  function handle_pay() {
+    history.push("/payment");
+  }
+  function handle_home() {
+    history.push("/home");
+  }
+  function handle_delete() {
+    setModalVisible(true);
+  }
+  function handle_ok() {
+    store.dispatch({
+      type: "DEL_ALL_ORDER_PRODUCT",
+    });
+    setModalVisible(false);
+    history.push("/home");
+  }
+  function handle_cancel() {
+    setModalVisible(false);
+  }
+
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  var price = calShopTotal(props.productList, props.orderProduct);
+  var price_s = "总价格:$" + (price / 100).toString();
+  return (
+    <div style={{ marginLeft: "15%", marginTop: "10%" }}>
+      <Row>
+        <Col xs={6}>
+          <h2>{price_s}</h2>
+        </Col>
+        <Col xs={14} style={{ marginLeft: "10%" }}>
+          <Button
+            type="primary "
+            style={{ marginRight: "5%" }}
+            onClick={handle_pay}
+          >
+            去结算
+          </Button>
+
+          <Button
+            type="primary "
+            style={{ marginLeft: "5%" }}
+            onClick={handle_home}
+          >
+            继续选购
+          </Button>
+          <Button
+            type="primary "
+            style={{ marginLeft: "5%" }}
+            onClick={handle_delete}
+          >
+            清空购物车
+          </Button>
+        </Col>
+        <Modal
+          title="清空购物车"
+          visible={isModalVisible}
+          onOk={handle_ok}
+          onCancel={handle_cancel}
+          width={300}
+          closable={false}
+          centered={true}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          请确认是否要清空购物车？
+        </Modal>
+      </Row>
+    </div>
+  );
+}
+
+const mapStateToProps_OrderTotal = (state) => {
+  return {
+    orderProduct: state.orderInfoReducer.orderProduct,
+    productList: state.productListReducer,
+  };
+};
+
+OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
+
 function ShopCard_container(props) {
   return (
-    <div>
-      <div>header</div>
+    <div style={{ marginTop: "15%" }}>
       {props.children}
+      <OrderTotal />
     </div>
   );
 }
@@ -122,8 +251,35 @@ function findPicFileByName(productList, productName) {
 }
 
 export function ShopCardList(props) {
+  function handle_add(mainProductName, smallProduct) {
+    var productList = new Object();
+
+    productList.mainProductName = mainProductName;
+    productList.amount = 1;
+    productList.smallProduct = smallProduct.slice(0);
+
+    store.dispatch({
+      type: "ADD_ORDER_PRODUCT",
+      productList: productList,
+    });
+  }
+
+  function handle_dec(mainProductName, smallProduct) {
+    var productList = new Object();
+
+    productList.mainProductName = mainProductName;
+    productList.amount = 1;
+    productList.smallProduct = smallProduct.slice(0);
+
+    store.dispatch({
+      type: "DEC_ORDER_PRODUCT",
+      productList: productList,
+    });
+  }
+
   const shopCardList = props.orderProduct.map((item, index) => {
     var picFile = findPicFileByName(props.productList, item.mainProductName);
+    var price = calShopSingle(props.productList, item);
     return (
       <ShopCard
         key={index}
@@ -131,6 +287,9 @@ export function ShopCardList(props) {
         picFile={picFile}
         mainProductName={item.mainProductName}
         amount={item.amount}
+        price={price}
+        handle_add={handle_add}
+        handle_dec={handle_dec}
       />
     );
   });

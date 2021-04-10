@@ -220,7 +220,9 @@ function updateMidSmall(state, input_obj) {
   productSmall.smallPrice = input_obj.smallPrice;
   productSmall.amount = input_obj.amount;
   productSmall.smallPrice_T = productSmall.smallPrice * productSmall.amount;
-  productMiddle.productSmall.push(productSmall);
+  if (productSmall.smallPrice == 0 || productSmall.amount > 0) {
+    productMiddle.productSmall.push(productSmall);
+  }
 
   var productMiddleNew = [];
   productMiddleNew.push(productMiddle);
@@ -255,7 +257,9 @@ function updateMidSmall(state, input_obj) {
         if (input_obj.onlyOne == true) {
           state.productMiddle[i].productSmall = [];
         }
-        state.productMiddle[i].productSmall.push(productSmall);
+        if (productSmall.smallPrice == 0 || productSmall.amount > 0) {
+          state.productMiddle[i].productSmall.push(productSmall);
+        }
         break;
       } else {
         //find, let update
@@ -264,11 +268,15 @@ function updateMidSmall(state, input_obj) {
             state.productMiddle[i].productSmall[j].smallProductName ==
             input_obj.smallProductName
           ) {
-            state.productMiddle[i].productSmall[j].smallPrice =
-              input_obj.smallPrice;
-            state.productMiddle[i].productSmall[j].amount = input_obj.amount;
-            state.productMiddle[i].productSmall[j].smallPrice_T =
-              input_obj.smallPrice * input_obj.amount;
+            if (input_obj.smallPrice == 0 || input_obj.amount > 0) {
+              state.productMiddle[i].productSmall[j].smallPrice =
+                input_obj.smallPrice;
+              state.productMiddle[i].productSmall[j].amount = input_obj.amount;
+              state.productMiddle[i].productSmall[j].smallPrice_T =
+                input_obj.smallPrice * input_obj.amount;
+            } else {
+              state.productMiddle[i].productSmall.splice(j, 1);
+            }
             break;
           }
         }
@@ -287,7 +295,7 @@ export const productDetailReducer = (state = [], action) => {
         productName: action.product.productName,
         price: action.product.price,
         amount: action.product.amount,
-        totalPrice: action.product.price * action.product.amount,
+
         productMiddle: [],
       };
 
