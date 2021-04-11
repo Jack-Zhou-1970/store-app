@@ -6,8 +6,11 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import "./CheckoutForm.css";
+
 import api from "../api";
+
+import { Button } from "antd";
+import { Row, Col } from "antd";
 
 import "regenerator-runtime/runtime";
 
@@ -103,18 +106,6 @@ export default function CheckoutForm() {
     });
   };
 
-  const renderSuccess = () => {
-    return (
-      <div className="sr-field-success message">
-        <h1>Your test payment succeeded</h1>
-        <p>View PaymentIntent response:</p>
-        <pre className="sr-callout">
-          <code>{JSON.stringify(metadata, null, 2)}</code>
-        </pre>
-      </div>
-    );
-  };
-
   const renderForm = () => {
     const options = {
       style: {
@@ -135,67 +126,50 @@ export default function CheckoutForm() {
     };
 
     return (
-      <form onSubmit={handleSubmit}>
-        <h1>
-          {currency.toLocaleUpperCase()}{" "}
-          {amount.toLocaleString(navigator.language, {
-            minimumFractionDigits: 2,
-          })}{" "}
-        </h1>
-        <h4>Pre-order the Pasha package</h4>
-
-        <div className="sr-combo-inputs">
-          <div className="sr-combo-inputs-row">
-            <input
-              type="text"
-              id="name"
-              name="name"
-              placeholder="Name"
-              autoComplete="cardholder"
-              className="sr-input"
-            />
+      <div>
+        <div style={{ marginTop: "2%" }}>
+          <div
+            style={{
+              border: "1px solid #bdb6b6",
+              width: "40%",
+              marginTop: "2%",
+            }}
+          >
+            <CardNumberElement options={options} />
           </div>
 
-          <div className="sr-combo-inputs-row">
-            <CardNumberElement
-              className="sr-input sr-card-element"
-              options={options}
-            />
+          <div
+            style={{
+              border: "1px solid #bdb6b6",
+              width: "40%",
+              marginTop: "2%",
+            }}
+          >
+            <CardExpiryElement options={options} />
           </div>
 
-          <div className="sr-combo-inputs-row">
-            <CardExpiryElement
-              className="sr-input sr-card-element"
-              options={options}
-            />
-          </div>
-
-          <div className="sr-combo-inputs-row">
-            <CardCvcElement
-              className="sr-input sr-card-element"
-              options={options}
-            />
+          <div
+            style={{
+              border: "1px solid #bdb6b6",
+              width: "40%",
+              marginTop: "2%",
+            }}
+          >
+            <CardCvcElement options={options} />
           </div>
         </div>
 
-        {error && <div className="message sr-field-error">{error}</div>}
+        {error && <div>{error}</div>}
 
-        <button
-          className="btn"
+        <Button
           disabled={processing || !clientSecret || !stripe}
+          onClick={handleSubmit}
         >
           {processing ? "Processing…" : "Pay"}
-        </button>
-      </form>
+        </Button>
+      </div>
     );
   };
 
-  return (
-    <div className="checkout-form">
-      <div className="sr-payment-form">
-        <div className="sr-form-row" />
-        {succeeded ? renderSuccess() : renderForm()}
-      </div>
-    </div>
-  );
+  return <div>{renderForm()}</div>;
 }

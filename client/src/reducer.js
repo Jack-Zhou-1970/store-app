@@ -157,6 +157,12 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         shipFun: action.shipFun,
         rdyPickupTime: action.rdyPickupTime,
       };
+
+    case "MOD_TOTAL_PRICE":
+      return {
+        ...state,
+        totalPrice: action.totalPrice,
+      };
     default:
       return state;
   }

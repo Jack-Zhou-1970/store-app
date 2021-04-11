@@ -1,6 +1,15 @@
 import React from "react";
 
-import { List, Card, Button, Slider, Radio, Select, message } from "antd";
+import {
+  List,
+  Card,
+  Button,
+  Slider,
+  Radio,
+  Select,
+  message,
+  Badge,
+} from "antd";
 import { Row, Col } from "antd";
 
 import { history1 } from "../history";
@@ -19,17 +28,26 @@ const err = (msg) => {
 
 export function Home_header(props) {
   function handle_click() {
-    console.log(store.getState());
     history.push("/cart");
   }
   return (
-    <div>
-      <Button type="primary" onClick={handle_click}>
-        到购物车
-      </Button>
+    <div style={{ marginTop: "5%", marginLeft: "10%", marginBottom: "5%" }}>
+      <Badge count={props.orderInfo.orderProduct.length}>
+        <Button type="primary" onClick={handle_click}>
+          购物车
+        </Button>
+      </Badge>
     </div>
   );
 }
+
+const mapStateToProps_Home_header = (state) => {
+  return {
+    orderInfo: state.orderInfoReducer,
+  };
+};
+
+Home_header = connect(mapStateToProps_Home_header)(Home_header);
 
 //the function used to display product detail
 

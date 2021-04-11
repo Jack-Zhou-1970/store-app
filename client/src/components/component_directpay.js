@@ -1,195 +1,244 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions } from "antd";
-import { Card } from "antd";
+import { Descriptions, List, Radio } from "antd";
 
 import "antd/dist/antd.css";
 
 import history from "../history";
-
-//test data
-import { loginInfo, paymentDetails, orderInfoIni } from "../public_data";
 
 //redux
 import { store } from "../app";
 
 import { connect } from "react-redux";
 
-function SmallProduct(props) {
+function UserInfo(props) {
   return (
-    <p>
-      {props.productName} 数量:{props.amount}
-    </p>
-  );
-}
-
-function ProductList(props) {
-  return (
-    <div className="site-card-border-less-wrapper">
-      <Card
-        size="small"
-        title={props.mainProductNameAndAmount}
-        bordered={false}
-        style={{ width: 300 }}
-      >
-        {props.children}
-      </Card>
+    <div style={{ marginTop: "2%" }}>
+      <h3>下面是您本次订购的订单信息:</h3>
+      <Descriptions title="用户信息:">
+        <Descriptions.Item label="订单号">
+          {props.orderNumber}
+        </Descriptions.Item>
+        <Descriptions.Item label="昵称">{props.nickName}</Descriptions.Item>
+        <Descriptions.Item label="EMAIL">{props.email}</Descriptions.Item>
+        <Descriptions.Item label="电话">{props.phone}</Descriptions.Item>
+        <Descriptions.Item label="店铺地址">
+          {props.shopAddress}
+        </Descriptions.Item>
+      </Descriptions>
     </div>
   );
 }
 
-function ButtonGroup(props) {
-  return (
-    <Col>
-      <Button className="gutter-row" onClick={props.handle_click}>
-        {props.name}
-      </Button>
-    </Col>
-  );
+function createData(subPrice) {
+  var dataArray = [];
+
+  if (subPrice == undefined) {
+    return dataArray;
+  }
+
+  for (var i = 0; i < subPrice.length; i++) {
+    var data = new Object();
+    data.mainProduct =
+      subPrice[i].mainProductName +
+      "      单价:$" +
+      (subPrice[i].price / 100).toString() +
+      "      数量:" +
+      subPrice[i].amount +
+      "    总价(含加料):$" +
+      (subPrice[i].totalPrice / 100).toString();
+    data.smallProduct = "";
+    for (var j = 0; j < subPrice[i].smallProduct.length; j++) {
+      var amount =
+        subPrice[i].smallProduct[j].price > 0
+          ? "*" + subPrice[i].smallProduct[j].amount
+          : "";
+      data.smallProduct =
+        data.smallProduct +
+        subPrice[i].smallProduct[j].productName +
+        amount +
+        "         ";
+    }
+    dataArray.push(data);
+  }
+
+  return dataArray;
 }
 
-function UserInfo(props) {
+function OrderList(props) {
+  console.log("in  OrderList");
+  console.log(props.subPrice);
+  const data = createData(props.subPrice);
   return (
-    <Descriptions title="客户信息">
-      <Descriptions.Item label="用户姓名">
-        {props.lastName} {props.firstName}
-      </Descriptions.Item>
-      <Descriptions.Item label="电话"> {props.phone}</Descriptions.Item>
-      <Descriptions.Item label="省份"> {props.province}</Descriptions.Item>
-      <Descriptions.Item label="邮箱"> {props.email}</Descriptions.Item>
-      <Descriptions.Item label="地址">{props.address}</Descriptions.Item>
-      <Descriptions.Item label="邮编">{props.postalCode}</Descriptions.Item>
-    </Descriptions>
-  );
-}
-
-class ProductList_manage extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.handle_add_click = this.handle_add_click.bind(this);
-    this.handle_delete_click = this.handle_delete_click.bind(this);
-    this.handle_update_click = this.handle_update_click.bind(this);
-  }
-
-  handle_add_click() {
-    store.dispatch({
-      type: "ADD_ORDER_PRODUCT",
-      productList: {
-        mainProductName: "坚果奶茶",
-        amount: 1,
-        smallProduct: [
-          { productName: "中尺寸", amount: 1 },
-          { productName: "草莓", amount: 2 },
-        ],
-      },
-    });
-  }
-
-  handle_delete_click() {
-    store.dispatch({
-      type: "ADD_ORDER_PRODUCT",
-      productList: {
-        mainProductName: "卡布奇诺咖啡",
-        amount: 1,
-        smallProduct: [{ productName: "大尺寸", amount: 1 }],
-      },
-    });
-  }
-
-  handle_update_click() {
-    store.dispatch({
-      type: "UPDATE_ORDER_PRODUCT",
-      productListS: {
-        mainProductName: "坚果奶茶",
-        amount: 1,
-        smallProduct: [
-          { productName: "中尺寸", amount: 1 },
-          { productName: "草莓", amount: 2 },
-        ],
-      },
-      productListD: {
-        mainProductName: "坚果奶茶",
-        amount: 1,
-        smallProduct: [
-          { productName: "中尺寸", amount: 1 },
-          { productName: "草莓", amount: 2 },
-        ],
-      },
-    });
-  }
-
-  render() {
-    var mainProductList = [];
-    var smallProductList = [];
-
-    mainProductList = this.props.orderProduct.map((item, index) => {
-      smallProductList = item.smallProduct.map((item1, index1) => {
-        return (
-          <SmallProduct
-            key={index1}
-            productName={item1.productName}
-            amount={item1.amount}
+    <List
+      itemLayout="horizontal"
+      dataSource={data}
+      renderItem={(item) => (
+        <List.Item>
+          <List.Item.Meta
+            title={item.mainProduct}
+            description={item.smallProduct}
           />
-        );
-      }); //smallProductList;
+        </List.Item>
+      )}
+    />
+  );
+}
 
-      var string = item.mainProductName + " 数量:" + item.amount;
+function TotalPrice(props) {
+  return (
+    <div style={{ marginTop: "2%" }}>
+      <Descriptions title="订单汇总:">
+        <Descriptions.Item label="税前价格:$">
+          {(props.totalPriceBeforeTax / 100).toString()}
+        </Descriptions.Item>
+        <Descriptions.Item label="运输费用">
+          {(props.shipFee / 100).toString()}
+        </Descriptions.Item>
+        <Descriptions.Item label="其它费用">
+          {(props.otherFee / 100).toString()}
+        </Descriptions.Item>
+        <Descriptions.Item label="税率">{props.taxRate}</Descriptions.Item>
+        <Descriptions.Item label="税费">
+          {" "}
+          {(props.tax / 100).toFixed(2).toString()}
+        </Descriptions.Item>
+      </Descriptions>
 
-      return (
-        <ProductList key={index} mainProductNameAndAmount={string}>
-          {smallProductList}
-        </ProductList>
-      );
-    }); //mainProductList;
+      <div style={{ marginTop: "2%" }}>
+        <h2>税后总价: ${(props.totalPriceAfterTax / 100).toString()}</h2>
+      </div>
+    </div>
+  );
+}
 
+function PaymentMethod(props) {
+  const radioStyle = {
+    display: "block",
+    height: "30px",
+    lineHeight: "30px",
+  };
+
+  function handle_home() {
+    history.push("/home");
+  }
+
+  function handle_cart() {
+    history.push("/cart");
+  }
+
+  function handle_normal_pay() {
+    history.push("payment_2");
+  }
+
+  function onChange(value) {}
+  return (
+    <Row style={{ marginTop: "5%" }}>
+      <Col xs={6}>
+        <h3>请选择付款方式：</h3>
+        <Radio.Group
+          onChange={onChange}
+          defaultValue={props.last4 == "" || props.last4 == undefined ? 2 : 1}
+        >
+          <Radio
+            style={radioStyle}
+            disabled={props.last4 == "" || props.last4 == undefined}
+            value={1}
+          >
+            使用尾号为{props.last4}的信用卡付款
+          </Radio>
+          <Radio style={radioStyle} value={2}>
+            使用新的信用卡付款
+          </Radio>
+        </Radio.Group>
+      </Col>
+      <Col xs={5}>
+        <Button type="primary" onClick={handle_normal_pay}>
+          继续结账
+        </Button>
+      </Col>
+      <Col xs={5}>
+        <Button onClick={handle_home}>继续选购</Button>
+      </Col>
+      <Col xs={5}>
+        <Button onClick={handle_cart}>回购物车</Button>
+      </Col>
+    </Row>
+  );
+}
+
+///////////////////////////////////
+function createPaymentDetail(orderProduct, userInfo) {
+  var paymentDetail = new Object();
+  paymentDetail.userCode = userInfo.userCode;
+  paymentDetail.otherFee = 0; //for test
+  paymentDetail.shopAddress = userInfo.shopAddress;
+
+  paymentDetail.product = [];
+  for (var i = 0; i < orderProduct.length; i++) {
+    paymentDetail.product.push(orderProduct[i]);
+  }
+
+  return paymentDetail;
+}
+
+export function BillInfo(props) {
+  const [billInfo, setBillInfo] = useState({});
+
+  useEffect(() => {
+    // Step 1:get bill info and display to customer to confirm
+    api
+      .getBillInfo(createPaymentDetail(props.orderProduct, props.userInfo))
+      .then((result) => {
+        setBillInfo(result);
+
+        store.dispatch({
+          type: "MOD_TOTAL_PRICE",
+          totalPrice: result.TotalPrice.totalPriceAfterTax,
+        });
+        console.log(result);
+      });
+  }, []);
+  if (billInfo.TotalPrice != undefined) {
     return (
-      <div>
-        <Row justify="center" style={{ marginBottom: "5%" }}>
-          <Col>{mainProductList}</Col>
-        </Row>
-        <Row justify="center" style={{ marginBottom: "2%", marginLeft: "10%" }}>
-          <UserInfo
-            lastName={this.props.lastName}
-            firstName={this.props.firstName}
-            phone={this.props.phone}
-            address={this.props.address}
-            email={this.props.email}
-            province={this.props.province}
-            postalCode={this.props.postalCode}
-          />
-        </Row>
-        <Row justify="center" gutter={16} style={{ marginBottom: "5%" }}>
-          <ButtonGroup name={"add"} handle_click={this.handle_add_click} />
-          <ButtonGroup name={"del"} handle_click={this.handle_delete_click} />
-          <ButtonGroup
-            name={"update"}
-            handle_click={this.handle_update_click}
-          />
-        </Row>
+      <div style={{ marginTop: "5%", marginLeft: "10%" }}>
+        <UserInfo
+          orderNumber={billInfo.orderNumber}
+          nickName={props.userInfo.nickName}
+          email={props.userInfo.email}
+          phone={props.userInfo.phone}
+          shopAddress={props.userInfo.shopAddress}
+        />
+        <div style={{ marginTop: "2%" }}>
+          <h3>购买详情：</h3>
+          <OrderList subPrice={billInfo.subPrice} />
+        </div>
+        <TotalPrice
+          totalPriceBeforeTax={billInfo.TotalPrice.totalPriceBeforeTax}
+          shipFee={billInfo.TotalPrice.shipFee}
+          otherFee={billInfo.TotalPrice.otherFee}
+          taxRate={billInfo.TotalPrice.taxRate}
+          tax={billInfo.TotalPrice.tax}
+          totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
+        />
+        <PaymentMethod last4={billInfo.last4} />
       </div>
     );
-  }
+  } else return <div></div>;
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps_BillInfo = (state) => {
   return {
     orderProduct: state.orderInfoReducer.orderProduct,
-    lastName: state.userInfoReducer.lastName,
-    firstName: state.userInfoReducer.firstName,
-    phone: state.userInfoReducer.phone,
-    address: state.userInfoReducer.address,
-    email: state.userInfoReducer.email,
-    province: state.userInfoReducer.province,
-    postalCode: state.userInfoReducer.postalCode,
+    userInfo: state.userInfoReducer,
   };
 };
 
-ProductList_manage = connect(mapStateToProps)(ProductList_manage);
+BillInfo = connect(mapStateToProps_BillInfo)(BillInfo);
 
 /* */
 //////////////////////////////////////////////////////////////////////////

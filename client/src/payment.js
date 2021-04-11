@@ -1,12 +1,12 @@
 import React from "react";
 
-import Payment_form from "./components/component_payment";
-import { Direct_payform_manage } from "./components/component_directpay";
+import { BillInfo } from "./components/component_directpay";
+import NormalPay_form from "./components/component_payment";
 
-export function Payment() {
-  return <Payment_form />;
+export function Payment_1() {
+  return <BillInfo />;
 }
 
-export function Payment_direct() {
-  return <Direct_payform_manage />;
+export function Payment_2() {
+  return <NormalPay_form />;
 }

@@ -5,7 +5,7 @@ import { Switch, Route, Router } from "react-router-dom";
 
 import history from "./history";
 
-import { Payment, Payment_direct } from "./payment";
+import { Payment_1, Payment_2 } from "./payment";
 import { Home } from "./home";
 import { Login } from "./login";
 import { Register } from "./register";
@@ -37,11 +37,11 @@ export const store = createStore(rootReducer);
 function Main() {
   return (
     <Switch>
-      <Route path="/normal-pay">
-        <Payment />
+      <Route path="/payment_1">
+        <Payment_1 />
       </Route>
-      <Route path="/payment">
-        <Payment_direct />
+      <Route path="/payment_2">
+        <Payment_2 />
       </Route>
       <Route path="/register">
         <Register />

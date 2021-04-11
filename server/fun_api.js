@@ -409,6 +409,7 @@ async function getUserCode(userInfo_obj) {
     var last4 = await getLast4(userInfo_obj.userCode);
     userInfo_obj.last4 = last4;
     userInfo_obj.status = "success";
+
     return userInfo_obj;
   }
 }

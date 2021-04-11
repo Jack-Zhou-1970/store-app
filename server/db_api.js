@@ -333,7 +333,7 @@ async function getShopCodeFromAddress(address) {
 //get userCode and other info from email,password
 async function getUserCodeFromEmailPwd(email, password) {
   result = await sqlQuery(
-    "select userCode,firstName,lastName,pickupShop from user_table where email = ? and password = ? and status='success'",
+    "select userCode,firstName,lastName,pickupShop,nickName from user_table where email = ? and password = ? and status='success'",
     [email, password]
   );
   return dbToJson(result);

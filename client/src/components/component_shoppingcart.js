@@ -150,7 +150,7 @@ function ShopCard(props) {
 
 function OrderTotal(props) {
   function handle_pay() {
-    history.push("/payment");
+    history.push("/payment_1");
   }
   function handle_home() {
     history.push("/home");

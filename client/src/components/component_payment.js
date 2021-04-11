@@ -1,59 +1,59 @@
 import React from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import DemoText from "./DemoText";
+
+import { Row, Col, Input, Select } from "antd";
+
 import CheckoutForm from "./CheckoutForm";
-import "./index.css";
 
 import api from "../api";
 
-import "./component_payment.css";
-
 const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
 
-export default function Payment_form() {
+export default function NormalPay_form() {
   return (
-    <div className="App">
-      <div className="sr-root">
-        <div className="sr-main">
-          <header className="sr-header">
-            <div className="sr-header__logo" />
-          </header>
-          <Elements stripe={stripePromise}>
-            <CheckoutForm />
-          </Elements>
-        </div>
+    <div style={{ marginTop: "5%", marginLeft: "15%" }}>
+      <Elements stripe={stripePromise}>
+        <UserInfo_pay />
+        <CheckoutForm />
+      </Elements>
+    </div>
+  );
+}
 
-        <div className="sr-content">
-          <div className="pasha-image-stack">
-            <img
-              alt=""
-              src="https://picsum.photos/280/320?random=1"
-              width="140"
-              height="160"
-            />
-            <img
-              alt=""
-              src="https://picsum.photos/280/320?random=2"
-              width="140"
-              height="160"
-            />
-            <img
-              alt=""
-              src="https://picsum.photos/280/320?random=3"
-              width="140"
-              height="160"
-            />
-            <img
-              alt=""
-              src="https://picsum.photos/280/320?random=4"
-              width="140"
-              height="160"
-            />
-          </div>
-        </div>
-      </div>
-      <DemoText />
+function UserInfo_pay(props) {
+  return (
+    <div>
+      <Row>
+        <Col xs={4}>
+          <Input placeholder="输入姓" />
+        </Col>
+
+        <Col style={{ marginLeft: "2%" }} xs={4}>
+          <Input placeholder="输入名" />
+        </Col>
+      </Row>
+      <Row style={{ marginTop: "1%" }}>
+        <Col xs={10}>
+          <Input placeholder="输入地址" />
+        </Col>
+      </Row>
+      <Row style={{ marginTop: "1%" }}>
+        <Col xs={4}>
+          <Select defaultValue="ON" style={{ width: 100 }}>
+            <Option value="ON">ON</Option>
+            <Option value="BC">BC</Option>
+          </Select>
+        </Col>
+
+        <Col style={{ marginLeft: "2%" }} xs={4}>
+          <Input placeholder="输入城市" />
+        </Col>
+
+        <Col style={{ marginLeft: "2%" }} xs={4}>
+          <Input placeholder="输入邮编" />
+        </Col>
+      </Row>
     </div>
   );
 }
