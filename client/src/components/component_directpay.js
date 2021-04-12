@@ -123,6 +123,9 @@ function PaymentMethod(props) {
     lineHeight: "30px",
   };
 
+  var ini_value = props.last4 == "" || props.last4 == undefined ? 2 : 1;
+  const [value, setValue] = useState(ini_value);
+
   function handle_home() {
     history.push("/home");
   }
@@ -132,13 +135,17 @@ function PaymentMethod(props) {
   }
 
   function handle_normal_pay() {
-    history.push("payment_2");
+    if (value == 2) {
+      history.push("payment_2");
+    }
   }
 
-  function onChange(value) {}
+  function onChange(e) {
+    setValue(e.target.value);
+  }
   return (
     <Row style={{ marginTop: "5%" }}>
-      <Col xs={6}>
+      <Col xs={8}>
         <h3>请选择付款方式：</h3>
         <Radio.Group
           onChange={onChange}

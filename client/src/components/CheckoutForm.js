@@ -12,6 +12,8 @@ import api from "../api";
 import { Button } from "antd";
 import { Row, Col } from "antd";
 
+import history from "../history";
+
 import "regenerator-runtime/runtime";
 
 //test data
@@ -31,6 +33,14 @@ export default function CheckoutForm() {
   const [processing, setProcessing] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
+
+  function handle_home() {
+    history.push("/home");
+  }
+
+  function handle_cart() {
+    history.push("/cart");
+  }
 
   useEffect(() => {
     // Step 1:get bill info and display to customer to confirm
@@ -126,47 +136,61 @@ export default function CheckoutForm() {
     };
 
     return (
-      <div>
-        <div style={{ marginTop: "2%" }}>
-          <div
-            style={{
-              border: "1px solid #bdb6b6",
-              width: "40%",
-              marginTop: "2%",
-            }}
-          >
-            <CardNumberElement options={options} />
-          </div>
+      <div style={{ marginTop: "4%" }}>
+        <h3>信用卡信息：</h3>
 
-          <div
-            style={{
-              border: "1px solid #bdb6b6",
-              width: "40%",
-              marginTop: "2%",
-            }}
-          >
-            <CardExpiryElement options={options} />
-          </div>
+        <div
+          style={{
+            border: "1px solid #bdb6b6",
+            width: "40%",
+            marginTop: "2%",
+          }}
+        >
+          <CardNumberElement options={options} />
+        </div>
 
-          <div
-            style={{
-              border: "1px solid #bdb6b6",
-              width: "40%",
-              marginTop: "2%",
-            }}
-          >
-            <CardCvcElement options={options} />
-          </div>
+        <div
+          style={{
+            border: "1px solid #bdb6b6",
+            width: "40%",
+            marginTop: "2%",
+          }}
+        >
+          <CardExpiryElement options={options} />
+        </div>
+
+        <div
+          style={{
+            border: "1px solid #bdb6b6",
+            width: "40%",
+            marginTop: "2%",
+          }}
+        >
+          <CardCvcElement options={options} />
         </div>
 
         {error && <div>{error}</div>}
 
-        <Button
-          disabled={processing || !clientSecret || !stripe}
-          onClick={handleSubmit}
-        >
-          {processing ? "Processing…" : "Pay"}
-        </Button>
+        <Row style={{ marginTop: "4%" }}>
+          <Col xs={10}>
+            <Button
+              disabled={processing || !clientSecret || !stripe}
+              onClick={handleSubmit}
+              style={{
+                backgroundColor: "#bd148a",
+                color: "white",
+              }}
+            >
+              {processing ? "Processing…" : "支付"}
+            </Button>
+          </Col>
+          <Col xs={6}>
+            <Button onClick={handle_home}>继续选购</Button>
+          </Col>
+          <Col xs={6}>
+            <Button onClick={handle_cart}>回购物车</Button>
+          </Col>
+        </Row>
       </div>
     );
   };
