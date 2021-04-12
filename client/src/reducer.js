@@ -163,6 +163,12 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         ...state,
         totalPrice: action.totalPrice,
       };
+
+    case "MOD_ORDER_NUMBER":
+      return {
+        ...state,
+        orderNumber: action.orderNumber,
+      };
     default:
       return state;
   }
@@ -172,6 +178,39 @@ export const userInfoReducer = (state = loginInfo, action) => {
   switch (action.type) {
     case "UPDATE_USER_INFO":
       return action.payload;
+
+    case "UPDATE_LASTNAME":
+      return {
+        ...state,
+        lastName: action.payload,
+      };
+    case "UPDATE_FIRSTNAME":
+      return {
+        ...state,
+        firstName: action.payload,
+      };
+    case "UPDATE_ADDRESS":
+      return {
+        ...state,
+        address: action.payload,
+      };
+    case "UPDATE_CITY":
+      return {
+        ...state,
+        city: action.payload,
+      };
+
+    case "UPDATE_PROVINCE":
+      return {
+        ...state,
+        province: action.payload,
+      };
+
+    case "UPDATE_POSTALCODE":
+      return {
+        ...state,
+        postalCode: action.payload,
+      };
 
     default:
       return state;

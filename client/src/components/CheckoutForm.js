@@ -9,26 +9,31 @@ import {
 
 import api from "../api";
 
-import { Button } from "antd";
+import { Button, Modal } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
 
 import "regenerator-runtime/runtime";
 
+import { createPaymentDetail } from "./component_directpay";
+
+import { connect } from "react-redux";
+import { store } from "../app";
+
 //test data
-import { paymentDetails } from "../public_data";
 
-export default function CheckoutForm() {
-  const [amount, setAmount] = useState(0);
-  const [currency, setCurrency] = useState("");
-
+export default function CheckoutForm(props) {
   const [clientSecret, setClientSecret] = useState(null);
   const [customerId, setCustomerId] = useState("");
+  const [isModalVisible, setVisible] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const [billInfo, setBillInfo] = useState("");
   const [error, setError] = useState(null);
-  const [metadata, setMetadata] = useState(null);
+  const [paymentDetails, setPayment] = useState(
+    createPaymentDetail(props.orderInfo.orderProduct, props.userInfo)
+  );
+
   const [succeeded, setSucceeded] = useState(false);
   const [processing, setProcessing] = useState(false);
   const stripe = useStripe();
@@ -42,34 +47,33 @@ export default function CheckoutForm() {
     history.push("/cart");
   }
 
+  function handle_payment() {
+    if (succeeded == true) {
+      history.push("/home");
+    }
+    setVisible(false);
+  }
+
   useEffect(() => {
-    // Step 1:get bill info and display to customer to confirm
+    var payment_o = {
+      ...paymentDetails,
+      orderNumber: props.orderInfo.orderNumber,
+    };
 
-    api.getBillInfo(paymentDetails).then((billInfo) => {
-      //important save bill infomation for future use
-      setBillInfo(billInfo);
+    setPayment(payment_o);
 
-      setAmount(billInfo.TotalPrice.totalPriceAfterTax / 100);
-      setCurrency("CAD");
-
-      // Step 2: Create PaymentIntent over Stripe API
-
-      paymentDetails.orderNumber = billInfo.orderNumber;
-
-      api
-        .createPaymentIntent(paymentDetails)
-        .then((data) => {
-          setClientSecret(data.client_secret);
-          setCustomerId(data.customer);
-        })
-        .catch((err) => {
-          setError(err.message);
-        });
-    });
+    api
+      .createPaymentIntent(payment_o)
+      .then((data) => {
+        setClientSecret(data.client_secret);
+        setCustomerId(data.customer);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
   }, []);
 
-  const handleSubmit = async (ev) => {
-    ev.preventDefault();
+  const handleSubmit = async () => {
     setProcessing(true);
 
     // Step 3: Use clientSecret from PaymentIntent and the CardElement
@@ -78,7 +82,7 @@ export default function CheckoutForm() {
       payment_method: {
         card: elements.getElement(CardNumberElement),
         billing_details: {
-          name: ev.target.name.value,
+          name: props.userInfo.firstName + " " + props.userInfo.lastName,
         },
       },
     });
@@ -86,20 +90,24 @@ export default function CheckoutForm() {
     var payment = new Object();
 
     if (payload.error) {
-      setError(`Payment failed: ${payload.error.message}`);
+      console.log("支付失败");
+      console.log(payload.error.message);
+      setError(payload.error.message);
       setProcessing(false);
+      setSucceeded(false);
 
       payment = {
         ...paymentDetails,
-        paymentInstend: payload.paymentIntent.id,
+
         customerId: customerId,
         status: "fail",
       };
     } else {
+      console.log("支付成功");
+
       setError(null);
       setSucceeded(true);
       setProcessing(false);
-      setMetadata(payload.paymentIntent);
 
       payment = {
         ...paymentDetails,
@@ -109,10 +117,28 @@ export default function CheckoutForm() {
       };
     }
 
+    payment.lastName = props.userInfo.lastName;
+    payment.firstName = props.userInfo.firstName;
+    payment.province = props.userInfo.province;
+    payment.city = props.userInfo.city;
+    payment.address = props.userInfo.address;
+    payment.postalCode = props.userInfo.postalCode;
+
     //send status to server
 
     api.setPayment(payment).then((result) => {
-      console.log("payment complete");
+      if (result.status == "requireCapture") {
+        //clean shoppingCart
+        store.dispatch({
+          type: "DEL_ALL_ORDER_PRODUCT",
+        });
+
+        setMessage("支付成功，请记下您的订单号" + props.orderInfo.orderNumber);
+        setVisible(true);
+      } else {
+        setMessage("支付失败! " + payload.error.message);
+        setVisible(true);
+      }
     });
   };
 
@@ -169,8 +195,6 @@ export default function CheckoutForm() {
           <CardCvcElement options={options} />
         </div>
 
-        {error && <div>{error}</div>}
-
         <Row style={{ marginTop: "4%" }}>
           <Col xs={10}>
             <Button
@@ -181,7 +205,7 @@ export default function CheckoutForm() {
                 color: "white",
               }}
             >
-              {processing ? "Processing…" : "支付"}
+              {processing ? "支付中…" : "支付"}
             </Button>
           </Col>
           <Col xs={6}>
@@ -191,9 +215,32 @@ export default function CheckoutForm() {
             <Button onClick={handle_cart}>回购物车</Button>
           </Col>
         </Row>
+        <Modal
+          title="支付结果"
+          visible={isModalVisible}
+          onOk={handle_payment}
+          width={300}
+          closable={false}
+          centered={true}
+          cancelButtonProps={{ disabled: true }}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          {message}
+        </Modal>
       </div>
     );
   };
 
   return <div>{renderForm()}</div>;
 }
+
+const mapStateToProps_CheckoutForm = (state) => {
+  return {
+    orderInfo: state.orderInfoReducer,
+    userInfo: state.userInfoReducer,
+  };
+};
+
+CheckoutForm = connect(mapStateToProps_CheckoutForm)(CheckoutForm);

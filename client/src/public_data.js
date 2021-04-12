@@ -64,19 +64,19 @@ export const userInfo = {
 
 export const loginInfo = {
   userCode: "",
-  email: "njzhch@163.com",
-  nickName: "customer",
-  password: "123456",
+  email: "",
+  nickName: "",
+  password: "",
   shopAddress: "",
-  phone: "4372314578",
+  phone: "",
   allShopAddress: [],
-  address: "99 cottonwood crt", //new card  payment used
-  city: "thornhill", //new card  payment used
+  address: "", //new card  payment used
+  city: "", //new card  payment used
   province: "ON", //new card  payment used
   country: "canada", //new card  payment used
-  postalCode: "L3T 5X1", //new card  payment used
-  firstName: "LI", //new card  payment used
-  lastName: "HE", //new card  payment used
+  postalCode: "", //new card  payment used
+  firstName: "", //new card  payment used
+  lastName: "", //new card  payment used
 
   status: "success",
 };

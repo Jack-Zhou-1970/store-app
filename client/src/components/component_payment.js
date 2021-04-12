@@ -9,6 +9,9 @@ import CheckoutForm from "./CheckoutForm";
 
 import api from "../api";
 
+//redux
+import { store } from "../app";
+
 import { connect } from "react-redux";
 
 const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
@@ -25,6 +28,47 @@ export default function NormalPay_form() {
 }
 
 function UserInfo_pay(props) {
+  function handle_firstName(e) {
+    store.dispatch({
+      type: "UPDATE_FIRSTNAME",
+      payload: e.target.value,
+    });
+  }
+
+  function handle_lastName(e) {
+    store.dispatch({
+      type: "UPDATE_LASTNAME",
+      payload: e.target.value,
+    });
+  }
+
+  function handle_address(e) {
+    store.dispatch({
+      type: "UPDATE_ADDRESS",
+      payload: e.target.value,
+    });
+  }
+
+  function handle_province(e) {
+    store.dispatch({
+      type: "UPDATE_PROVINCE",
+      payload: e,
+    });
+  }
+
+  function handle_city(e) {
+    store.dispatch({
+      type: "UPDATE_CITY",
+      payload: e.target.value,
+    });
+  }
+
+  function handle_postalCode(e) {
+    store.dispatch({
+      type: "UPDATE_POSTALCODE",
+      payload: e.target.value,
+    });
+  }
   return (
     <div>
       <div style={{ marginBottom: "1%" }}>
@@ -37,32 +81,32 @@ function UserInfo_pay(props) {
       </div>
       <Row>
         <Col xs={4}>
-          <Input placeholder="输入姓" />
+          <Input placeholder="输入姓" onChange={handle_lastName} />
         </Col>
 
         <Col style={{ marginLeft: "2%" }} xs={4}>
-          <Input placeholder="输入名" />
+          <Input placeholder="输入名" onChange={handle_firstName} />
         </Col>
       </Row>
       <Row style={{ marginTop: "1%" }}>
         <Col xs={10}>
-          <Input placeholder="输入地址" />
+          <Input placeholder="输入地址" onChange={handle_address} />
         </Col>
       </Row>
       <Row style={{ marginTop: "1%" }}>
         <Col xs={4}>
-          <Select defaultValue="ON" style={{ width: 100 }}>
+          <Select style={{ width: 100 }} onChange={handle_province}>
             <Option value="ON">ON</Option>
             <Option value="BC">BC</Option>
           </Select>
         </Col>
 
         <Col xs={4}>
-          <Input placeholder="输入城市" />
+          <Input placeholder="输入城市" onChange={handle_city} />
         </Col>
 
         <Col style={{ marginLeft: "2%" }} xs={4}>
-          <Input placeholder="输入邮编" />
+          <Input placeholder="输入邮编" onChange={handle_postalCode} />
         </Col>
       </Row>
     </div>

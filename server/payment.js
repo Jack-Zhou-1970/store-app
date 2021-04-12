@@ -41,6 +41,9 @@ router_pay.post("/paymentComplete", async (req, res) => {
 router_pay.post("/create-payment-intent", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
+  console.log("priceTotal");
+  console.log(priceTotal.totalPriceAfterTax);
+
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
     currency: "CAD",
@@ -65,6 +68,9 @@ router_pay.post("/create-payment-intent", async (req, res) => {
 ////////////////////////////////This is direct pay"//////////////////////////////////////
 router_pay.post("/direct-pay", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
+
+  console.log("priceTotal");
+  console.log(priceTotal.totalPriceAfterTax);
 
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
@@ -106,6 +112,8 @@ router_pay.post("/direct-pay", async (req, res) => {
       req.body.paymentInstend = paymentIntent.id;
       await fun_api.updateOrderStatusInstend(req.body, "requireCapture");
       res.json({ status: "requireCapture" });
+    } else {
+      res.json({ status: "fail" });
     }
   } catch (err) {
     res.json({ status: "fail" });

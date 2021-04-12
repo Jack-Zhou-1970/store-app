@@ -4,7 +4,7 @@ import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions, List, Radio } from "antd";
+import { Descriptions, List, Radio, Modal } from "antd";
 
 import "antd/dist/antd.css";
 
@@ -123,6 +123,11 @@ function PaymentMethod(props) {
     lineHeight: "30px",
   };
 
+  const [processing, setProcessing] = useState(false);
+  const [isModalVisible, setVisible] = useState(false);
+  const [message, setMessage] = useState("");
+  const [succeeded, setSucceeded] = useState(false);
+
   var ini_value = props.last4 == "" || props.last4 == undefined ? 2 : 1;
   const [value, setValue] = useState(ini_value);
 
@@ -134,9 +139,43 @@ function PaymentMethod(props) {
     history.push("/cart");
   }
 
+  function handle_payment() {
+    if (succeeded == true) {
+      history.push("/home");
+    } else {
+      history.push("payment_2");
+    }
+    setVisible(false);
+  }
+
   function handle_normal_pay() {
     if (value == 2) {
       history.push("payment_2");
+    } else {
+      //payment direct
+      setProcessing(true);
+      var paymentDetails = createPaymentDetail(
+        props.orderProduct,
+        props.userInfo
+      );
+      paymentDetails.orderNumber = props.orderNumber;
+      api.direct_pay(paymentDetails).then((result) => {
+        setProcessing(false);
+        if (result.status == "requireCapture") {
+          setSucceeded(true);
+          //clean shoppingCart
+          store.dispatch({
+            type: "DEL_ALL_ORDER_PRODUCT",
+          });
+
+          setMessage("支付成功，请记下您的订单号" + props.orderNumber);
+          setVisible(true);
+        } else {
+          setSucceeded(false);
+          setMessage("支付失败，请换新卡支付!");
+          setVisible(true);
+        }
+      });
     }
   }
 
@@ -164,8 +203,12 @@ function PaymentMethod(props) {
         </Radio.Group>
       </Col>
       <Col xs={5}>
-        <Button type="primary" onClick={handle_normal_pay}>
-          继续结账
+        <Button
+          type="primary"
+          disabled={processing}
+          onClick={handle_normal_pay}
+        >
+          {processing ? "支付中…" : "继续结账"}
         </Button>
       </Col>
       <Col xs={5}>
@@ -174,13 +217,29 @@ function PaymentMethod(props) {
       <Col xs={5}>
         <Button onClick={handle_cart}>回购物车</Button>
       </Col>
+
+      <Modal
+        title="支付结果"
+        visible={isModalVisible}
+        onOk={handle_payment}
+        width={300}
+        closable={false}
+        centered={true}
+        cancelButtonProps={{ disabled: true }}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        {message}
+      </Modal>
     </Row>
   );
 }
 
 ///////////////////////////////////
-function createPaymentDetail(orderProduct, userInfo) {
+export function createPaymentDetail(orderProduct, userInfo) {
   var paymentDetail = new Object();
+
   paymentDetail.userCode = userInfo.userCode;
   paymentDetail.otherFee = 0; //for test
   paymentDetail.shopAddress = userInfo.shopAddress;
@@ -207,9 +266,14 @@ export function BillInfo(props) {
           type: "MOD_TOTAL_PRICE",
           totalPrice: result.TotalPrice.totalPriceAfterTax,
         });
-        console.log(result);
+
+        store.dispatch({
+          type: "MOD_ORDER_NUMBER",
+          orderNumber: result.orderNumber,
+        });
       });
   }, []);
+
   if (billInfo.TotalPrice != undefined) {
     return (
       <div style={{ marginTop: "5%", marginLeft: "10%" }}>
@@ -232,7 +296,12 @@ export function BillInfo(props) {
           tax={billInfo.TotalPrice.tax}
           totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
         />
-        <PaymentMethod last4={billInfo.last4} />
+        <PaymentMethod
+          last4={billInfo.last4}
+          orderNumber={billInfo.orderNumber}
+          orderProduct={props.orderProduct}
+          userInfo={props.userInfo}
+        />
       </div>
     );
   } else return <div></div>;
@@ -246,85 +315,3 @@ const mapStateToProps_BillInfo = (state) => {
 };
 
 BillInfo = connect(mapStateToProps_BillInfo)(BillInfo);
-
-/* */
-//////////////////////////////////////////////////////////////////////////
-function Direct_payform(props) {
-  function Directpay_btn() {
-    return (
-      <div>
-        <Row justify="center">
-          use card {props.cardNum}to pay {props.totalPrice}
-        </Row>
-        <Row justify="center">
-          <Button type="button" onClick={props.handle_direct_pay}>
-            Direct pay
-          </Button>
-        </Row>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      {props.enable && Directpay_btn()}
-      <Row justify="center" style={{ marginBottom: "5%" }}>
-        <Button type="dashed" onClick={props.handle_normal_pay}>
-          Normal pay
-        </Button>
-      </Row>
-      <ProductList_manage />
-    </div>
-  );
-}
-
-export class Direct_payform_manage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      enable: false,
-      billInfo: { last4: "", TotalPrice: { totalPriceAfterTax: 0 } },
-    };
-    this.handle_normal_pay = this.handle_normal_pay.bind(this);
-    this.handle_direct_pay = this.handle_direct_pay.bind(this);
-  }
-
-  componentDidMount() {
-    window.history.pushState(null, document.title, window.location.href);
-    window.addEventListener("popstate", function (event) {
-      window.history.pushState(null, document.title, window.location.href);
-    });
-    api.getUserInfo(loginInfo).then((result) => {
-      if (result.last4 == "") {
-        this.setState({ enable: false });
-      } else {
-        api.getBillInfo(paymentDetails).then((result) => {
-          this.setState({ billInfo: result });
-        });
-        this.setState({ enable: true });
-      }
-    });
-  }
-
-  handle_normal_pay() {
-    history.push("/normal-pay");
-  }
-
-  handle_direct_pay() {
-    paymentDetails.orderNumber = this.state.billInfo.orderNumber;
-
-    api.direct_pay(paymentDetails).then((result) => {});
-  }
-
-  render() {
-    return (
-      <Direct_payform
-        enable={this.state.enable}
-        cardNum={this.state.billInfo.last4}
-        totalPrice={this.state.billInfo.TotalPrice.totalPriceAfterTax}
-        handle_normal_pay={this.handle_normal_pay}
-        handle_direct_pay={this.handle_direct_pay}
-      />
-    );
-  }
-}
