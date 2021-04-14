@@ -81,32 +81,32 @@ function UserInfo_pay(props) {
       </div>
       <Row>
         <Col xs={4}>
-          <Input placeholder="输入姓" onChange={handle_lastName} />
+          <Input placeholder="姓" onChange={handle_lastName} />
         </Col>
 
         <Col style={{ marginLeft: "2%" }} xs={4}>
-          <Input placeholder="输入名" onChange={handle_firstName} />
+          <Input placeholder="名" onChange={handle_firstName} />
         </Col>
       </Row>
-      <Row style={{ marginTop: "1%" }}>
+      <Row style={{ marginTop: "2%" }}>
         <Col xs={10}>
-          <Input placeholder="输入地址" onChange={handle_address} />
+          <Input placeholder="地址" onChange={handle_address} />
         </Col>
       </Row>
-      <Row style={{ marginTop: "1%" }}>
+      <Row style={{ marginTop: "2%" }}>
+        <Col xs={6}>
+          <Input placeholder="城市" onChange={handle_city} />
+        </Col>
+
+        <Col style={{ marginLeft: "2%" }} xs={6}>
+          <Input placeholder="邮编" onChange={handle_postalCode} />
+        </Col>
+
         <Col xs={4}>
           <Select style={{ width: 100 }} onChange={handle_province}>
             <Option value="ON">ON</Option>
             <Option value="BC">BC</Option>
           </Select>
-        </Col>
-
-        <Col xs={4}>
-          <Input placeholder="输入城市" onChange={handle_city} />
-        </Col>
-
-        <Col style={{ marginLeft: "2%" }} xs={4}>
-          <Input placeholder="输入邮编" onChange={handle_postalCode} />
         </Col>
       </Row>
     </div>

@@ -4,7 +4,7 @@ import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions, List, Radio, Modal } from "antd";
+import { Descriptions, List, Radio, Modal, Affix } from "antd";
 
 import "antd/dist/antd.css";
 
@@ -183,8 +183,8 @@ function PaymentMethod(props) {
     setValue(e.target.value);
   }
   return (
-    <Row style={{ marginTop: "5%" }}>
-      <Col xs={8}>
+    <div style={{ marginTop: "5%" }}>
+      <div xs={8}>
         <h3>请选择付款方式：</h3>
         <Radio.Group
           onChange={onChange}
@@ -201,23 +201,26 @@ function PaymentMethod(props) {
             使用新的信用卡付款
           </Radio>
         </Radio.Group>
-      </Col>
-      <Col xs={5}>
-        <Button
-          type="primary"
-          disabled={processing}
-          onClick={handle_normal_pay}
-        >
-          {processing ? "支付中…" : "继续结账"}
-        </Button>
-      </Col>
-      <Col xs={5}>
-        <Button onClick={handle_home}>继续选购</Button>
-      </Col>
-      <Col xs={5}>
-        <Button onClick={handle_cart}>回购物车</Button>
-      </Col>
-
+      </div>
+      <Affix offsetBottom={10} style={{ marginLeft: "5%", marginTop: "10%" }}>
+        <Row>
+          <Col xs={4} style={{ marginRight: "8%" }}>
+            <Button
+              type="primary"
+              disabled={processing}
+              onClick={handle_normal_pay}
+            >
+              {processing ? "支付中…" : "结账"}
+            </Button>
+          </Col>
+          <Col xs={4} style={{ marginRight: "8%" }}>
+            <Button onClick={handle_home}>主页</Button>
+          </Col>
+          <Col xs={4}>
+            <Button onClick={handle_cart}>购物车</Button>
+          </Col>
+        </Row>
+      </Affix>
       <Modal
         title="支付结果"
         visible={isModalVisible}
@@ -232,7 +235,7 @@ function PaymentMethod(props) {
       >
         {message}
       </Modal>
-    </Row>
+    </div>
   );
 }
 

@@ -11,11 +11,11 @@ module.exports = {
     host: "127.0.0.1",
     port: 3000,
     stats: {
-      colors: true
-    }
+      colors: true,
+    },
   },
   resolve: {
-    extensions: [".wasm", ".mjs", ".js", ".json", ".jsx"]
+    extensions: [".wasm", ".mjs", ".js", ".json", ".jsx"],
   },
   module: {
     rules: [
@@ -32,31 +32,32 @@ module.exports = {
             presets: [
               // 添加 preset-react
               require.resolve("@babel/preset-react"),
-              [require.resolve("@babel/preset-env"), { modules: false }]
+              [require.resolve("@babel/preset-env"), { modules: false }],
             ],
-            cacheDirectory: true
-          }
-        }
+            cacheDirectory: true,
+          },
+        },
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        use: ["style-loader", "css-loader"],
       },
       {
         test: /\.(png|jpg|gif|svg)$/, // 要加载的文件后缀，无引号
         use: [
           // 使用的加载器
-          "file-loader"
-        ]
-      }
-    ]
+          "file-loader",
+        ],
+      },
+    ],
   },
   entry: "./src/index.js", //添加入口配置项
+
   plugins: [
     new HtmlWebPackPlugin({
       template: "public/index.html",
       filename: "index.html",
-      inject: true
-    })
-  ]
+      inject: true,
+    }),
+  ],
 };

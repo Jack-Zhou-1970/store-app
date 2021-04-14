@@ -127,6 +127,7 @@ class RegisterForm_manage extends React.Component {
     this.code = React.createRef();
 
     this.input_obj = new Object();
+    this.password_NS = "";
 
     this.handle_submit = this.handle_submit.bind(this);
     this.handle_ok = this.handle_ok.bind(this);
@@ -134,9 +135,10 @@ class RegisterForm_manage extends React.Component {
   }
 
   async handle_submit(mail, password, passwordC, phone, nickName, shopAddress) {
-    this.input_obj.email = api.encrypt(mail);
+    this.input_obj.email = mail;
     this.input_obj.password = api.encrypt(password);
-    this.input_obj.phone = api.encrypt(phone);
+    this.password_NS = password; //important
+    this.input_obj.phone = phone;
     this.input_obj.nickName = nickName;
     this.input_obj.shopAddress = shopAddress;
 
@@ -149,18 +151,17 @@ class RegisterForm_manage extends React.Component {
   }
 
   async handle_ok() {
+    this.input_obj.password = api.encrypt(this.password_NS);
     this.input_obj.verifyCode = this.code.current.state.value;
     var result = await api.sendVerifyCode(this.input_obj);
 
     if (result.status == "success") {
-      result.email = api.decrypt(result.email);
-      if (result.phone != null) {
-        result.phone = api.decrypt(result.phone);
-      }
       store.dispatch({
         type: "UPDATE_USER_INFO",
         payload: result,
       });
+
+      this.input_obj.password = this.password_NS;
       storageLogin(this.input_obj);
       history.push("/home");
       this.setState({ isModalVisible: false });

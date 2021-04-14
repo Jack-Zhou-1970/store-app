@@ -380,13 +380,43 @@ async function getLast4(userCode) {
   return cardLast4;
 }
 
+function judgePassword(password1, password2) {
+  if (password1 == password2) {
+    return false;
+  }
+
+  if (password1 == false || password2 == false) {
+    return false;
+  }
+
+  var prikey = new NodeRSA(prv_key, "pkcs8-private");
+  prikey.setOptions({ encryptionScheme: "pkcs1" });
+
+  var result1 = prikey.decrypt(password1, "utf8");
+  var result2 = prikey.decrypt(password2, "utf8");
+
+  if (result1 == false || result2 == false) {
+    return false;
+  }
+
+  if (result1 == result2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 //get userCode and other info from email and password  and send to client
 async function getUserCode(userInfo_obj) {
-  var result = await db_api.getUserCodeFromEmailPwd(
-    userInfo_obj.email,
-    userInfo_obj.password
-  );
-  if (result.length == 0) {
+  var result = await db_api.getUserCodeFromEmail_1(userInfo_obj.email);
+
+  if (result.length > 0) {
+    var result1 = judgePassword(userInfo_obj.password, result[0].password);
+  } else {
+    result1 = false;
+  }
+
+  if (result1 == false) {
     userInfo_obj.userCode = gerCode("tempUserCode");
     userInfo_obj.nickName = "customer";
 
@@ -462,13 +492,8 @@ async function processRegister(input_obj) {
   if (result.status == "fail") {
     return result;
   } else {
-    prikey = new NodeRSA(prv_key, "pkcs8-private");
-    prikey.setOptions({ encryptionScheme: "pkcs1" });
-
-    var email = prikey.decrypt(result.email, "utf8");
-
     //send email
-    emailOptions.to = email;
+    emailOptions.to = result.email;
     emailOptions.text =
       "Thank you to register world-tea ,verified code is  " + result.verifyCode;
     mailSend.mailerSend(emailOptions);
@@ -489,7 +514,6 @@ async function processVerifyCode(input_obj) {
 
   if (result[0].verifyCode == input_obj.verifyCode) {
     await db_api.updateStatusFromEmail(input_obj.email, "success");
-    input_obj.password = result[0].password;
     var result1 = await getUserCode(input_obj);
     result1.status = "success";
 
@@ -528,7 +552,6 @@ async function getProductListFromShopCode(shopAddress) {
 
   var productList = [];
 
-  //console.log(productList.);
   for (var i = 0; i < product_db.length; i++) {
     //judge if catalog is exist
     var index = -1;

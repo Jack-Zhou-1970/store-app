@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useState } from "react";
 
 import {
   List,
@@ -9,16 +10,20 @@ import {
   Select,
   message,
   Badge,
+  Affix,
+  Spin,
 } from "antd";
 import { Row, Col } from "antd";
 
-import { history1 } from "../history";
 import history from "../history";
 
 //redux
 import { store } from "../app";
 
 import { connect } from "react-redux";
+
+import cart from "../../images/cart.png";
+import home from "../../images/home.png";
 
 const err = (msg) => {
   message.error(msg, 2);
@@ -31,12 +36,19 @@ export function Home_header(props) {
     history.push("/cart");
   }
   return (
-    <div style={{ marginTop: "5%", marginLeft: "10%", marginBottom: "5%" }}>
-      <Badge count={props.orderInfo.orderProduct.length}>
-        <Button type="primary" onClick={handle_click}>
-          购物车
-        </Button>
-      </Badge>
+    <div style={{ height: "200px", position: "relative" }}>
+      <Affix
+        offsetTop={30}
+        style={{ position: "absolute", top: "10%", left: "80%" }}
+      >
+        <div style={{ width: "50%" }}>
+          <Badge count={props.orderInfo.orderProduct.length}>
+            <a onClick={handle_click}>
+              <img src={cart} style={{ width: "100%", zIndex: "10" }} />
+            </a>
+          </Badge>
+        </div>
+      </Affix>
     </div>
   );
 }
@@ -53,16 +65,16 @@ Home_header = connect(mapStateToProps_Home_header)(Home_header);
 
 export function Home_productDetail() {
   return (
-    <Row style={{ marginLeft: "5%", marginTop: "5%" }}>
-      <Col xs={10}>
+    <div style={{ marginLeft: "5%", marginTop: "5%" }}>
+      <div>
         <MainProduct_container />
-      </Col>
-      <Col xs={12} style={{ marginLeft: "2%" }}>
+      </div>
+      <div style={{ marginTop: "5%" }}>
         <h3>请选择规格:</h3>
         <MidSmallProduct />
         <MidSmallPrice />
-      </Col>
-    </Row>
+      </div>
+    </div>
   );
 }
 
@@ -156,30 +168,31 @@ function MidSmallPrice(props) {
     var result = checkValidate(props.productDetail);
     if (result == "success") {
       addToCart(props.productDetail);
-      history1.push("/");
+      history.push("/home");
     } else {
       err(result);
     }
   }
 
   function handle_click2() {
-    history1.push("/");
+    history.push("/home");
   }
   return (
-    <div style={{ marginTop: "5%" }}>
+    <div style={{ marginTop: "2%" }}>
       <h3>{price_s}</h3>
-      <Row style={{ marginTop: "10%", marginLeft: "10%" }}>
-        <Col xs={10}>
-          <Button type="primary" onClick={handle_click1}>
-            添加到购物车
-          </Button>
-        </Col>
-        <Col xs={10}>
-          <Button type="primary" onClick={handle_click2}>
-            重新购物
-          </Button>
-        </Col>
-      </Row>
+      <Affix
+        offsetTop={50}
+        style={{ position: "absolute", top: "20%", left: "55%" }}
+      >
+        <div style={{ marginTop: "5%", marginLeft: "70%" }}>
+          <a onClick={handle_click1}>
+            <img src={cart} style={{ width: "70%" }} />
+          </a>
+          <a onClick={handle_click2}>
+            <img src={home} style={{ width: "70%" }} />
+          </a>
+        </div>
+      </Affix>
     </div>
   );
 }
@@ -418,18 +431,12 @@ function SmallproductP_S(props) {
     );
   }
 
-  var price = "单份$" + (props.smallPrice / 100).toString();
   var price_t_s = "$" + (props.price_t / 100).toString();
   return (
     <Row style={{ marginTop: "4%" }}>
-      <Col xs={6}>
-        <h4>
-          {props.smallProductName}
-          {price}
-        </h4>
-      </Col>
+      <Col xs={4}>{props.smallProductName}</Col>
 
-      <Col xs={10}>
+      <Col xs={12}>
         <Slider
           style={{ marginLeft: "0%" }}
           defaultValue={0}
@@ -440,7 +447,7 @@ function SmallproductP_S(props) {
           onChange={handle_smallProductP_change}
         />
       </Col>
-      <Col xs={4} style={{ marginLeft: "5%" }}>
+      <Col xs={4} style={{ marginLeft: "2%" }}>
         {price_t_s}
       </Col>
     </Row>
@@ -460,18 +467,20 @@ function SmallproductNP(props) {
     props.handle_smallProductNP_change(props.middleProductName, e.target.value);
   }
   return (
-    <div style={{ marginTop: "5%" }}>
-      <h3>{props.middleProductName}</h3>
-      <Radio.Group onChange={handle_smallProductNP_change}>
-        {props.children}
-      </Radio.Group>
+    <div style={{ marginTop: "2%" }}>
+      <div style={{ diaplay: "inline" }}>
+        <span style={{ marginRight: "15%" }}>{props.middleProductName}</span>
+        <Radio.Group onChange={handle_smallProductNP_change}>
+          {props.children}
+        </Radio.Group>
+      </div>
     </div>
   );
 }
 
 function SmallproductP(props) {
   return (
-    <div style={{ marginTop: "5%" }}>
+    <div style={{ marginTop: "2%" }}>
       <h3>{props.middleProductName}</h3>
       {props.children}
     </div>
@@ -492,7 +501,9 @@ function SmallproductP_container(props) {
 function MainProduct_container() {
   return (
     <div>
-      <ProductIntro />
+      <div style={{ marginLeft: "30%" }}>
+        <ProductIntro />
+      </div>
       <MainProductAmountPrice />
     </div>
   );
@@ -513,13 +524,16 @@ function ProductIntro(props) {
 
   var price = "价格：" + "$" + (product_detail[0].price / 100).toString();
   return (
-    <Card hoverable cover={<img src={product_detail[0].picFile} />}>
+    <div>
+      <img
+        src={product_detail[0].picFile}
+        style={{ width: "30%", height: "30%" }}
+      />
+
       <h3>{product_detail[0].mainProductName}</h3>
-      <h4 style={{ marginLeft: "5%", marginRight: "5%" }}>
-        {product_detail[0].productIntro}
-      </h4>
-      <h4>{price}</h4>
-    </Card>
+      <h3>{product_detail[0].productIntro}</h3>
+      <h3>{price}</h3>
+    </div>
   );
 }
 
@@ -543,9 +557,9 @@ function MainProductAmountPrice() {
   return (
     <Row style={{ marginTop: "2%" }}>
       <Col xs={4}>
-        <h4>数量:</h4>
+        <h3>数量:</h3>
       </Col>
-      <Col xs={8}>
+      <Col xs={7}>
         <Select
           style={{ width: "80%" }}
           placeholder="0杯"
@@ -635,8 +649,10 @@ function ProductCard(props) {
     <Col xs={12} sm={12} md={12} lg={12} xl={6} style={{ marginTop: "5%" }}>
       <Card
         hoverable
-        style={{ width: "50%" }}
-        cover={<img src={props.picFile} />}
+        style={{ width: "80%" }}
+        cover={
+          <img src={props.picFile} style={{ width: "100%", height: "100%" }} />
+        }
         onClick={card_handle_click}
       >
         <h3>{props.mainProductName}</h3>
@@ -679,8 +695,14 @@ function ProductByClass(props) {
       type: "UPDATE_SELECT_INFO",
       productName: mainProductName,
     });
-    history1.push("/productDetail");
+    history.push("/productDetail");
   }
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(props.data.length > 0 ? false : true);
+  });
 
   //ready to render
   var puductList = [];
@@ -713,13 +735,18 @@ function ProductByClass(props) {
     }
   }
 
-  return <ProductCard_container>{puductList}</ProductCard_container>;
+  return (
+    <Spin spinning={loading}>
+      <ProductCard_container>{puductList}</ProductCard_container>{" "}
+    </Spin>
+  );
 }
 
 const mapStateToProps_ProductList = (state) => {
   return {
     data: state.productListReducer,
     catalogName: state.actionReducer.className,
+    shopAddress: state.userInfoReducer.shopAddress,
   };
 };
 

@@ -12,11 +12,11 @@ const router_file = express.Router();
 
 var root = path.resolve(process.argv[2] || "../client/dist");
 
-router_file.get("/:name", (req, res, next) => {
+router_file.get("/:name", async (req, res, next) => {
   var pathname = url.parse(req.url).pathname;
 
   var filepath = path.join(root, pathname);
-  const ext = path.parse(filepath).ext;
+  var ext = path.parse(filepath).ext;
 
   fs.readFile(filepath, (err, data) => {
     if (!err) {

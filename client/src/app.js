@@ -1,12 +1,12 @@
 import React from "react";
 
-import { BrowserRouter } from "react-router-dom";
 import { Switch, Route, Router } from "react-router-dom";
 
 import history from "./history";
 
 import { Payment_1, Payment_2 } from "./payment";
 import { Home } from "./home";
+import { Home_productDetail } from "./components/component_home";
 import { Login } from "./login";
 import { Register } from "./register";
 import { ShoppingCart } from "./shoppingcart";
@@ -51,6 +51,9 @@ function Main() {
       </Route>
       <Route path="/cart">
         <ShoppingCart />
+      </Route>
+      <Route path="/productDetail">
+        <Home_productDetail />
       </Route>
       <Route path="/">
         <Login />

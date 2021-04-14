@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 
-import { Button, message, Image, Modal } from "antd";
+import { Button, message, Modal, Affix } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -92,16 +92,12 @@ function ShopCard(props) {
   var price = "价格：$" + (props.price / 100).toString();
   var smallProductList = props.smallProductList.map((item, index) => {
     if (item.amount == 0) {
-      return (
-        <Col key={index} xs={6} style={{ marginLeft: "2%" }}>
-          {item.productName}
-        </Col>
-      );
+      return <span key={index}>{item.productName} </span>;
     } else {
       return (
-        <Col key={index} xs={6} style={{ marginLeft: "2%" }}>
+        <span key={index}>
           {item.productName}*{item.amount}
-        </Col>
+        </span>
       );
     }
   });
@@ -115,11 +111,11 @@ function ShopCard(props) {
   }
   return (
     <div>
-      <Row style={{ marginLeft: "15%" }}>
-        <Col xs={8}>
-          <Image src={props.picFile} />
-        </Col>
-        <Col xs={12} style={{ marginLeft: "5%" }}>
+      <div style={{ marginLeft: "15%" }}>
+        <div style={{ marginLeft: "35%" }}>
+          <img src={props.picFile} style={{ width: "30%", height: "30%" }} />
+        </div>
+        <div style={{ marginLeft: "5%", marginTop: "5%" }}>
           <Row>
             <Col xs={12}>
               <h3>{props.mainProductName}</h3>
@@ -138,17 +134,38 @@ function ShopCard(props) {
               </Button>
             </Col>
           </Row>
-          <div style={{ marginTop: "5%" }}>{smallProductList}</div>
-          <div style={{ marginTop: "10%" }}>
+          <div style={{ marginTop: "2%" }}>{smallProductList}</div>
+          <div style={{ marginTop: "5%" }}>
             <h3>{price}</h3>
           </div>
-        </Col>
-      </Row>
+        </div>
+      </div>
     </div>
   );
 }
 
 function OrderTotal(props) {
+  var price = calShopTotal(props.productList, props.orderProduct);
+  var price_s = "总价格:$" + (price / 100).toString();
+  return (
+    <div style={{ marginLeft: "15%", marginTop: "5%" }}>
+      <div style={{ marginLeft: "5%" }}>
+        <h2>{price_s}</h2>
+      </div>
+    </div>
+  );
+}
+
+const mapStateToProps_OrderTotal = (state) => {
+  return {
+    orderProduct: state.orderInfoReducer.orderProduct,
+    productList: state.productListReducer,
+  };
+};
+
+OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
+
+function ShopCard_container(props) {
   function handle_pay() {
     history.push("/payment_1");
   }
@@ -170,72 +187,45 @@ function OrderTotal(props) {
   }
 
   const [isModalVisible, setModalVisible] = useState(false);
-
-  var price = calShopTotal(props.productList, props.orderProduct);
-  var price_s = "总价格:$" + (price / 100).toString();
-  return (
-    <div style={{ marginLeft: "15%", marginTop: "10%" }}>
-      <Row>
-        <Col xs={6}>
-          <h2>{price_s}</h2>
-        </Col>
-        <Col xs={14} style={{ marginLeft: "10%" }}>
-          <Button
-            type="primary "
-            style={{ marginRight: "5%" }}
-            onClick={handle_pay}
-          >
-            去结算
-          </Button>
-
-          <Button
-            type="primary "
-            style={{ marginLeft: "5%" }}
-            onClick={handle_home}
-          >
-            继续选购
-          </Button>
-          <Button
-            type="primary "
-            style={{ marginLeft: "5%" }}
-            onClick={handle_delete}
-          >
-            清空购物车
-          </Button>
-        </Col>
-        <Modal
-          title="清空购物车"
-          visible={isModalVisible}
-          onOk={handle_ok}
-          onCancel={handle_cancel}
-          width={300}
-          closable={false}
-          centered={true}
-          maskClosable={false}
-          okText="确认"
-          cancelText="取消"
-        >
-          请确认是否要清空购物车？
-        </Modal>
-      </Row>
-    </div>
-  );
-}
-
-const mapStateToProps_OrderTotal = (state) => {
-  return {
-    orderProduct: state.orderInfoReducer.orderProduct,
-    productList: state.productListReducer,
-  };
-};
-
-OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
-
-function ShopCard_container(props) {
   return (
     <div style={{ marginTop: "15%" }}>
       {props.children}
       <OrderTotal />
+      <Affix offsetBottom={10} style={{ marginLeft: "20%", marginTop: "10%" }}>
+        <Row>
+          <Col xs={4} style={{ marginRight: "8%" }}>
+            <Button type="primary " onClick={handle_pay}>
+              结算
+            </Button>
+          </Col>
+
+          <Col xs={4} style={{ marginRight: "8%" }}>
+            <Button type="primary " onClick={handle_home}>
+              主页
+            </Button>
+          </Col>
+          <Col xs={4}>
+            <Button type="primary " onClick={handle_delete}>
+              清空
+            </Button>
+          </Col>
+
+          <Modal
+            title="清空购物车"
+            visible={isModalVisible}
+            onOk={handle_ok}
+            onCancel={handle_cancel}
+            width={300}
+            closable={false}
+            centered={true}
+            maskClosable={false}
+            okText="确认"
+            cancelText="取消"
+          >
+            请确认是否要清空购物车？
+          </Modal>
+        </Row>
+      </Affix>
     </div>
   );
 }

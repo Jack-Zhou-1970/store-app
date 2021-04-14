@@ -22,6 +22,6 @@ app.use("/pay", payment.router_pay);
 
 app.use("/dbget", router_db.router_db_get);
 
-var server = app.listen(4242);
+var server = app.listen(4242, "192.168.0.128");
 
 console.log("server run at port 4242");

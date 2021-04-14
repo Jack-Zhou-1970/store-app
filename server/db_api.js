@@ -331,10 +331,10 @@ async function getShopCodeFromAddress(address) {
 }
 
 //get userCode and other info from email,password
-async function getUserCodeFromEmailPwd(email, password) {
+async function getUserCodeFromEmail_1(email) {
   result = await sqlQuery(
-    "select userCode,firstName,lastName,pickupShop,nickName from user_table where email = ? and password = ? and status='success'",
-    [email, password]
+    "select userCode,password,firstName,lastName,pickupShop,nickName from user_table where email = ? and status='success'",
+    [email]
   );
   return dbToJson(result);
 }
@@ -456,7 +456,7 @@ module.exports = {
   getUserInfoFromUserCode: getUserInfoFromUserCode, //Get userInfo from userCode
   getShopCodeFromAddress: getShopCodeFromAddress, //get shopCode from shop address
   getUserCodeFromEmail: getUserCodeFromEmail, //get userCode from email used to judge if client has already register
-  getUserCodeFromEmailPwd: getUserCodeFromEmailPwd, //get userCode and other info  from email,password
+  getUserCodeFromEmail_1: getUserCodeFromEmail_1, //get userCode and other info  from email,password
   getShopAddressFromShopCode: getShopAddressFromShopCode, //get shop address from shop code
   getAllShopAddress: getAllShopAddress, //get all shop address
   getCustomerIdFromUserCode: getCustomerIdFromUserCode, //get customerId from userCode
