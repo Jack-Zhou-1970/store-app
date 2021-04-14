@@ -168,6 +168,9 @@ export default function CheckoutForm(props) {
         <div
           style={{
             border: "1px solid #bdb6b6",
+            borderTop: "0px",
+            borderLeft: "0px",
+            borderRight: "0px",
             width: "60%",
             height: "100%",
             marginTop: "2%",
@@ -179,6 +182,9 @@ export default function CheckoutForm(props) {
         <div
           style={{
             border: "1px solid #bdb6b6",
+            borderTop: "0px",
+            borderLeft: "0px",
+            borderRight: "0px",
             width: "60%",
             marginTop: "2%",
           }}
@@ -189,6 +195,9 @@ export default function CheckoutForm(props) {
         <div
           style={{
             border: "1px solid #bdb6b6",
+            borderTop: "0px",
+            borderLeft: "0px",
+            borderRight: "0px",
             width: "60%",
             marginTop: "2%",
           }}
@@ -211,9 +220,6 @@ export default function CheckoutForm(props) {
           </Col>
           <Col xs={4} style={{ marginRight: "8%" }}>
             <Button onClick={handle_home}>主页</Button>
-          </Col>
-          <Col xs={4}>
-            <Button onClick={handle_cart}>购物车</Button>
           </Col>
         </Row>
         <Modal

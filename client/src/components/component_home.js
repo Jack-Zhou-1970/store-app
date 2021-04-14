@@ -12,6 +12,7 @@ import {
   Badge,
   Affix,
   Spin,
+  Divider,
 } from "antd";
 import { Row, Col } from "antd";
 
@@ -25,60 +26,13 @@ import { connect } from "react-redux";
 import cart from "../../images/cart.png";
 import home from "../../images/home.png";
 
+import api from "../api";
+
 const err = (msg) => {
   message.error(msg, 2);
 };
 
-//the function used to display product header
-
-export function Home_header(props) {
-  function handle_click() {
-    history.push("/cart");
-  }
-  return (
-    <div style={{ height: "200px", position: "relative" }}>
-      <Affix
-        offsetTop={30}
-        style={{ position: "absolute", top: "10%", left: "80%" }}
-      >
-        <div style={{ width: "50%" }}>
-          <Badge count={props.orderInfo.orderProduct.length}>
-            <a onClick={handle_click}>
-              <img src={cart} style={{ width: "100%", zIndex: "10" }} />
-            </a>
-          </Badge>
-        </div>
-      </Affix>
-    </div>
-  );
-}
-
-const mapStateToProps_Home_header = (state) => {
-  return {
-    orderInfo: state.orderInfoReducer,
-  };
-};
-
-Home_header = connect(mapStateToProps_Home_header)(Home_header);
-
-//the function used to display product detail
-
-export function Home_productDetail() {
-  return (
-    <div style={{ marginLeft: "5%", marginTop: "5%" }}>
-      <div>
-        <MainProduct_container />
-      </div>
-      <div style={{ marginTop: "5%" }}>
-        <h3>请选择规格:</h3>
-        <MidSmallProduct />
-        <MidSmallPrice />
-      </div>
-    </div>
-  );
-}
-
-//the function  below used to display mid small area
+////////////////////////////////////////////////////////////////////////////////api function:
 
 //the funtion  used to display total price  and two button
 
@@ -157,56 +111,6 @@ function addToCart(productDetail) {
   });
 }
 
-function MidSmallPrice(props) {
-  var price = calTotalPrice(props.productDetail);
-  var price_s = "总价格：$" + (price / 100).toString();
-
-  function handle_click1() {
-    message.config({
-      top: 500,
-    });
-    var result = checkValidate(props.productDetail);
-    if (result == "success") {
-      addToCart(props.productDetail);
-      history.push("/home");
-    } else {
-      err(result);
-    }
-  }
-
-  function handle_click2() {
-    history.push("/home");
-  }
-  return (
-    <div style={{ marginTop: "2%" }}>
-      <h3>{price_s}</h3>
-      <Affix
-        offsetTop={50}
-        style={{ position: "absolute", top: "20%", left: "55%" }}
-      >
-        <div style={{ marginTop: "5%", marginLeft: "70%" }}>
-          <a onClick={handle_click1}>
-            <img src={cart} style={{ width: "70%" }} />
-          </a>
-          <a onClick={handle_click2}>
-            <img src={home} style={{ width: "70%" }} />
-          </a>
-        </div>
-      </Affix>
-    </div>
-  );
-}
-
-const mapStateToProps_totalPrice = (state) => {
-  return {
-    productDetail: state.productDetailReducer,
-  };
-};
-
-MidSmallPrice = connect(mapStateToProps_totalPrice)(MidSmallPrice);
-
-////////////////////////////////////////////
-
 function findSmallPrice(inputProduct) {
   return inputProduct.smallPrice > 0;
 }
@@ -236,7 +140,184 @@ function findSmallPrice_T(productMiddle, middleProductName, smallProductName) {
   return price_t;
 }
 
-//the function used to display mid small product
+//判断图片是否存在
+function is_img_url(imgurl) {
+  return new Promise(function (resolve, reject) {
+    var ImgObj = new Image(); //判断图片是否存在
+    ImgObj.src = imgurl;
+    ImgObj.onload = function (res) {
+      resolve(res);
+    };
+    ImgObj.onerror = function (err) {
+      reject(err);
+    };
+  }).catch((e) => {}); // 加上这句不会报错（Uncaught (in promise)）
+}
+
+export async function checkPic(data, shopAddress, func) {
+  var result1 = true;
+  console.log("checkPic");
+  if (data != null && data != undefined) {
+    for (var i = 0; i < data.length; i++) {
+      for (var j = 0; j < data[i].product.length; j++) {
+        var result = await is_img_url(data[i].product[j].picFile);
+        if (result == undefined) {
+          result1 = false;
+          break;
+        }
+      }
+    }
+  }
+
+  if (result1 == false) {
+    store.dispatch({
+      type: "UPDATE_PRODUCT_INFO",
+      payload: [],
+    });
+    func(true);
+    await reloadProductList(shopAddress);
+    func(false);
+  }
+}
+
+async function reloadProductList(shopAddress) {
+  var productList = await api.getProductList({
+    shopAddress: shopAddress,
+  });
+
+  productList = await api.processProductList(productList);
+
+  store.dispatch({
+    type: "UPDATE_PRODUCT_INFO",
+    payload: productList,
+  });
+}
+
+///////////////////////////////////////////////////////////////////////////////////the function used to display product header
+
+export function Home_header(props) {
+  function handle_click() {
+    history.push("/cart");
+  }
+  return (
+    <div style={{ height: "200px", position: "relative" }}>
+      <Affix
+        offsetTop={10}
+        style={{ position: "absolute", top: "10%", left: "80%", zIndex: "20" }}
+      >
+        <div style={{ width: "50%" }}>
+          <Badge count={props.orderInfo.orderProduct.length}>
+            <a onClick={handle_click}>
+              <img src={cart} style={{ width: "100%" }} />
+            </a>
+          </Badge>
+        </div>
+      </Affix>
+    </div>
+  );
+}
+
+const mapStateToProps_Home_header = (state) => {
+  return {
+    orderInfo: state.orderInfoReducer,
+  };
+};
+
+Home_header = connect(mapStateToProps_Home_header)(Home_header);
+
+///////////////////////////////////////////////////////////////////////////////the function used to display product detail
+
+export function Home_productDetail(props) {
+  function handle_home() {
+    history.push("/home");
+  }
+
+  function handle_add_cart() {
+    message.config({
+      top: 500,
+    });
+    var result = checkValidate(props.productDetail);
+    if (result == "success") {
+      addToCart(props.productDetail);
+      history.push("/home");
+    } else {
+      err(result);
+    }
+  }
+
+  return (
+    <div>
+      <Affix offsetTop={0}>
+        <div
+          style={{
+            backgroundColor: "#cac2c8",
+
+            zIndex: "10",
+          }}
+        >
+          <Row>
+            <Col xs={4} style={{ marginLeft: "15%", marginRight: "30%" }}>
+              <a onClick={handle_add_cart}>
+                <img src={cart} style={{ width: "50%" }}></img>
+              </a>
+            </Col>
+
+            <Col xs={4}>
+              <a onClick={handle_home}>
+                <img src={home} style={{ width: "50%" }}></img>
+              </a>
+            </Col>
+          </Row>
+        </div>
+      </Affix>
+      <div style={{ marginLeft: "5%", marginTop: "5%", marginRight: "5%" }}>
+        <div>
+          <MainProduct_container />
+        </div>
+        <Divider />
+        <div style={{ marginTop: "5%" }}>
+          <h3>请选择规格:</h3>
+          <MidSmallProduct />
+          <Divider />
+          <MidSmallPrice />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const mapStateToProps_Home_productDetail = (state) => {
+  return {
+    productDetail: state.productDetailReducer,
+  };
+};
+
+Home_productDetail = connect(mapStateToProps_Home_productDetail)(
+  Home_productDetail
+);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////the function  below used to display mid small area
+
+function MidSmallPrice(props) {
+  var price = calTotalPrice(props.productDetail);
+  var price_s = "总价格：$" + (price / 100).toString();
+
+  return (
+    <div style={{ marginTop: "2%" }}>
+      <h3>{price_s}</h3>
+    </div>
+  );
+}
+
+const mapStateToProps_totalPrice = (state) => {
+  return {
+    productDetail: state.productDetailReducer,
+  };
+};
+
+MidSmallPrice = connect(mapStateToProps_totalPrice)(MidSmallPrice);
+
+//////////////////////////////////////////////////////////////////////////////////////////////the function used to display mid small product
 function MidSmallProduct(props) {
   var midClass_np = [];
   var midClass_p = [];
@@ -494,9 +575,8 @@ function SmallproductNP_container(props) {
 function SmallproductP_container(props) {
   return <div>{props.children}</div>;
 }
-/////////////////////////////////////////////////////////////
 
-/////////the function used to display main product area
+////////////////////////////////////////////////////////////////////////////////////the function used to display main product area
 
 function MainProduct_container() {
   return (
@@ -510,37 +590,51 @@ function MainProduct_container() {
 }
 
 function ProductIntro(props) {
-  var product_detail = props.productList.map((item) => {
-    for (var i = 0; i < item.product.length; i++) {
-      if (item.product[i].mainProductName == props.mainProductName) {
-        return item.product[i];
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkPic(props.productList, props.shopAddress, setLoading);
+    setLoading(props.productList.length > 0 ? false : true);
+  });
+
+  if (props.productList.length > 0) {
+    var product_detail = props.productList.map((item) => {
+      for (var i = 0; i < item.product.length; i++) {
+        if (item.product[i].mainProductName == props.mainProductName) {
+          return item.product[i];
+        }
       }
-    }
-  });
+    });
 
-  product_detail = product_detail.filter((item) => {
-    return item != undefined;
-  });
+    product_detail = product_detail.filter((item) => {
+      return item != undefined;
+    });
 
-  var price = "价格：" + "$" + (product_detail[0].price / 100).toString();
-  return (
-    <div>
-      <img
-        src={product_detail[0].picFile}
-        style={{ width: "30%", height: "30%" }}
-      />
+    var price = "价格：" + "$" + (product_detail[0].price / 100).toString();
+    return (
+      <div>
+        <Spin spinning={loading}>
+          <img
+            src={product_detail[0].picFile}
+            style={{ width: "30%", height: "30%" }}
+          />
 
-      <h3>{product_detail[0].mainProductName}</h3>
-      <h3>{product_detail[0].productIntro}</h3>
-      <h3>{price}</h3>
-    </div>
-  );
+          <h3>{product_detail[0].mainProductName}</h3>
+          <h3>{product_detail[0].productIntro}</h3>
+          <h3>{price}</h3>
+        </Spin>
+      </div>
+    );
+  } else {
+    return <Spin spinning={loading}></Spin>;
+  }
 }
 
 const mapStateToProps_ProductDetail = (state) => {
   return {
     productList: state.productListReducer,
     mainProductName: state.actionReducer.productName,
+    shopAddress: state.userInfoReducer.shopAddress,
   };
 };
 
@@ -577,7 +671,7 @@ function MainProductAmountPrice() {
   );
 }
 
-//the function  used to display productList area
+/////////////////////////////////////////////////////////////////////////////////////////////////the function  used to display productList area
 export function Home_ProductList() {
   return (
     <div>
@@ -701,6 +795,12 @@ function ProductByClass(props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    //forbidden back
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", function (event) {
+      window.history.pushState(null, document.title, window.location.href);
+    });
+    checkPic(props.data, props.shopAddress, setLoading);
     setLoading(props.data.length > 0 ? false : true);
   });
 

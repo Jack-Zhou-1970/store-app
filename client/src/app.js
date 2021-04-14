@@ -16,6 +16,17 @@ import { createStore } from "redux";
 import { Provider } from "react-redux";
 import { combineReducers } from "redux";
 
+import { persistStore, persistReducer } from "redux-persist";
+import storageSession from "redux-persist/lib/storage/session";
+import storage from "redux-persist/lib/storage";
+import { PersistGate } from "redux-persist/lib/integration/react";
+
+const storageConfig = {
+  key: "root", // 必须有的
+  storage: storage, // 缓存机制
+  blacklist: [], // reducer 里不持久化的数据,除此外均为持久化数据
+};
+
 import {
   orderInfoReducer,
   userInfoReducer,
@@ -32,7 +43,11 @@ const rootReducer = combineReducers({
   productDetailReducer,
 });
 
-export const store = createStore(rootReducer);
+/*export const store = createStore(rootReducer);*/
+
+const myPersistReducer = persistReducer(storageConfig, rootReducer);
+export const store = createStore(myPersistReducer);
+export const persistor = persistStore(store);
 
 function Main() {
   return (
@@ -66,9 +81,11 @@ function Main() {
 function App() {
   return (
     <Provider store={store}>
-      <Router history={history}>
-        <Main />
-      </Router>
+      <PersistGate loading={null} persistor={persistor}>
+        <Router history={history}>
+          <Main />
+        </Router>
+      </PersistGate>
     </Provider>
   );
 }

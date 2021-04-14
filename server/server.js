@@ -1,5 +1,7 @@
 var express = require("express");
 
+const path = require("path");
+
 var router_upload = require("./process_upload");
 
 var router_file = require("./file_manage");
@@ -12,15 +14,25 @@ var payment = require("./payment");
 
 var app = express();
 
+var root = path.resolve(process.argv[2] || "../client/dist");
+
+var root1 = path.resolve(process.argv[2] || "../client");
+
+app.use(express.static(root));
+
 app.use("/upload", router_upload);
 
-app.use("/", router_file);
+/*app.use("/", router_file);*/
 
 app.use("/get", router_get);
 
 app.use("/pay", payment.router_pay);
 
 app.use("/dbget", router_db.router_db_get);
+
+app.get("*", function (request, response) {
+  response.sendFile(path.resolve(root1, "dist", "index.html"));
+});
 
 var server = app.listen(4242, "192.168.0.128");
 

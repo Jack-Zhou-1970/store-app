@@ -1,7 +1,8 @@
 import React from "react";
-import { useState } from "react";
 
-import { Button, message, Modal, Affix } from "antd";
+import { useEffect, useState } from "react";
+
+import { Button, message, Modal, Affix, Spin, Divider } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -10,6 +11,13 @@ import history from "../history";
 import { store } from "../app";
 
 import { connect } from "react-redux";
+
+import { checkPic } from "./component_home";
+
+import cart from "../../images/cart.png";
+import home from "../../images/home.png";
+import deleteAll from "../../images/delete.png";
+import cash from "../../images/cash.png";
 
 //find mainProduct price
 
@@ -111,13 +119,18 @@ function ShopCard(props) {
   }
   return (
     <div>
-      <div style={{ marginLeft: "15%" }}>
-        <div style={{ marginLeft: "35%" }}>
-          <img src={props.picFile} style={{ width: "30%", height: "30%" }} />
+      <div
+        style={{
+          marginLeft: "15%",
+          marginTop: "5%",
+        }}
+      >
+        <div style={{ marginLeft: "28%" }}>
+          <img src={props.picFile} style={{ width: "20%", height: "20%" }} />
         </div>
-        <div style={{ marginLeft: "5%", marginTop: "5%" }}>
+        <div style={{ marginLeft: "20%", marginTop: "5%" }}>
           <Row>
-            <Col xs={12}>
+            <Col xs={8}>
               <h3>{props.mainProductName}</h3>
             </Col>
             <Col xs={10} style={{ marginLeft: "0%" }}>
@@ -140,6 +153,7 @@ function ShopCard(props) {
           </div>
         </div>
       </div>
+      <Divider />
     </div>
   );
 }
@@ -148,7 +162,7 @@ function OrderTotal(props) {
   var price = calShopTotal(props.productList, props.orderProduct);
   var price_s = "总价格:$" + (price / 100).toString();
   return (
-    <div style={{ marginLeft: "15%", marginTop: "5%" }}>
+    <div style={{ marginLeft: "28%", marginTop: "5%" }}>
       <div style={{ marginLeft: "5%" }}>
         <h2>{price_s}</h2>
       </div>
@@ -188,44 +202,55 @@ function ShopCard_container(props) {
 
   const [isModalVisible, setModalVisible] = useState(false);
   return (
-    <div style={{ marginTop: "15%" }}>
-      {props.children}
-      <OrderTotal />
-      <Affix offsetBottom={10} style={{ marginLeft: "20%", marginTop: "10%" }}>
-        <Row>
-          <Col xs={4} style={{ marginRight: "8%" }}>
-            <Button type="primary " onClick={handle_pay}>
-              结算
-            </Button>
-          </Col>
+    <div style={{ marginTop: "0%" }}>
+      <Affix offsetTop={0}>
+        <div
+          style={{
+            backgroundColor: "#cac2c8",
 
-          <Col xs={4} style={{ marginRight: "8%" }}>
-            <Button type="primary " onClick={handle_home}>
-              主页
-            </Button>
-          </Col>
-          <Col xs={4}>
-            <Button type="primary " onClick={handle_delete}>
-              清空
-            </Button>
-          </Col>
+            zIndex: "10",
+          }}
+        >
+          <Row>
+            <Col xs={4} style={{ marginLeft: "15%", marginRight: "11%" }}>
+              <a onClick={handle_pay}>
+                <img src={cash} style={{ width: "50%" }}></img>
+              </a>
+            </Col>
 
-          <Modal
-            title="清空购物车"
-            visible={isModalVisible}
-            onOk={handle_ok}
-            onCancel={handle_cancel}
-            width={300}
-            closable={false}
-            centered={true}
-            maskClosable={false}
-            okText="确认"
-            cancelText="取消"
-          >
-            请确认是否要清空购物车？
-          </Modal>
-        </Row>
+            <Col xs={4} style={{ marginRight: "15%" }}>
+              <a onClick={handle_home}>
+                <img src={home} style={{ width: "50%" }}></img>
+              </a>
+            </Col>
+            <Col xs={4}>
+              <a onClick={handle_delete}>
+                <img src={deleteAll} style={{ width: "40%" }}></img>
+              </a>
+            </Col>
+
+            <Modal
+              title="清空购物车"
+              visible={isModalVisible}
+              onOk={handle_ok}
+              onCancel={handle_cancel}
+              width={300}
+              closable={false}
+              centered={true}
+              maskClosable={false}
+              okText="确认"
+              cancelText="取消"
+            >
+              请确认是否要清空购物车？
+            </Modal>
+          </Row>
+        </div>
       </Affix>
+
+      <div style={{ marginTop: "8%" }}>
+        {props.children}
+        <OrderTotal />
+      </div>
     </div>
   );
 }
@@ -241,6 +266,13 @@ function findPicFileByName(productList, productName) {
 }
 
 export function ShopCardList(props) {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkPic(props.productList, props.shopAddress, setLoading);
+    setLoading(props.productList.length > 0 ? false : true);
+  });
+
   function handle_add(mainProductName, smallProduct) {
     var productList = new Object();
 
@@ -267,29 +299,34 @@ export function ShopCardList(props) {
     });
   }
 
-  const shopCardList = props.orderProduct.map((item, index) => {
-    var picFile = findPicFileByName(props.productList, item.mainProductName);
-    var price = calShopSingle(props.productList, item);
-    return (
-      <ShopCard
-        key={index}
-        smallProductList={item.smallProduct.slice(0)}
-        picFile={picFile}
-        mainProductName={item.mainProductName}
-        amount={item.amount}
-        price={price}
-        handle_add={handle_add}
-        handle_dec={handle_dec}
-      />
-    );
-  });
-  return <ShopCard_container>{shopCardList}</ShopCard_container>;
+  if (props.productList.length > 0) {
+    const shopCardList = props.orderProduct.map((item, index) => {
+      var picFile = findPicFileByName(props.productList, item.mainProductName);
+      var price = calShopSingle(props.productList, item);
+      return (
+        <ShopCard
+          key={index}
+          smallProductList={item.smallProduct.slice(0)}
+          picFile={picFile}
+          mainProductName={item.mainProductName}
+          amount={item.amount}
+          price={price}
+          handle_add={handle_add}
+          handle_dec={handle_dec}
+        />
+      );
+    });
+    return <ShopCard_container>{shopCardList}</ShopCard_container>;
+  } else {
+    return <Spin spinning={loading}></Spin>;
+  }
 }
 
 const mapStateToProps_ShopCardList = (state) => {
   return {
     orderProduct: state.orderInfoReducer.orderProduct,
     productList: state.productListReducer,
+    shopAddress: state.userInfoReducer.shopAddress,
   };
 };
 

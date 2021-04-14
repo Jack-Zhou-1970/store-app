@@ -81,29 +81,57 @@ function UserInfo_pay(props) {
       </div>
       <Row>
         <Col xs={4}>
-          <Input placeholder="姓" onChange={handle_lastName} />
+          <Input
+            placeholder="姓"
+            onChange={handle_lastName}
+            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          />
         </Col>
 
         <Col style={{ marginLeft: "2%" }} xs={4}>
-          <Input placeholder="名" onChange={handle_firstName} />
+          <Input
+            placeholder="名"
+            onChange={handle_firstName}
+            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          />
         </Col>
       </Row>
       <Row style={{ marginTop: "2%" }}>
         <Col xs={10}>
-          <Input placeholder="地址" onChange={handle_address} />
+          <Input
+            placeholder="地址"
+            onChange={handle_address}
+            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          />
         </Col>
       </Row>
       <Row style={{ marginTop: "2%" }}>
         <Col xs={6}>
-          <Input placeholder="城市" onChange={handle_city} />
+          <Input
+            placeholder="城市"
+            onChange={handle_city}
+            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          />
         </Col>
 
         <Col style={{ marginLeft: "2%" }} xs={6}>
-          <Input placeholder="邮编" onChange={handle_postalCode} />
+          <Input
+            placeholder="邮编"
+            onChange={handle_postalCode}
+            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          />
         </Col>
 
         <Col xs={4}>
-          <Select style={{ width: 100 }} onChange={handle_province}>
+          <Select
+            style={{
+              width: 100,
+              borderTop: "0px",
+              borderLeft: "0px",
+              borderRight: "0px",
+            }}
+            onChange={handle_province}
+          >
             <Option value="ON">ON</Option>
             <Option value="BC">BC</Option>
           </Select>
