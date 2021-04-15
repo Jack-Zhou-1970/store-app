@@ -13,6 +13,8 @@ import {
   Affix,
   Spin,
   Divider,
+  Drawer,
+  Menu,
 } from "antd";
 import { Row, Col } from "antd";
 
@@ -23,10 +25,16 @@ import { store } from "../app";
 
 import { connect } from "react-redux";
 
-import cart from "../../images/cart.png";
+import add from "../../images/add.png";
 import home from "../../images/home.png";
+import cart from "../../images/cart.png";
+import banner from "../../images/banner.png";
+import menu from "../../images/menu.png";
+import order from "../../images/order.png";
+import cash from "../../images/cash.png";
 
 import api from "../api";
+import { Menu_1 } from "./component_menu";
 
 const err = (msg) => {
   message.error(msg, 2);
@@ -200,20 +208,30 @@ export function Home_header(props) {
     history.push("/cart");
   }
   return (
-    <div style={{ height: "200px", position: "relative" }}>
-      <Affix
-        offsetTop={10}
-        style={{ position: "absolute", top: "10%", left: "80%", zIndex: "20" }}
-      >
-        <div style={{ width: "50%" }}>
-          <Badge count={props.orderInfo.orderProduct.length}>
-            <a onClick={handle_click}>
-              <img src={cart} style={{ width: "100%" }} />
-            </a>
-          </Badge>
+    <Affix offsetTop={0}>
+      <div style={{ position: "relative" }}>
+        <div
+          offsetTop={30}
+          style={{ position: "absolute", top: "10%", left: "5%", zIndex: "20" }}
+        >
+          <Menu_1 />
         </div>
-      </Affix>
-    </div>
+
+        <div style={{ marginBottom: "5%", zIndex: "-10" }}>
+          <img src={banner} style={{ width: "100%" }} />
+        </div>
+
+        <div style={{ position: "absolute", top: "10%", left: "80%" }}>
+          <div style={{ width: "30%", zIndex: "20" }}>
+            <Badge count={props.orderInfo.orderProduct.length}>
+              <a onClick={handle_click}>
+                <img src={cart} style={{ width: "100%" }} />
+              </a>
+            </Badge>
+          </div>
+        </div>
+      </div>
+    </Affix>
   );
 }
 
@@ -250,22 +268,23 @@ export function Home_productDetail(props) {
       <Affix offsetTop={0}>
         <div
           style={{
-            backgroundColor: "#cac2c8",
-
             zIndex: "10",
           }}
         >
           <Row>
-            <Col xs={4} style={{ marginLeft: "15%", marginRight: "30%" }}>
-              <a onClick={handle_add_cart}>
-                <img src={cart} style={{ width: "50%" }}></img>
-              </a>
+            <Col xs={4} style={{ marginLeft: "5%", marginRight: "60%" }}>
+              <div style={{ width: "20%" }}>
+                <a onClick={handle_home}>
+                  <img src={home} style={{ width: "100%" }}></img>
+                </a>
+              </div>
             </Col>
-
             <Col xs={4}>
-              <a onClick={handle_home}>
-                <img src={home} style={{ width: "50%" }}></img>
-              </a>
+              <div style={{ width: "50%" }}>
+                <a onClick={handle_add_cart}>
+                  <img src={add} style={{ width: "100%" }}></img>
+                </a>
+              </div>
             </Col>
           </Row>
         </div>

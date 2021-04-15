@@ -212,6 +212,9 @@ export const userInfoReducer = (state = loginInfo, action) => {
         postalCode: action.payload,
       };
 
+    case "DEL_USER_INFO":
+      return loginInfo;
+
     default:
       return state;
   }

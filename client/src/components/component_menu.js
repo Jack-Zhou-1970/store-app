@@ -1,0 +1,187 @@
+import React from "react";
+import { useEffect, useState } from "react";
+
+import {
+  List,
+  Card,
+  Button,
+  Slider,
+  Radio,
+  Select,
+  message,
+  Badge,
+  Affix,
+  Spin,
+  Divider,
+  Drawer,
+  Menu,
+} from "antd";
+import { Row, Col } from "antd";
+
+import history from "../history";
+
+//redux
+import { store } from "../app";
+
+import { connect } from "react-redux";
+
+import add from "../../images/add.png";
+import home from "../../images/home.png";
+import cart from "../../images/cart.png";
+import banner from "../../images/banner.png";
+import menu from "../../images/menu.png";
+import order from "../../images/order.png";
+import cash from "../../images/cash.png";
+import info from "../../images/info.png";
+import login from "../../images/login.png";
+import logout from "../../images/logout.png";
+import phone from "../../images/phone.png";
+import reward from "../../images/reward.png";
+
+import api from "../api";
+import { deleteLogin } from "./component_login";
+
+export function Menu_1(props) {
+  const [visible, setVisble] = useState(false);
+
+  function onClose() {
+    setVisble(false);
+  }
+
+  function onClick() {
+    setVisble(true);
+  }
+
+  function handle_logout() {
+    console.log("come in");
+    store.dispatch({
+      type: "DEL_USER_INFO",
+    });
+
+    store.dispatch({
+      type: "DEL_ALL_ORDER_PRODUCT",
+    });
+
+    deleteLogin();
+
+    history.push("/");
+  }
+
+  function handle_login() {
+    history.push("/");
+  }
+
+  function handle_cart() {
+    history.push("/cart");
+  }
+
+  function handle_payment() {
+    history.push("/payment_1");
+  }
+
+  return (
+    <div>
+      <div style={{ width: "50%" }} onClick={onClick}>
+        <a>
+          <img src={menu} style={{ width: "100%" }} />
+        </a>
+      </div>
+      <Drawer
+        title="主菜单"
+        placement={"left"}
+        closable={false}
+        onClose={onClose}
+        visible={visible}
+        width={200}
+      >
+        <div>
+          <span>
+            <a style={{ color: "black" }} onClick={handle_cart}>
+              <img src={cart} style={{ width: "20%" }} />
+              &nbsp;&nbsp;购物车
+            </a>
+          </span>
+        </div>
+        <div style={{ marginTop: "4%" }}>
+          <span>
+            <a style={{ color: "black" }}>
+              <img src={order} style={{ width: "20%" }} />
+              &nbsp;&nbsp;我的订单
+            </a>
+          </span>
+        </div>
+        <div style={{ marginTop: "4%" }}>
+          <span>
+            <a style={{ color: "black" }} onClick={handle_payment}>
+              <img src={cash} style={{ width: "20%" }} />
+              &nbsp;&nbsp;付款
+            </a>
+          </span>
+        </div>
+
+        <div style={{ marginTop: "30%" }}>
+          <span>
+            <a style={{ color: "black" }}>
+              <img src={reward} style={{ width: "15%" }} />
+              &nbsp;&nbsp;积分
+            </a>
+          </span>
+        </div>
+
+        <div style={{ marginTop: "4%" }}>
+          <span>
+            <a style={{ color: "black" }}>
+              <img src={info} style={{ width: "15%" }} />
+              &nbsp;&nbsp;个人信息
+            </a>
+          </span>
+        </div>
+
+        <div
+          style={{
+            marginTop: "4%",
+            display: props.userInfo.email != "" ? "none" : "block",
+          }}
+        >
+          <span>
+            <a style={{ color: "black" }} onClick={handle_login}>
+              <img src={login} style={{ width: "15%" }} />
+              &nbsp;&nbsp;登陆
+            </a>
+          </span>
+        </div>
+
+        <div
+          style={{
+            marginTop: "4%",
+            display: props.userInfo.email != "" ? "block" : "none",
+          }}
+        >
+          <span>
+            <a style={{ color: "black" }} onClick={handle_logout}>
+              <img src={logout} style={{ width: "15%" }} />
+              &nbsp;&nbsp;登出
+            </a>
+          </span>
+        </div>
+
+        <div style={{ marginTop: "30%" }}>
+          <span>
+            <a style={{ color: "black" }}>
+              <img src={phone} style={{ width: "15%" }} />
+              &nbsp;&nbsp;商家信息
+            </a>
+          </span>
+        </div>
+      </Drawer>
+    </div>
+  );
+}
+
+const mapStateToProps_menu = (state) => {
+  return {
+    userInfo: state.userInfoReducer,
+  };
+};
+
+Menu_1 = connect(mapStateToProps_menu)(Menu_1);

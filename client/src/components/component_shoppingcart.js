@@ -206,27 +206,32 @@ function ShopCard_container(props) {
       <Affix offsetTop={0}>
         <div
           style={{
-            backgroundColor: "#cac2c8",
-
             zIndex: "10",
           }}
         >
           <Row>
             <Col xs={4} style={{ marginLeft: "15%", marginRight: "11%" }}>
-              <a onClick={handle_pay}>
-                <img src={cash} style={{ width: "50%" }}></img>
-              </a>
+              <div style={{ width: "20%" }}>
+                <a onClick={handle_home}>
+                  <img src={home} style={{ width: "100%" }}></img>
+                </a>
+              </div>
             </Col>
 
             <Col xs={4} style={{ marginRight: "15%" }}>
-              <a onClick={handle_home}>
-                <img src={home} style={{ width: "50%" }}></img>
-              </a>
+              <div style={{ width: "50%" }}>
+                <a onClick={handle_pay}>
+                  <img src={cash} style={{ width: "100%" }}></img>
+                </a>
+              </div>
             </Col>
+
             <Col xs={4}>
-              <a onClick={handle_delete}>
-                <img src={deleteAll} style={{ width: "40%" }}></img>
-              </a>
+              <div style={{ width: "25%" }}>
+                <a onClick={handle_delete}>
+                  <img src={deleteAll} style={{ width: "100%" }}></img>
+                </a>
+              </div>
             </Col>
 
             <Modal

@@ -21,6 +21,16 @@ import storageSession from "redux-persist/lib/storage/session";
 import storage from "redux-persist/lib/storage";
 import { PersistGate } from "redux-persist/lib/integration/react";
 
+import bg1 from "../images/bg1.jpg";
+
+var sectionStyle = {
+  width: "100%",
+  height: "100%",
+  // makesure here is String确保这里是一个字符串，以下是es6写法
+  backgroundImage: `url(${bg1})`,
+  backgroundSize: "cover",
+};
+
 const storageConfig = {
   key: "root", // 必须有的
   storage: storage, // 缓存机制
@@ -83,7 +93,9 @@ function App() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <Router history={history}>
-          <Main />
+          <div style={sectionStyle}>
+            <Main />
+          </div>
         </Router>
       </PersistGate>
     </Provider>
