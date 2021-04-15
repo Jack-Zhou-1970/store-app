@@ -443,6 +443,16 @@ async function getOrderStatusByOrdetNumberInstend(orderNumber, paymentInstend) {
   return dbToJson(result);
 }
 
+//delete UnpaymentRecord by order number
+async function deleteUnpaymentRecord(orderNumber) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "delete order_table,order_product_table from order_table,order_product_table where order_table.orderNumber=? and order_table.orderStatus = 'readyPayment' and order_product_table.orderNumber = order_table.orderNumber",
+    [orderNumber]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+  return dbToJson(result);
+}
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -467,4 +477,5 @@ module.exports = {
   deleteFromEmail: deleteFromEmail, //delete from user table by email
   getVerifyCodeFromEmail: getVerifyCodeFromEmail, //get verifycode from email used to judge if register complete
   updateStatusFromEmail: updateStatusFromEmail, ////update status from user_table when register complete
+  deleteUnpaymentRecord: deleteUnpaymentRecord, //delete UnpaymentRecord by order number
 };

@@ -40,11 +40,13 @@ export default function CheckoutForm(props) {
   const elements = useElements();
 
   function handle_home() {
-    history.push("/home");
-  }
+    var inputObj = new Object();
+    console.log(props.orderInfo.orderNumber);
+    inputObj.orderNumber = props.orderInfo.orderNumber;
 
-  function handle_cart() {
-    history.push("/cart");
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/home");
+    });
   }
 
   function handle_payment() {

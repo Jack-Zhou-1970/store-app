@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -17,6 +17,14 @@ import { connect } from "react-redux";
 const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
 
 export default function NormalPay_form() {
+  useEffect(() => {
+    //forbidden back
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", function (event) {
+      window.history.pushState(null, document.title, window.location.href);
+    });
+    // Step 1:get bill info and display to customer to confirm
+  }, []);
   return (
     <div style={{ marginTop: "5%", marginLeft: "15%" }}>
       <Elements stripe={stripePromise}>

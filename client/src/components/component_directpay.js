@@ -14,6 +14,7 @@ import history from "../history";
 import { store } from "../app";
 
 import { connect } from "react-redux";
+import { object } from "prop-types";
 
 function UserInfo(props) {
   return (
@@ -132,11 +133,21 @@ function PaymentMethod(props) {
   const [value, setValue] = useState(ini_value);
 
   function handle_home() {
-    history.push("/home");
+    var inputObj = new Object();
+    inputObj.orderNumber = props.orderNumber;
+
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/home");
+    });
   }
 
   function handle_cart() {
-    history.push("/cart");
+    var inputObj = new Object();
+    inputObj.orderNumber = props.orderNumber;
+
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/cart");
+    });
   }
 
   function handle_payment() {
@@ -259,6 +270,11 @@ export function BillInfo(props) {
   const [billInfo, setBillInfo] = useState({});
 
   useEffect(() => {
+    //forbidden back
+    window.history.pushState(null, document.title, window.location.href);
+    window.addEventListener("popstate", function (event) {
+      window.history.pushState(null, document.title, window.location.href);
+    });
     // Step 1:get bill info and display to customer to confirm
     api
       .getBillInfo(createPaymentDetail(props.orderProduct, props.userInfo))

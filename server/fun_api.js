@@ -256,6 +256,9 @@ const RDY_PICK = "readyPickup";
 const ALL_COMPLETE = "allComplete";
 
 async function storeDbBeforePayment(paymentComplete_obj, status) {
+  if (paymentComplete_obj.TotalPrice.totalPriceAfterTax == 0) {
+    return;
+  }
   var orderDetails = new Object();
 
   orderDetails.orderNumber = paymentComplete_obj.orderNumber;
@@ -646,6 +649,12 @@ async function getProductListFromShopCode(shopAddress) {
 
   return productList;
 }
+
+//delete UnpaymentRecord by order number
+async function deleteUnPaymentList(input_obj) {
+  await db_api.deleteUnpaymentRecord(input_obj.orderNumber);
+  return { status: "success" };
+}
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -661,4 +670,5 @@ module.exports = {
   processRegister: processRegister, //the function is used to process user register
   processVerifyCode: processVerifyCode, //The  function used to verify the code
   getProductListFromShopCode: getProductListFromShopCode, //Get productList from ShopAddress
+  deleteUnPaymentList: deleteUnPaymentList, //delete UnpaymentRecord by order number
 };
