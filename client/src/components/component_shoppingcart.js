@@ -14,10 +14,10 @@ import { connect } from "react-redux";
 
 import { checkPic } from "./component_home";
 
-import cart from "../../images/cart.png";
-import home from "../../images/home.png";
-import deleteAll from "../../images/delete.png";
-import cash from "../../images/cash.png";
+import cart from "../../images/cart.svg";
+import home from "../../images/home.svg";
+import deleteAll from "../../images/delete.svg";
+import cash from "../../images/cash.svg";
 
 //find mainProduct price
 
@@ -211,25 +211,25 @@ function ShopCard_container(props) {
         >
           <Row>
             <Col xs={4} style={{ marginLeft: "15%", marginRight: "11%" }}>
-              <div style={{ width: "20%" }}>
+              <div>
                 <a onClick={handle_home}>
-                  <img src={home} style={{ width: "100%" }}></img>
+                  <img src={home} style={{ width: "32px" }}></img>
                 </a>
               </div>
             </Col>
 
             <Col xs={4} style={{ marginRight: "15%" }}>
-              <div style={{ width: "50%" }}>
+              <div>
                 <a onClick={handle_pay}>
-                  <img src={cash} style={{ width: "100%" }}></img>
+                  <img src={cash} style={{ width: "32px" }}></img>
                 </a>
               </div>
             </Col>
 
             <Col xs={4}>
-              <div style={{ width: "25%" }}>
+              <div>
                 <a onClick={handle_delete}>
-                  <img src={deleteAll} style={{ width: "100%" }}></img>
+                  <img src={deleteAll} style={{ width: "26px" }}></img>
                 </a>
               </div>
             </Col>

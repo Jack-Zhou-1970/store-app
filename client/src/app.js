@@ -10,6 +10,7 @@ import { Home_productDetail } from "./components/component_home";
 import { Login } from "./login";
 import { Register } from "./register";
 import { ShoppingCart } from "./shoppingcart";
+import { OrderList } from "./components/component_orderlist";
 
 //for redux
 import { createStore } from "redux";
@@ -79,6 +80,9 @@ function Main() {
       </Route>
       <Route path="/productDetail">
         <Home_productDetail />
+      </Route>
+      <Route path="/orderList">
+        <OrderList />
       </Route>
       <Route path="/">
         <Login />

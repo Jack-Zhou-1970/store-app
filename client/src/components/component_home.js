@@ -25,13 +25,13 @@ import { store } from "../app";
 
 import { connect } from "react-redux";
 
-import add from "../../images/add.png";
-import home from "../../images/home.png";
-import cart from "../../images/cart.png";
+import add from "../../images/add.svg";
+import home from "../../images/home.svg";
+import cart from "../../images/cart.svg";
 import banner from "../../images/banner.png";
-import menu from "../../images/menu.png";
+import menu from "../../images/menu.svg";
 import order from "../../images/order.png";
-import cash from "../../images/cash.png";
+import cash from "../../images/cash.svg";
 
 import api from "../api";
 import { Menu_1 } from "./component_menu";
@@ -222,10 +222,10 @@ export function Home_header(props) {
         </div>
 
         <div style={{ position: "absolute", top: "10%", left: "80%" }}>
-          <div style={{ width: "30%", zIndex: "20" }}>
+          <div style={{ zIndex: "20" }}>
             <Badge count={props.orderInfo.orderProduct.length}>
               <a onClick={handle_click}>
-                <img src={cart} style={{ width: "100%" }} />
+                <img src={cart} style={{ width: "32px" }} />
               </a>
             </Badge>
           </div>
@@ -273,16 +273,16 @@ export function Home_productDetail(props) {
         >
           <Row>
             <Col xs={4} style={{ marginLeft: "5%", marginRight: "60%" }}>
-              <div style={{ width: "20%" }}>
+              <div>
                 <a onClick={handle_home}>
-                  <img src={home} style={{ width: "100%" }}></img>
+                  <img src={home} style={{ width: "32px" }}></img>
                 </a>
               </div>
             </Col>
             <Col xs={4}>
-              <div style={{ width: "50%" }}>
+              <div style={{ width: "20%" }}>
                 <a onClick={handle_add_cart}>
-                  <img src={add} style={{ width: "100%" }}></img>
+                  <img src={add} style={{ width: "32px" }}></img>
                 </a>
               </div>
             </Col>

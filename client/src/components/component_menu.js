@@ -25,11 +25,9 @@ import { store } from "../app";
 
 import { connect } from "react-redux";
 
-import add from "../../images/add.png";
-import home from "../../images/home.png";
 import cart from "../../images/cart.png";
-import banner from "../../images/banner.png";
-import menu from "../../images/menu.png";
+
+import menu from "../../images/menu.svg";
 import order from "../../images/order.png";
 import cash from "../../images/cash.png";
 import info from "../../images/info.png";
@@ -79,11 +77,15 @@ export function Menu_1(props) {
     history.push("/payment_1");
   }
 
+  function getOrderList() {
+    history.push("/orderList");
+  }
+
   return (
     <div>
-      <div style={{ width: "50%" }} onClick={onClick}>
+      <div onClick={onClick}>
         <a>
-          <img src={menu} style={{ width: "100%" }} />
+          <img src={menu} style={{ width: "32px" }} />
         </a>
       </div>
       <Drawer
@@ -104,7 +106,7 @@ export function Menu_1(props) {
         </div>
         <div style={{ marginTop: "4%" }}>
           <span>
-            <a style={{ color: "black" }}>
+            <a style={{ color: "black" }} onClick={getOrderList}>
               <img src={order} style={{ width: "20%" }} />
               &nbsp;&nbsp;我的订单
             </a>

@@ -144,15 +144,17 @@ async function insertOrderTable(
 
 async function insertOrderProductTable(
   orderNumber,
+  smallIndex,
   mainProductCode,
   mainProductNumber,
   smallProductCode,
   smallProductNumber
 ) {
   var result = await sqlQuery(
-    "insert into order_product_table(orderNumber,mainProductCode, mainProductNumber,smallProductCode,smallProductNumber) values(?,?,?,?,?)",
+    "insert into order_product_table(orderNumber,smallIndex,mainProductCode, mainProductNumber,smallProductCode,smallProductNumber) values(?,?,?,?,?,?)",
     [
       orderNumber,
+      smallIndex,
       mainProductCode,
       mainProductNumber,
       smallProductCode,
@@ -179,10 +181,17 @@ async function insertOrderAfterPayment(orderDetails_obj) {
     orderDetails_obj.rdyPickupTime
   );
 
+  console.log("before insert order_product_table");
+  console.log(orderDetails_obj);
+
+  var smallIndex = 0;
+
   for (var i = 0; i < orderDetails_obj.product.length; i++) {
+    smallIndex++;
     for (var j = 0; j < orderDetails_obj.product[i].smallProduct.length; j++) {
       await insertOrderProductTable(
         orderDetails_obj.orderNumber,
+        smallIndex,
         orderDetails_obj.product[i].mainProductCode,
         orderDetails_obj.product[i].amount,
         orderDetails_obj.product[i].smallProduct[j].productCode,
@@ -333,7 +342,7 @@ async function getShopCodeFromAddress(address) {
 //get userCode and other info from email,password
 async function getUserCodeFromEmail_1(email) {
   result = await sqlQuery(
-    "select userCode,password,firstName,lastName,pickupShop,nickName from user_table where email = ? and status='success'",
+    "select userCode,password,firstName,lastName,pickupShop,nickName,phone from user_table where email = ? and status='success'",
     [email]
   );
   return dbToJson(result);
@@ -453,6 +462,15 @@ async function deleteUnpaymentRecord(orderNumber) {
   await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
   return dbToJson(result);
 }
+
+//get orderInfo from userCode
+async function getOrderInfo(userCode) {
+  var result = await sqlQuery(
+    "select order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where user_table.userCode=? and user_table.userCode=order_table.userCode and order_table.orderNumber = order_product_table.orderNumber and order_table.orderStatus = 'requireCapture' and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    [userCode]
+  );
+  return dbToJson(result);
+}
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -478,4 +496,5 @@ module.exports = {
   getVerifyCodeFromEmail: getVerifyCodeFromEmail, //get verifycode from email used to judge if register complete
   updateStatusFromEmail: updateStatusFromEmail, ////update status from user_table when register complete
   deleteUnpaymentRecord: deleteUnpaymentRecord, //delete UnpaymentRecord by order number
+  getOrderInfo: getOrderInfo, //get orderInfo from userCode
 };

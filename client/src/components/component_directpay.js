@@ -71,12 +71,11 @@ function createData(subPrice) {
 }
 
 function OrderList(props) {
-  console.log("in  OrderList");
-  console.log(props.subPrice);
   const data = createData(props.subPrice);
   return (
     <List
       itemLayout="horizontal"
+      split={false}
       dataSource={data}
       renderItem={(item) => (
         <List.Item>

@@ -433,6 +433,7 @@ async function getUserCode(userInfo_obj) {
   } else {
     userInfo_obj.userCode = result[0].userCode;
     userInfo_obj.nickName = result[0].nickName;
+    userInfo_obj.phone = result[0].phone;
 
     var result1 = await db_api.getShopAddressFromShopCode(result[0].pickupShop);
     if (result1.length > 0) {
@@ -655,6 +656,109 @@ async function deleteUnPaymentList(input_obj) {
   await db_api.deleteUnpaymentRecord(input_obj.orderNumber);
   return { status: "success" };
 }
+
+//get orderInfo from userCode
+async function getOrderInfoFromUserCode(userCode) {
+  var result = await db_api.getOrderInfo(userCode);
+
+  return result;
+}
+
+function findOrderNumber(inputObject) {
+  return inputObject.orderNumber == this.orderNumber;
+}
+
+function findProduct_1(inputObject) {
+  return (
+    inputObject.mainProductName == this.productName_main &&
+    inputObject.smallIndex == this.smallIndex
+  );
+}
+
+function findSmallIndex(inputObject) {
+  return inputObject.smallIndex == this.smallIndex;
+}
+
+async function getOrderListFromUserCode(inputObj) {
+  var order_db = await getOrderInfoFromUserCode(inputObj.userCode);
+  if (order_db.length == 0) return [];
+
+  var orderList = [];
+
+  for (var i = 0; i < order_db.length; i++) {
+    var index1 = -1;
+
+    index1 = orderList.findIndex(findOrderNumber, order_db[i]);
+    if (index1 == -1) {
+      //not find order number insert ordernumber,product,productsmall
+
+      var orderList_o = new Object();
+      orderList_o.orderNumber = order_db[i].orderNumber;
+      orderList_o.totalPrice = order_db[i].totalAmount;
+      orderList_o.paymentTime = order_db[i].paymentTime;
+
+      var product_o = new Object();
+      product_o.smallIndex = order_db[i].smallIndex;
+      product_o.mainProductName = order_db[i].productName_main;
+      product_o.amount = order_db[i].mainProductNumber;
+
+      productSmall_o = new Object();
+      productSmall_o.smallProductName = order_db[i].productName_small;
+      productSmall_o.amount = order_db[i].smallProductNumber;
+
+      product_o.smallProduct = [];
+      product_o.smallProduct.push(productSmall_o);
+
+      orderList_o.product = [];
+      orderList_o.product.push(product_o);
+
+      orderList.push(orderList_o);
+
+      continue;
+    }
+
+    //find order number,now check product but must use smallIndex
+
+    var index2 = -1;
+    index2 = orderList[index1].product.findIndex(findProduct_1, order_db[i]);
+
+    if (index2 == -1) {
+      //not find product ,insert product,small product
+
+      var product_o = new Object();
+      product_o.smallIndex = order_db[i].smallIndex;
+      product_o.mainProductName = order_db[i].productName_main;
+      product_o.amount = order_db[i].mainProductNumber;
+
+      productSmall_o = new Object();
+      productSmall_o.smallProductName = order_db[i].productName_small;
+      productSmall_o.amount = order_db[i].smallProductNumber;
+
+      product_o.smallProduct = [];
+      product_o.smallProduct.push(productSmall_o);
+
+      orderList[index1].product.push(product_o);
+      continue;
+    }
+
+    //find ordernumber and product, now check small product
+    var index3 = -1;
+    index3 = orderList[index1].product[index2].smallProduct.findIndex(
+      findProductSmall,
+      order_db[i]
+    );
+    if (index3 == -1) {
+      //not find small product just insert small product
+      productSmall_o = new Object();
+      productSmall_o.smallProductName = order_db[i].productName_small;
+      productSmall_o.amount = order_db[i].smallProductNumber;
+      orderList[index1].product[index2].smallProduct.push(productSmall_o);
+      continue;
+    }
+  }
+
+  return orderList;
+}
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -671,4 +775,6 @@ module.exports = {
   processVerifyCode: processVerifyCode, //The  function used to verify the code
   getProductListFromShopCode: getProductListFromShopCode, //Get productList from ShopAddress
   deleteUnPaymentList: deleteUnPaymentList, //delete UnpaymentRecord by order number
+  getOrderInfoFromUserCode: getOrderInfoFromUserCode, //get orderInfo from userCode
+  getOrderListFromUserCode: getOrderListFromUserCode, ////get orderInfo from userCode
 };
