@@ -11,6 +11,7 @@ import { Login } from "./login";
 import { Register } from "./register";
 import { ShoppingCart } from "./shoppingcart";
 import { OrderList } from "./components/component_orderlist";
+import { Reward } from "./components/component_reward";
 
 //for redux
 import { createStore } from "redux";
@@ -83,6 +84,9 @@ function Main() {
       </Route>
       <Route path="/orderList">
         <OrderList />
+      </Route>
+      <Route path="/reward">
+        <Reward />
       </Route>
       <Route path="/">
         <Login />

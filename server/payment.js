@@ -23,6 +23,7 @@ router_pay.post("/paymentComplete", async (req, res) => {
 
   if (data.status == "success") {
     var result = await fun_api.updateOrderStatus(data, "requireCapture");
+
     if (result == "success") {
       await fun_api.storeDbAfterCardPay(data);
       var result1 = await fun_api.updateRewardToDB(data);

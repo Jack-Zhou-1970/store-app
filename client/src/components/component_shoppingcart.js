@@ -180,9 +180,32 @@ const mapStateToProps_OrderTotal = (state) => {
 OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
 
 function ShopCard_container(props) {
+  function getOrderNumber() {
+    var orderNumber = 0;
+
+    for (var i = 0; i < props.orderInfo.orderProduct.length; i++) {
+      orderNumber = orderNumber + props.orderInfo.orderProduct[i].amount;
+    }
+
+    return orderNumber;
+  }
+
   function handle_pay() {
-    if (props.orderProduct.length > 0) {
-      history.push("/payment_1");
+    store.dispatch({
+      type: "MOD_REWARD_OUT",
+      reward_out: 0,
+    });
+    console.log("getOrderNumber()");
+    console.log(getOrderNumber());
+    if (props.orderInfo.orderProduct.length > 0) {
+      if (
+        props.userInfo.reward + getOrderNumber() * 10 < 80 ||
+        props.userInfo.userCode.charAt(0) == "T"
+      ) {
+        history.push("/payment_1");
+      } else {
+        history.push("/reward");
+      }
     } else {
       setPayVisible(true);
     }
@@ -285,7 +308,8 @@ function ShopCard_container(props) {
 
 const mapStateToProps_ShopCard_container = (state) => {
   return {
-    orderProduct: state.orderInfoReducer.orderProduct,
+    orderInfo: state.orderInfoReducer,
+    userInfo: state.userInfoReducer,
   };
 };
 ShopCard_container = connect(mapStateToProps_ShopCard_container)(

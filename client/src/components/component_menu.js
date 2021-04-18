@@ -44,6 +44,16 @@ export function Menu_1(props) {
   const [visible, setVisble] = useState(false);
   const [isPayVisible, setPayVisible] = useState(false);
 
+  function getOrderNumber() {
+    var orderNumber = 0;
+
+    for (var i = 0; i < props.orderInfo.orderProduct.length; i++) {
+      orderNumber = orderNumber + props.orderInfo.orderProduct[i].amount;
+    }
+
+    return orderNumber;
+  }
+
   function handle_cancel1() {
     setPayVisible(false);
   }
@@ -79,8 +89,19 @@ export function Menu_1(props) {
   }
 
   function handle_payment() {
-    if (props.orderProduct.length > 0) {
-      history.push("/payment_1");
+    store.dispatch({
+      type: "MOD_REWARD_OUT",
+      reward_out: 0,
+    });
+    if (props.orderInfo.orderProduct.length > 0) {
+      if (
+        props.userInfo.reward + getOrderNumber() * 10 < 80 ||
+        props.userInfo.userCode.charAt(0) == "T"
+      ) {
+        history.push("/payment_1");
+      } else {
+        history.push("/reward");
+      }
     } else {
       setPayVisible(true);
     }
@@ -132,10 +153,18 @@ export function Menu_1(props) {
 
         <div style={{ marginTop: "30%" }}>
           <span>
-            <a style={{ color: "black" }}>
-              <img src={reward} style={{ width: "15%" }} />
-              &nbsp;&nbsp;积分
-            </a>
+            <Badge
+              showZero
+              overflowCount={100000}
+              count={props.userInfo.reward}
+              offset={[-60, 0]}
+            >
+              >
+              <a style={{ color: "black" }}>
+                <img src={reward} style={{ width: "15%" }} />
+                &nbsp;&nbsp;积分
+              </a>
+            </Badge>
           </span>
         </div>
 
@@ -206,7 +235,7 @@ export function Menu_1(props) {
 const mapStateToProps_menu = (state) => {
   return {
     userInfo: state.userInfoReducer,
-    orderProduct: state.orderInfoReducer.orderProduct,
+    orderInfo: state.orderInfoReducer,
   };
 };
 

@@ -44,7 +44,7 @@ export const paymentDetails = {
 };
 
 //used to upload user register info to server
-export const userInfo = {
+export const userInfo_6 = {
   userCode: "000004",
   email: "njzhch@163.com",
   password: "123456",

@@ -9,7 +9,7 @@ import {
 
 import api from "../api";
 
-import { Button, Modal } from "antd";
+import { Button, Modal, Spin } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -31,7 +31,7 @@ export default function CheckoutForm(props) {
 
   const [error, setError] = useState(null);
   const [paymentDetails, setPayment] = useState(
-    createPaymentDetail(props.orderInfo.orderProduct, props.userInfo)
+    createPaymentDetail(props.orderInfo, props.userInfo)
   );
 
   const [succeeded, setSucceeded] = useState(false);
@@ -171,79 +171,81 @@ export default function CheckoutForm(props) {
 
     return (
       <div style={{ marginTop: "4%" }}>
-        <h3>信用卡信息：</h3>
+        <Spin size="large" spinning={processing}>
+          <h3>信用卡信息：</h3>
 
-        <div
-          style={{
-            border: "1px solid #bdb6b6",
-            borderTop: "0px",
-            borderLeft: "0px",
-            borderRight: "0px",
-            width: "60%",
-            height: "100%",
-            marginTop: "2%",
-          }}
-        >
-          <CardNumberElement options={options} />
-        </div>
+          <div
+            style={{
+              border: "1px solid #bdb6b6",
+              borderTop: "0px",
+              borderLeft: "0px",
+              borderRight: "0px",
+              width: "60%",
+              height: "100%",
+              marginTop: "2%",
+            }}
+          >
+            <CardNumberElement options={options} />
+          </div>
 
-        <div
-          style={{
-            border: "1px solid #bdb6b6",
-            borderTop: "0px",
-            borderLeft: "0px",
-            borderRight: "0px",
-            width: "60%",
-            marginTop: "2%",
-          }}
-        >
-          <CardExpiryElement options={options} />
-        </div>
+          <div
+            style={{
+              border: "1px solid #bdb6b6",
+              borderTop: "0px",
+              borderLeft: "0px",
+              borderRight: "0px",
+              width: "60%",
+              marginTop: "2%",
+            }}
+          >
+            <CardExpiryElement options={options} />
+          </div>
 
-        <div
-          style={{
-            border: "1px solid #bdb6b6",
-            borderTop: "0px",
-            borderLeft: "0px",
-            borderRight: "0px",
-            width: "60%",
-            marginTop: "2%",
-          }}
-        >
-          <CardCvcElement options={options} />
-        </div>
+          <div
+            style={{
+              border: "1px solid #bdb6b6",
+              borderTop: "0px",
+              borderLeft: "0px",
+              borderRight: "0px",
+              width: "60%",
+              marginTop: "2%",
+            }}
+          >
+            <CardCvcElement options={options} />
+          </div>
 
-        <Row style={{ marginTop: "8%" }}>
-          <Col xs={4} style={{ marginRight: "8%" }}>
-            <Button
-              disabled={processing || !clientSecret || !stripe}
-              onClick={handleSubmit}
-              style={{
-                backgroundColor: "#bd148a",
-                color: "white",
-              }}
-            >
-              {processing ? "支付中…" : "支付"}
-            </Button>
-          </Col>
-          <Col xs={4} style={{ marginRight: "8%" }}>
-            <Button onClick={handle_home}>主页</Button>
-          </Col>
-        </Row>
-        <Modal
-          title="支付结果"
-          visible={isModalVisible}
-          onOk={handle_payment}
-          width={300}
-          closable={false}
-          centered={true}
-          cancelButtonProps={{ disabled: true }}
-          maskClosable={false}
-          okText="确认"
-          cancelText="取消"
-        >
-          {message}
-        </Modal>
+          <Row style={{ marginTop: "8%" }}>
+            <Col xs={4} style={{ marginRight: "8%" }}>
+              <Button
+                disabled={processing || !clientSecret || !stripe}
+                onClick={handleSubmit}
+                style={{
+                  backgroundColor: "#bd148a",
+                  color: "white",
+                }}
+              >
+                {processing ? "支付中…" : "支付"}
+              </Button>
+            </Col>
+            <Col xs={4} style={{ marginRight: "8%" }}>
+              <Button onClick={handle_home}>主页</Button>
+            </Col>
+          </Row>
+          <Modal
+            title="支付结果"
+            visible={isModalVisible}
+            onOk={handle_payment}
+            width={300}
+            closable={false}
+            centered={true}
+            cancelButtonProps={{ disabled: true }}
+            maskClosable={false}
+            okText="确认"
+            cancelText="取消"
+          >
+            {message}
+          </Modal>
+        </Spin>
       </div>
     );
   };

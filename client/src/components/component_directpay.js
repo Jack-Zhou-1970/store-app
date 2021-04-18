@@ -4,7 +4,7 @@ import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions, List, Radio, Modal, Affix } from "antd";
+import { Descriptions, List, Radio, Modal, Affix, Spin } from "antd";
 
 import "antd/dist/antd.css";
 
@@ -18,7 +18,7 @@ import { object } from "prop-types";
 
 function UserInfo(props) {
   return (
-    <div style={{ marginTop: "2%" }}>
+    <div>
       <h3>下面是您本次订购的订单信息:</h3>
       <Descriptions title="用户信息:">
         <Descriptions.Item label="订单号">
@@ -93,8 +93,11 @@ function TotalPrice(props) {
   return (
     <div style={{ marginTop: "2%" }}>
       <Descriptions title="订单汇总:">
-        <Descriptions.Item label="税前价格:$">
-          {(props.totalPriceBeforeTax / 100).toString()}
+        <Descriptions.Item label="税前价格">
+          ${(props.totalPriceBeforeTax / 100).toString()}
+        </Descriptions.Item>
+        <Descriptions.Item label="积分抵扣金额">
+          ${(props.totalMoney / 100).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="运输费用">
           {(props.shipFee / 100).toString()}
@@ -108,6 +111,18 @@ function TotalPrice(props) {
           {(props.tax / 100).toFixed(2).toString()}
         </Descriptions.Item>
       </Descriptions>
+
+      <div style={{ marginTop: "2%" }}>
+        <Descriptions title="积分情况:">
+          <Descriptions.Item label="当前积分">{props.reward}</Descriptions.Item>
+          <Descriptions.Item label="预计消耗积分">
+            {props.reward_out}
+          </Descriptions.Item>
+          <Descriptions.Item label="完成获得积分">
+            {props.reward_in}
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
 
       <div style={{ marginTop: "2%" }}>
         <h2>税后总价: ${(props.totalPriceAfterTax / 100).toString()}</h2>
@@ -164,10 +179,7 @@ function PaymentMethod(props) {
     } else {
       //payment direct
       setProcessing(true);
-      var paymentDetails = createPaymentDetail(
-        props.orderInfo.orderProduct,
-        props.userInfo
-      );
+      var paymentDetails = createPaymentDetail(props.orderInfo, props.userInfo);
       paymentDetails.orderNumber = props.orderNumber;
       api.direct_pay(paymentDetails).then((result) => {
         setProcessing(false);
@@ -200,71 +212,73 @@ function PaymentMethod(props) {
   }
   return (
     <div style={{ marginTop: "5%" }}>
-      <div xs={8}>
-        <h3>请选择付款方式：</h3>
-        <Radio.Group
-          onChange={onChange}
-          defaultValue={props.last4 == "" || props.last4 == undefined ? 2 : 1}
-        >
-          <Radio
-            style={radioStyle}
-            disabled={
-              props.last4 == "" ||
-              props.last4 == undefined ||
-              props.orderInfo.totalPrice < 0.01
-            }
-            value={1}
+      <Spin size="large" spinning={processing}>
+        <div>
+          <h3>请选择付款方式：</h3>
+          <Radio.Group
+            onChange={onChange}
+            defaultValue={props.last4 == "" || props.last4 == undefined ? 2 : 1}
           >
-            使用尾号为{props.last4}的信用卡付款
-          </Radio>
-          <Radio
-            style={radioStyle}
-            value={2}
-            disabled={props.orderInfo.totalPrice < 0.01}
-          >
-            使用新的信用卡付款
-          </Radio>
-        </Radio.Group>
-      </div>
-      <Affix offsetBottom={10} style={{ marginLeft: "5%", marginTop: "10%" }}>
-        <Row>
-          <Col xs={4} style={{ marginRight: "8%" }}>
-            <Button
-              type="primary"
-              disabled={processing}
-              onClick={handle_normal_pay}
+            <Radio
+              style={radioStyle}
+              disabled={
+                props.last4 == "" ||
+                props.last4 == undefined ||
+                props.orderInfo.totalPrice < 0.01
+              }
+              value={1}
             >
-              {processing ? "支付中…" : "结账"}
-            </Button>
-          </Col>
-          <Col xs={4} style={{ marginRight: "8%" }}>
-            <Button onClick={handle_home}>主页</Button>
-          </Col>
-          <Col xs={4}>
-            <Button onClick={handle_cart}>购物车</Button>
-          </Col>
-        </Row>
-      </Affix>
-      <Modal
-        title="支付结果"
-        visible={isModalVisible}
-        onOk={handle_payment}
-        width={300}
-        closable={false}
-        centered={true}
-        cancelButtonProps={{ disabled: true }}
-        maskClosable={false}
-        okText="确认"
-        cancelText="取消"
-      >
-        {message}
-      </Modal>
+              使用尾号为{props.last4}的信用卡付款
+            </Radio>
+            <Radio
+              style={radioStyle}
+              value={2}
+              disabled={props.orderInfo.totalPrice < 0.01}
+            >
+              使用新的信用卡付款
+            </Radio>
+          </Radio.Group>
+        </div>
+        <Affix offsetBottom={10} style={{ marginLeft: "5%", marginTop: "10%" }}>
+          <Row>
+            <Col xs={4} style={{ marginRight: "8%" }}>
+              <Button
+                type="primary"
+                disabled={processing}
+                onClick={handle_normal_pay}
+              >
+                {processing ? "支付中…" : "结账"}
+              </Button>
+            </Col>
+            <Col xs={4} style={{ marginRight: "8%" }}>
+              <Button onClick={handle_home}>主页</Button>
+            </Col>
+            <Col xs={4}>
+              <Button onClick={handle_cart}>购物车</Button>
+            </Col>
+          </Row>
+        </Affix>
+        <Modal
+          title="支付结果"
+          visible={isModalVisible}
+          onOk={handle_payment}
+          width={300}
+          closable={false}
+          centered={true}
+          cancelButtonProps={{ disabled: true }}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          {message}
+        </Modal>
+      </Spin>
     </div>
   );
 }
 
 ///////////////////////////////////
-export function createPaymentDetail(orderProduct, userInfo) {
+export function createPaymentDetail(orderInfo, userInfo) {
   var paymentDetail = new Object();
 
   paymentDetail.userCode = userInfo.userCode;
@@ -274,12 +288,12 @@ export function createPaymentDetail(orderProduct, userInfo) {
   paymentDetail.shopAddress = userInfo.shopAddress;
 
   paymentDetail.product = [];
-  for (var i = 0; i < orderProduct.length; i++) {
-    paymentDetail.product.push(orderProduct[i]);
+  for (var i = 0; i < orderInfo.orderProduct.length; i++) {
+    paymentDetail.product.push(orderInfo.orderProduct[i]);
   }
 
-  if (orderProduct.reward_out != undefined && orderProduct.reward_out != "") {
-    paymentDetail.reward_out = orderProduct.reward_out;
+  if (orderInfo.reward_out != undefined && orderInfo.reward_out != "") {
+    paymentDetail.reward_out = orderInfo.reward_out;
   } else {
     paymentDetail.reward_out = 0;
   }
@@ -293,16 +307,16 @@ export function BillInfo(props) {
   const [billInfo, setBillInfo] = useState({});
 
   useEffect(() => {
+    console.log(props.orderInfo);
     //forbidden back
     window.history.pushState(null, document.title, window.location.href);
     window.addEventListener("popstate", function (event) {
       window.history.pushState(null, document.title, window.location.href);
     });
+
     // Step 1:get bill info and display to customer to confirm
     api
-      .getBillInfo(
-        createPaymentDetail(props.orderInfo.orderProduct, props.userInfo)
-      )
+      .getBillInfo(createPaymentDetail(props.orderInfo, props.userInfo))
       .then((result) => {
         setBillInfo(result);
 
@@ -320,32 +334,40 @@ export function BillInfo(props) {
 
   if (billInfo.TotalPrice != undefined) {
     return (
-      <div style={{ marginTop: "5%", marginLeft: "10%" }}>
-        <UserInfo
-          orderNumber={billInfo.orderNumber}
-          nickName={props.userInfo.nickName}
-          email={props.userInfo.email}
-          phone={props.userInfo.phone}
-          shopAddress={props.userInfo.shopAddress}
-        />
-        <div style={{ marginTop: "2%" }}>
-          <h3>购买详情：</h3>
-          <OrderList subPrice={billInfo.subPrice} />
+      <div style={{ height: "100%" }}>
+        <div style={{ height: "50px" }}></div>
+        <div style={{ marginTop: "0%", marginLeft: "10%", height: "100%" }}>
+          <UserInfo
+            orderNumber={billInfo.orderNumber}
+            nickName={props.userInfo.nickName}
+            email={props.userInfo.email}
+            phone={props.userInfo.phone}
+            shopAddress={props.userInfo.shopAddress}
+          />
+          <div style={{ marginTop: "2%" }}>
+            <h3>购买详情：</h3>
+            <OrderList subPrice={billInfo.subPrice} />
+          </div>
+          <TotalPrice
+            totalPriceBeforeTax={billInfo.TotalPrice.totalPriceBeforeTax}
+            reward_in={billInfo.TotalPrice.reward_in}
+            reward_out={billInfo.TotalPrice.reward_out}
+            totalMoney={billInfo.TotalPrice.reward_totalMoney}
+            reward={props.userInfo.reward}
+            shipFee={billInfo.TotalPrice.shipFee}
+            otherFee={billInfo.TotalPrice.otherFee}
+            taxRate={billInfo.TotalPrice.taxRate}
+            tax={billInfo.TotalPrice.tax}
+            totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
+          />
+          <PaymentMethod
+            last4={billInfo.last4}
+            orderNumber={billInfo.orderNumber}
+            orderInfo={props.orderInfo}
+            userInfo={props.userInfo}
+          />
         </div>
-        <TotalPrice
-          totalPriceBeforeTax={billInfo.TotalPrice.totalPriceBeforeTax}
-          shipFee={billInfo.TotalPrice.shipFee}
-          otherFee={billInfo.TotalPrice.otherFee}
-          taxRate={billInfo.TotalPrice.taxRate}
-          tax={billInfo.TotalPrice.tax}
-          totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
-        />
-        <PaymentMethod
-          last4={billInfo.last4}
-          orderNumber={billInfo.orderNumber}
-          orderInfo={props.orderInfo}
-          userInfo={props.userInfo}
-        />
+        <div style={{ height: "300px" }}></div>
       </div>
     );
   } else return <div></div>;

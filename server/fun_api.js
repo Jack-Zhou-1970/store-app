@@ -379,6 +379,28 @@ async function storeDbBeforePayment(paymentComplete_obj, status) {
   orderDetails.reward_out = paymentComplete_obj.TotalPrice.reward_out;
 
   await db_api.insertOrderAfterPayment(orderDetails);
+
+  //insert dB for guest
+  if (paymentComplete_obj.userCode.charAt(0) == "T") {
+    var result = await db_api.getUserInfoFromUserCode(
+      paymentComplete_obj.userCode
+    );
+    if (result.length == 0) {
+      var address = await getAllShopAdd();
+      var shopCode = await db_api.getShopCodeFromAddress(address[0]);
+      await db_api.insertRegister(
+        paymentComplete_obj.userCode,
+        "",
+        "",
+        "",
+        "customer",
+        shopCode,
+        "",
+        new Date(),
+        "success"
+      );
+    }
+  }
 }
 
 //this is card-pay, must store address info
@@ -494,6 +516,9 @@ function judgePassword(password1, password2) {
 
   var result1 = prikey.decrypt(password1, "utf8");
   var result2 = prikey.decrypt(password2, "utf8");
+
+  console.log(result1);
+  console.log(result2);
 
   if (result1 == false || result2 == false) {
     return false;
