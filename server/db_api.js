@@ -191,14 +191,29 @@ async function insertOrderAfterPayment(orderDetails_obj) {
 
   for (var i = 0; i < orderDetails_obj.product.length; i++) {
     smallIndex++;
-    for (var j = 0; j < orderDetails_obj.product[i].smallProduct.length; j++) {
+    if (orderDetails_obj.product[i].smallProduct.length > 0) {
+      for (
+        var j = 0;
+        j < orderDetails_obj.product[i].smallProduct.length;
+        j++
+      ) {
+        await insertOrderProductTable(
+          orderDetails_obj.orderNumber,
+          smallIndex,
+          orderDetails_obj.product[i].mainProductCode,
+          orderDetails_obj.product[i].amount,
+          orderDetails_obj.product[i].smallProduct[j].productCode,
+          orderDetails_obj.product[i].smallProduct[j].amount
+        );
+      }
+    } else {
       await insertOrderProductTable(
         orderDetails_obj.orderNumber,
         smallIndex,
         orderDetails_obj.product[i].mainProductCode,
         orderDetails_obj.product[i].amount,
-        orderDetails_obj.product[i].smallProduct[j].productCode,
-        orderDetails_obj.product[i].smallProduct[j].amount
+        499999,
+        0
       );
     }
   }
@@ -481,7 +496,7 @@ async function deleteUnpaymentRecord(orderNumber) {
 //get orderInfo from userCode
 async function getOrderInfo(userCode) {
   var result = await sqlQuery(
-    "select order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where user_table.userCode=? and user_table.userCode=order_table.userCode and order_table.orderNumber = order_product_table.orderNumber and order_table.orderStatus = 'requireCapture' and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    "select order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where user_table.userCode=? and user_table.userCode=order_table.userCode and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
     [userCode]
   );
   return dbToJson(result);

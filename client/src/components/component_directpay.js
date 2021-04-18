@@ -278,13 +278,13 @@ export function createPaymentDetail(orderProduct, userInfo) {
     paymentDetail.product.push(orderProduct[i]);
   }
 
-  /*if (orderProduct.reward_out != undefined && orderProduct.reward_out != "") {
+  if (orderProduct.reward_out != undefined && orderProduct.reward_out != "") {
     paymentDetail.reward_out = orderProduct.reward_out;
   } else {
     paymentDetail.reward_out = 0;
-  }*/
+  }
 
-  paymentDetail.reward_out = 100;
+  /*paymentDetail.reward_out = 100;*/
 
   return paymentDetail;
 }
