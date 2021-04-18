@@ -117,10 +117,12 @@ async function insertOrderTable(
   shopCode,
   orderStatus,
   shipFun,
-  rdyPickupTime
+  rdyPickupTime,
+  reward_in,
+  reward_out
 ) {
   var result = await sqlQuery(
-    "insert into order_table ( orderNumber,userCode,tax,shipping,otherFee,paymentMethod,paymentTime,totalAmount,shopCode,orderStatus,shipFun,rdyPickupTime) values(?,?,?,?,?,?,?,?,?,?,?,?)",
+    "insert into order_table ( orderNumber,userCode,tax,shipping,otherFee,paymentMethod,paymentTime,totalAmount,shopCode,orderStatus,shipFun,rdyPickupTime,reward_in,reward_out) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 
     [
       orderNumber,
@@ -136,6 +138,8 @@ async function insertOrderTable(
       orderStatus,
       shipFun,
       rdyPickupTime,
+      reward_in,
+      reward_out,
     ]
   );
 
@@ -178,11 +182,10 @@ async function insertOrderAfterPayment(orderDetails_obj) {
     orderDetails_obj.shopCode,
     orderDetails_obj.orderStatus,
     orderDetails_obj.shipFun,
-    orderDetails_obj.rdyPickupTime
+    orderDetails_obj.rdyPickupTime,
+    orderDetails_obj.reward_in,
+    orderDetails_obj.reward_out
   );
-
-  console.log("before insert order_product_table");
-  console.log(orderDetails_obj);
 
   var smallIndex = 0;
 
@@ -342,7 +345,7 @@ async function getShopCodeFromAddress(address) {
 //get userCode and other info from email,password
 async function getUserCodeFromEmail_1(email) {
   result = await sqlQuery(
-    "select userCode,password,firstName,lastName,pickupShop,nickName,phone from user_table where email = ? and status='success'",
+    "select userCode,password,firstName,lastName,pickupShop,nickName,phone,reward from user_table where email = ? and status='success'",
     [email]
   );
   return dbToJson(result);
@@ -431,6 +434,18 @@ async function updateOrderStatusInstend_db(
   return dbToJson(result);
 }
 
+//update order status by ordernumber
+async function updateOrderStatusNoIntend_db(orderNumber, orderStatus) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set orderStatus=? where orderNumber = ?",
+    [orderStatus, orderNumber]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
 //update status from user_table when register complete
 async function updateStatusFromEmail(email, status) {
   await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
@@ -471,6 +486,28 @@ async function getOrderInfo(userCode) {
   );
   return dbToJson(result);
 }
+
+//get reward_info from orderNumber
+async function getRewardInfo(orderNumber) {
+  var result = await sqlQuery(
+    "select reward_in,reward_out from order_table where orderNumber=?",
+    [orderNumber]
+  );
+  return dbToJson(result);
+}
+
+//update reward info into user_table
+async function updateRewardInfo(reward, userCode) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update user_table set reward=? where userCode = ?",
+    [reward, userCode]
+  );
+
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -497,4 +534,7 @@ module.exports = {
   updateStatusFromEmail: updateStatusFromEmail, ////update status from user_table when register complete
   deleteUnpaymentRecord: deleteUnpaymentRecord, //delete UnpaymentRecord by order number
   getOrderInfo: getOrderInfo, //get orderInfo from userCode
+  getRewardInfo: getRewardInfo, //get reward_info from orderNumber
+  updateRewardInfo: updateRewardInfo, //update reward info into user_table
+  updateOrderStatusNoIntend_db: updateOrderStatusNoIntend_db, //update order status by ordernumber,no paymentInstend
 };

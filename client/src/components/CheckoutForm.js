@@ -135,6 +135,12 @@ export default function CheckoutForm(props) {
           type: "DEL_ALL_ORDER_PRODUCT",
         });
 
+        //update reward info
+        store.dispatch({
+          type: "UPDATE_REWARD",
+          payload: result.reward,
+        });
+
         setMessage("支付成功，请记下您的订单号" + props.orderInfo.orderNumber);
         setVisible(true);
       } else {

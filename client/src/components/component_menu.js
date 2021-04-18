@@ -15,6 +15,7 @@ import {
   Divider,
   Drawer,
   Menu,
+  Modal,
 } from "antd";
 import { Row, Col } from "antd";
 
@@ -41,6 +42,11 @@ import { deleteLogin } from "./component_login";
 
 export function Menu_1(props) {
   const [visible, setVisble] = useState(false);
+  const [isPayVisible, setPayVisible] = useState(false);
+
+  function handle_cancel1() {
+    setPayVisible(false);
+  }
 
   function onClose() {
     setVisble(false);
@@ -51,7 +57,6 @@ export function Menu_1(props) {
   }
 
   function handle_logout() {
-    console.log("come in");
     store.dispatch({
       type: "DEL_USER_INFO",
     });
@@ -74,7 +79,11 @@ export function Menu_1(props) {
   }
 
   function handle_payment() {
-    history.push("/payment_1");
+    if (props.orderProduct.length > 0) {
+      history.push("/payment_1");
+    } else {
+      setPayVisible(true);
+    }
   }
 
   function getOrderList() {
@@ -176,6 +185,20 @@ export function Menu_1(props) {
           </span>
         </div>
       </Drawer>
+      <Modal
+        title="错误"
+        visible={isPayVisible}
+        onOk={handle_cancel1}
+        onCancel={handle_cancel1}
+        width={300}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        购物车没有商品，无法结账！
+      </Modal>
     </div>
   );
 }
@@ -183,6 +206,7 @@ export function Menu_1(props) {
 const mapStateToProps_menu = (state) => {
   return {
     userInfo: state.userInfoReducer,
+    orderProduct: state.orderInfoReducer.orderProduct,
   };
 };
 

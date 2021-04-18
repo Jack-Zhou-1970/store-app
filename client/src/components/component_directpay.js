@@ -159,13 +159,13 @@ function PaymentMethod(props) {
   }
 
   function handle_normal_pay() {
-    if (value == 2) {
+    if (value == 2 && props.orderInfo.totalPrice > 0) {
       history.push("payment_2");
     } else {
       //payment direct
       setProcessing(true);
       var paymentDetails = createPaymentDetail(
-        props.orderProduct,
+        props.orderInfo.orderProduct,
         props.userInfo
       );
       paymentDetails.orderNumber = props.orderNumber;
@@ -176,6 +176,12 @@ function PaymentMethod(props) {
           //clean shoppingCart
           store.dispatch({
             type: "DEL_ALL_ORDER_PRODUCT",
+          });
+
+          //update reward info
+          store.dispatch({
+            type: "UPDATE_REWARD",
+            payload: result.reward,
           });
 
           setMessage("支付成功，请记下您的订单号" + props.orderNumber);
@@ -202,12 +208,20 @@ function PaymentMethod(props) {
         >
           <Radio
             style={radioStyle}
-            disabled={props.last4 == "" || props.last4 == undefined}
+            disabled={
+              props.last4 == "" ||
+              props.last4 == undefined ||
+              props.orderInfo.totalPrice < 0.01
+            }
             value={1}
           >
             使用尾号为{props.last4}的信用卡付款
           </Radio>
-          <Radio style={radioStyle} value={2}>
+          <Radio
+            style={radioStyle}
+            value={2}
+            disabled={props.orderInfo.totalPrice < 0.01}
+          >
             使用新的信用卡付款
           </Radio>
         </Radio.Group>
@@ -254,13 +268,23 @@ export function createPaymentDetail(orderProduct, userInfo) {
   var paymentDetail = new Object();
 
   paymentDetail.userCode = userInfo.userCode;
+  paymentDetail.email = userInfo.email;
   paymentDetail.otherFee = 0; //for test
+
   paymentDetail.shopAddress = userInfo.shopAddress;
 
   paymentDetail.product = [];
   for (var i = 0; i < orderProduct.length; i++) {
     paymentDetail.product.push(orderProduct[i]);
   }
+
+  /*if (orderProduct.reward_out != undefined && orderProduct.reward_out != "") {
+    paymentDetail.reward_out = orderProduct.reward_out;
+  } else {
+    paymentDetail.reward_out = 0;
+  }*/
+
+  paymentDetail.reward_out = 100;
 
   return paymentDetail;
 }
@@ -276,7 +300,9 @@ export function BillInfo(props) {
     });
     // Step 1:get bill info and display to customer to confirm
     api
-      .getBillInfo(createPaymentDetail(props.orderProduct, props.userInfo))
+      .getBillInfo(
+        createPaymentDetail(props.orderInfo.orderProduct, props.userInfo)
+      )
       .then((result) => {
         setBillInfo(result);
 
@@ -317,7 +343,7 @@ export function BillInfo(props) {
         <PaymentMethod
           last4={billInfo.last4}
           orderNumber={billInfo.orderNumber}
-          orderProduct={props.orderProduct}
+          orderInfo={props.orderInfo}
           userInfo={props.userInfo}
         />
       </div>
@@ -327,7 +353,7 @@ export function BillInfo(props) {
 
 const mapStateToProps_BillInfo = (state) => {
   return {
-    orderProduct: state.orderInfoReducer.orderProduct,
+    orderInfo: state.orderInfoReducer,
     userInfo: state.userInfoReducer,
   };
 };

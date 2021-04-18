@@ -181,7 +181,11 @@ OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
 
 function ShopCard_container(props) {
   function handle_pay() {
-    history.push("/payment_1");
+    if (props.orderProduct.length > 0) {
+      history.push("/payment_1");
+    } else {
+      setPayVisible(true);
+    }
   }
   function handle_home() {
     history.push("/home");
@@ -193,14 +197,19 @@ function ShopCard_container(props) {
     store.dispatch({
       type: "DEL_ALL_ORDER_PRODUCT",
     });
+
     setModalVisible(false);
     history.push("/home");
   }
   function handle_cancel() {
     setModalVisible(false);
   }
+  function handle_cancel1() {
+    setPayVisible(false);
+  }
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isPayVisible, setPayVisible] = useState(false);
   return (
     <div style={{ marginTop: "0%" }}>
       <Affix offsetTop={0}>
@@ -246,7 +255,21 @@ function ShopCard_container(props) {
               okText="确认"
               cancelText="取消"
             >
-              请确认是否要清空购物车？
+              "请确认是否清空购物车"
+            </Modal>
+            <Modal
+              title="错误"
+              visible={isPayVisible}
+              onOk={handle_cancel1}
+              onCancel={handle_cancel1}
+              width={300}
+              closable={false}
+              centered={true}
+              maskClosable={false}
+              okText="确认"
+              cancelText="取消"
+            >
+              购物车没有商品，无法结账！
             </Modal>
           </Row>
         </div>
@@ -259,6 +282,15 @@ function ShopCard_container(props) {
     </div>
   );
 }
+
+const mapStateToProps_ShopCard_container = (state) => {
+  return {
+    orderProduct: state.orderInfoReducer.orderProduct,
+  };
+};
+ShopCard_container = connect(mapStateToProps_ShopCard_container)(
+  ShopCard_container
+);
 
 function findPicFileByName(productList, productName) {
   for (var i = 0; i < productList.length; i++) {

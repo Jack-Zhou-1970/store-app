@@ -169,6 +169,12 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         ...state,
         orderNumber: action.orderNumber,
       };
+
+    case "MOD_REWARD_OUT":
+      return {
+        ...state,
+        reward_out: action.reward_out,
+      };
     default:
       return state;
   }
@@ -210,6 +216,12 @@ export const userInfoReducer = (state = loginInfo, action) => {
       return {
         ...state,
         postalCode: action.payload,
+      };
+
+    case "UPDATE_REWARD":
+      return {
+        ...state,
+        reward: action.payload,
       };
 
     case "DEL_USER_INFO":

@@ -7,7 +7,7 @@ const prv_key =
 
 const db_api = require("./db_api");
 const { json } = require("body-parser");
-const { getUserCodeFromEmail } = require("./db_api");
+const { getUserCodeFromEmail, getUserCodeFromEmail_1 } = require("./db_api");
 
 const mailSend = require("./email");
 
@@ -95,6 +95,73 @@ async function calMainProductprice(mainProductCode) {
   }
 }
 
+//this function is used to cal reward
+function calReward(reward_price, reward_amount, reward_number) {
+  function findMaxIndex(array) {
+    max = 0;
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] > array[max]) {
+        max = i;
+      }
+    }
+    return max;
+  }
+
+  if (reward_number == undefined || reward_number == "") {
+    reward_number = 0;
+  }
+
+  var reward_result = new Object();
+
+  //first cal how much many can dec
+  var totalMoney = 0;
+
+  var cupNumber = Math.floor(reward_number / 100); //reward 100 = 1 cup
+
+  var cupNumber_s = cupNumber;
+
+  while (cupNumber > 0 && reward_amount.length > 0) {
+    var index = findMaxIndex(reward_price);
+    if (reward_amount[index] >= cupNumber) {
+      totalMoney = totalMoney + cupNumber * reward_price[index];
+      reward_amount[index] = reward_amount[index] - cupNumber;
+      cupNumber = 0;
+      break;
+    } else {
+      totalMoney = totalMoney + reward_amount[index] * reward_price[index];
+      cupNumber = cupNumber - reward_amount[index];
+      reward_amount.splice(index, 1);
+      reward_price.splice(index, 1);
+    }
+  }
+
+  var reward_out = (cupNumber_s - cupNumber) * 100;
+
+  //next cal how many reward can get
+
+  var amount_remain = 0;
+
+  if (reward_amount.length > 0) {
+    for (var i = 0; i < reward_amount.length; i++) {
+      amount_remain = amount_remain + reward_amount[i];
+    }
+  }
+
+  var reward_in = amount_remain * 10; //1cup = get 10 point
+
+  reward_result.totalMoney = totalMoney;
+
+  if (reward_number >= 100) {
+    reward_result.reward_out = reward_out;
+  } else {
+    reward_result.reward_out = 0;
+  }
+
+  reward_result.reward_in = reward_in;
+
+  return reward_result;
+}
+
 //this function is used to process price,return price info with json.   input: payment detail from client
 
 async function calPrice(paymentDetails_obj) {
@@ -103,6 +170,11 @@ async function calPrice(paymentDetails_obj) {
 
   var totalPrice = 0;
   var smallProductPrice = 0;
+
+  var reward_price = [];
+  var reward_amount = [];
+
+  var reward;
 
   for (var i = 0; i < paymentDetails_obj.product.length; i++) {
     var jsonMainProduct = new Object();
@@ -157,11 +229,27 @@ async function calPrice(paymentDetails_obj) {
       (jsonMainProduct.price + smallProductPrice) * jsonMainProduct.amount;
     totalPrice = totalPrice + jsonMainProduct.totalPrice;
 
+    reward_price.push(jsonMainProduct.price + smallProductPrice);
+    reward_amount.push(jsonMainProduct.amount);
+
     jsonMainProduct.smallProduct = priceSmallProduct;
     priceMainProduct.push(jsonMainProduct);
 
     priceSmallProduct = [];
     smallProductPrice = 0;
+  }
+
+  if (paymentDetails_obj.userCode.charAt(0) == "C") {
+    reward_result = calReward(
+      reward_price,
+      reward_amount,
+      paymentDetails_obj.reward_out
+    );
+  } else {
+    reward_result = new Object();
+    reward_result.reward_in = 0;
+    reward_result.reward_out = 0;
+    reward_result.totalMoney = 0;
   }
 
   var totalAmountBeforeTax = totalPrice;
@@ -177,18 +265,23 @@ async function calPrice(paymentDetails_obj) {
   } else {
     taxRates = taxRate[0].tax;
   }
-  var tax = totalAmountBeforeTax * taxRates;
+  var tax = (totalAmountBeforeTax - reward_result.totalMoney) * taxRates;
 
   var shipFee = calShipFee(paymentDetails_obj.userCode);
   var otherFee = paymentDetails_obj.otherFee;
 
-  var totalAmountAfterTax = totalAmountBeforeTax + tax + shipFee + otherFee;
+  var totalAmountAfterTax =
+    totalAmountBeforeTax - reward_result.totalMoney + tax + shipFee + otherFee;
 
   totalAmountAfterTax = Math.round(totalAmountAfterTax);
 
   jsonTotal = new Object();
 
   jsonTotal.totalPriceBeforeTax = totalAmountBeforeTax;
+  jsonTotal.reward_in = reward_result.reward_in;
+  jsonTotal.reward_out = reward_result.reward_out;
+  jsonTotal.reward_totalMoney = reward_result.totalMoney;
+
   jsonTotal.taxRate = taxRates;
   jsonTotal.tax = (tax * 100) / 100;
   jsonTotal.shipFee = shipFee;
@@ -256,9 +349,9 @@ const RDY_PICK = "readyPickup";
 const ALL_COMPLETE = "allComplete";
 
 async function storeDbBeforePayment(paymentComplete_obj, status) {
-  if (paymentComplete_obj.TotalPrice.totalPriceAfterTax == 0) {
+  /*if (paymentComplete_obj.TotalPrice.totalPriceAfterTax == 0) {
     return;
-  }
+  }*/
   var orderDetails = new Object();
 
   orderDetails.orderNumber = paymentComplete_obj.orderNumber;
@@ -280,6 +373,10 @@ async function storeDbBeforePayment(paymentComplete_obj, status) {
   /* orderDetails.rdyPickupTime = paymentComplete_obj.pickupTime;*/
   orderDetails.rdyPickupTime = date; //this is for test,must modify
   orderDetails.product = paymentComplete_obj.subPrice;
+
+  //add reward info
+  orderDetails.reward_in = paymentComplete_obj.TotalPrice.reward_in;
+  orderDetails.reward_out = paymentComplete_obj.TotalPrice.reward_out;
 
   await db_api.insertOrderAfterPayment(orderDetails);
 }
@@ -428,12 +525,14 @@ async function getUserCode(userInfo_obj) {
     userInfo_obj.allShopAddress = await getAllShopAdd();
     userInfo_obj.shopAddress = userInfo_obj.allShopAddress[0];
     userInfo_obj.last4 = "";
+    userInfo_obj.reward = 0;
     userInfo_obj.status = "fail";
     return userInfo_obj;
   } else {
     userInfo_obj.userCode = result[0].userCode;
     userInfo_obj.nickName = result[0].nickName;
     userInfo_obj.phone = result[0].phone;
+    userInfo_obj.reward = result[0].reward;
 
     var result1 = await db_api.getShopAddressFromShopCode(result[0].pickupShop);
     if (result1.length > 0) {
@@ -759,6 +858,37 @@ async function getOrderListFromUserCode(inputObj) {
 
   return orderList;
 }
+
+//update reward info to db after payment complete
+async function updateRewardToDB(inputObj) {
+  if (inputObj.userCode.charAt(0) == "T") {
+    return { reward: 0, status: "success" };
+  }
+
+  var result = await db_api.getRewardInfo(inputObj.orderNumber);
+  if (result[0].reward_out == undefined) {
+    result[0].reward_out = 0;
+  }
+
+  if (result[0].reward_in == undefined) {
+    result[0].reward_in = 0;
+  }
+
+  var result1 = await db_api.getUserCodeFromEmail_1(inputObj.email);
+
+  if (result1[0].reward == undefined) {
+    result1[0].reward = 0;
+  }
+
+  var reward = result1[0].reward - result[0].reward_out + result[0].reward_in;
+  if (reward < 0) {
+    reward = 0;
+  }
+
+  await db_api.updateRewardInfo(reward, inputObj.userCode);
+
+  return { reward: reward, status: "success" };
+}
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -777,4 +907,5 @@ module.exports = {
   deleteUnPaymentList: deleteUnPaymentList, //delete UnpaymentRecord by order number
   getOrderInfoFromUserCode: getOrderInfoFromUserCode, //get orderInfo from userCode
   getOrderListFromUserCode: getOrderListFromUserCode, ////get orderInfo from userCode
+  updateRewardToDB: updateRewardToDB, //update reward info to db after payment complete
 };

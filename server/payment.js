@@ -25,8 +25,9 @@ router_pay.post("/paymentComplete", async (req, res) => {
     var result = await fun_api.updateOrderStatus(data, "requireCapture");
     if (result == "success") {
       await fun_api.storeDbAfterCardPay(data);
-      console.log("!!!!!payment success");
-      res.json({ status: "requireCapture" });
+      var result1 = await fun_api.updateRewardToDB(data);
+
+      res.json({ reward: result1.reward, status: "requireCapture" });
     } else {
       console.log("!!!!!payment fail");
       res.json({ status: "fail" });
@@ -69,54 +70,63 @@ router_pay.post("/create-payment-intent", async (req, res) => {
 router_pay.post("/direct-pay", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
-  console.log("priceTotal");
-  console.log(priceTotal.totalPriceAfterTax);
-
-  const paymentIntentData = {
-    amount: priceTotal.totalPriceAfterTax,
-    currency: "CAD",
-    capture_method: "manual",
-  };
-
   const db_api = require("./db_api");
 
-  var result = await db_api.getCustomerIdFromUserCode(req.body.userCode);
+  if (priceTotal.totalPriceAfterTax < 0.01 && req.body.product.length > 0) {
+    //all payment is pay by reward
+    await db_api.updateOrderStatusNoIntend_db(req.body.orderNumber, "success");
+    var result3 = await fun_api.updateRewardToDB(req.body);
 
-  if (result[0].customerId == null) {
-    res.json({ status: "fail" });
-    return;
-  }
+    res.json({ reward: result3.reward, status: "requireCapture" });
+  } else {
+    const paymentIntentData = {
+      amount: priceTotal.totalPriceAfterTax,
+      currency: "CAD",
+      capture_method: "manual",
+    };
 
-  var customerId = result[0].customerId;
+    var result = await db_api.getCustomerIdFromUserCode(req.body.userCode);
 
-  //get paymentMethodsId
-  var paymentMethods = await stripe.paymentMethods.list({
-    customer: customerId,
-    type: "card",
-  });
+    if (result[0].customerId == null) {
+      res.json({ status: "fail" });
+      return;
+    }
 
-  var paymentMethodsId = paymentMethods.data[0].id;
+    var customerId = result[0].customerId;
 
-  paymentIntentData.customer = customerId;
-  paymentIntentData.payment_method = paymentMethodsId;
+    //get paymentMethodsId
+    var paymentMethods = await stripe.paymentMethods.list({
+      customer: customerId,
+      type: "card",
+    });
 
-  //we use to confirm it without client request
-  paymentIntentData.confirm = "true";
+    var paymentMethodsId = paymentMethods.data[0].id;
 
-  paymentIntentData.setup_future_usage = "off_session";
+    paymentIntentData.customer = customerId;
+    paymentIntentData.payment_method = paymentMethodsId;
 
-  try {
-    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+    //we use to confirm it without client request
+    paymentIntentData.confirm = "true";
 
-    if (paymentIntent.status == "requires_capture") {
-      req.body.paymentInstend = paymentIntent.id;
-      await fun_api.updateOrderStatusInstend(req.body, "requireCapture");
-      res.json({ status: "requireCapture" });
-    } else {
+    paymentIntentData.setup_future_usage = "off_session";
+
+    try {
+      const paymentIntent = await stripe.paymentIntents.create(
+        paymentIntentData
+      );
+
+      if (paymentIntent.status == "requires_capture") {
+        req.body.paymentInstend = paymentIntent.id;
+        await fun_api.updateOrderStatusInstend(req.body, "requireCapture");
+        var result2 = await fun_api.updateRewardToDB(req.body);
+
+        res.json({ reward: result2.reward, status: "requireCapture" });
+      } else {
+        res.json({ status: "fail" });
+      }
+    } catch (err) {
       res.json({ status: "fail" });
     }
-  } catch (err) {
-    res.json({ status: "fail" });
   }
 });
 
