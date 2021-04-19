@@ -2,22 +2,19 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 import {
-  List,
-  Card,
   Button,
-  Slider,
-  Radio,
-  Select,
   message,
   Badge,
   Affix,
-  Spin,
   Divider,
   Drawer,
   Menu,
   Modal,
+  Descriptions,
+  Avatar,
 } from "antd";
 import { Row, Col } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 
 import history from "../history";
 
@@ -40,9 +37,38 @@ import reward from "../../images/reward.png";
 import api from "../api";
 import { deleteLogin } from "./component_login";
 
+function Map() {
+  return (
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.3726349500985!2d-79.33834730000001!3d43.806629499999985!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89d4d3b2004180f3%3A0xfc3469dda1989d4a!2z5LiW55WM6Iy26aWuIFdvcmxkIFRlYSBIb3VzZQ!5e0!3m2!1sen!2sca!4v1618796634921!5m2!1sen!2sca"
+      width={300}
+      height={300}
+      style={{ border: "0;" }}
+      allowfullscreen={""}
+      loading={"lazy"}
+    ></iframe>
+  );
+}
+
 export function Menu_1(props) {
   const [visible, setVisble] = useState(false);
   const [isPayVisible, setPayVisible] = useState(false);
+  const [isUserVisible, setUserVisible] = useState(false);
+  const [isMapVisible, setMapVisible] = useState(false);
+
+  function handle_info() {
+    setUserVisible(true);
+  }
+
+  function handle_cancel2() {
+    setUserVisible(false);
+  }
+  function handle_cancel3() {
+    setMapVisible(false);
+  }
+  function handle_contact() {
+    setMapVisible(true);
+  }
 
   function getOrderNumber() {
     var orderNumber = 0;
@@ -117,6 +143,12 @@ export function Menu_1(props) {
         <a>
           <img src={menu} style={{ width: "32px" }} />
         </a>
+        &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;
+        <Avatar
+          style={{ backgroundColor: "#87d068" }}
+          icon={<UserOutlined />}
+        />
+        &nbsp;&nbsp;{props.userInfo.nickName}
       </div>
       <Drawer
         title="主菜单"
@@ -170,7 +202,7 @@ export function Menu_1(props) {
 
         <div style={{ marginTop: "4%" }}>
           <span>
-            <a style={{ color: "black" }}>
+            <a style={{ color: "black" }} onClick={handle_info}>
               <img src={info} style={{ width: "15%" }} />
               &nbsp;&nbsp;个人信息
             </a>
@@ -207,7 +239,7 @@ export function Menu_1(props) {
 
         <div style={{ marginTop: "30%" }}>
           <span>
-            <a style={{ color: "black" }}>
+            <a style={{ color: "black" }} onClick={handle_contact}>
               <img src={phone} style={{ width: "15%" }} />
               &nbsp;&nbsp;商家信息
             </a>
@@ -227,6 +259,51 @@ export function Menu_1(props) {
         cancelText="取消"
       >
         购物车没有商品，无法结账！
+      </Modal>
+      <Modal
+        visible={isUserVisible}
+        onOk={handle_cancel2}
+        onCancel={handle_cancel2}
+        cancelButtonProps={{ disabled: true }}
+        width={800}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        <Descriptions bordered size="small" title="用户信息:">
+          <Descriptions.Item label="昵称">
+            {props.userInfo.nickName}
+          </Descriptions.Item>
+          <Descriptions.Item label="邮箱">
+            {props.userInfo.email}
+          </Descriptions.Item>
+          <Descriptions.Item label="电话">
+            {props.userInfo.phone}
+          </Descriptions.Item>
+          <Descriptions.Item label="可用积分">
+            {props.userInfo.reward}
+          </Descriptions.Item>
+          <Descriptions.Item label="pickup地址">
+            {props.userInfo.shopAddress}
+          </Descriptions.Item>
+        </Descriptions>
+      </Modal>
+      <Modal
+        title="世界茶饮"
+        visible={isMapVisible}
+        onOk={handle_cancel3}
+        onCancel={handle_cancel3}
+        cancelButtonProps={{ disabled: true }}
+        width={350}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        <Map />
       </Modal>
     </div>
   );
