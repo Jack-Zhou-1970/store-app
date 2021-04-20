@@ -9,6 +9,8 @@ import CheckoutForm from "./CheckoutForm";
 
 import api from "../api";
 
+import history from "../history";
+
 //redux
 import { store } from "../app";
 
@@ -16,7 +18,9 @@ import { connect } from "react-redux";
 
 const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
 
-export default function NormalPay_form() {
+import home from "../../images/home.svg";
+
+export default function NormalPay_form(props) {
   useEffect(() => {
     //forbidden back
     window.history.pushState(null, document.title, window.location.href);
@@ -25,15 +29,41 @@ export default function NormalPay_form() {
     });
     // Step 1:get bill info and display to customer to confirm
   }, []);
+
+  function handle_home() {
+    var inputObj = new Object();
+    console.log(props.orderInfo.orderNumber);
+    inputObj.orderNumber = props.orderInfo.orderNumber;
+
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/home");
+    });
+  }
   return (
-    <div style={{ marginTop: "5%", marginLeft: "15%" }}>
-      <Elements stripe={stripePromise}>
-        <UserInfo_pay />
-        <CheckoutForm />
-      </Elements>
+    <div>
+      <div>
+        <a onClick={handle_home} style={{ marginLeft: "5%" }}>
+          <img src={home} style={{ width: "32px" }}></img>
+        </a>
+      </div>
+      <div style={{ marginLeft: "15%" }}>
+        <Elements stripe={stripePromise}>
+          <UserInfo_pay />
+          <CheckoutForm />
+        </Elements>
+      </div>
+      <div style={{ height: "200px" }}></div>
     </div>
   );
 }
+
+const mapStateToProps_NormalPay_form = (state) => {
+  return {
+    orderInfo: state.orderInfoReducer,
+  };
+};
+
+NormalPay_form = connect(mapStateToProps_NormalPay_form)(NormalPay_form);
 
 function UserInfo_pay(props) {
   function handle_firstName(e) {

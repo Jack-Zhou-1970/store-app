@@ -15,6 +15,7 @@ import {
   Divider,
   Drawer,
   Menu,
+  Modal,
 } from "antd";
 import { Row, Col } from "antd";
 
@@ -37,7 +38,17 @@ import api from "../api";
 import { Menu_1 } from "./component_menu";
 
 const err = (msg) => {
-  message.error(msg, 2);
+  message.info(msg, 2);
+};
+
+import bg1 from "../../images/bg1.jpg";
+
+var sectionStyle = {
+  width: "100%",
+  height: "100%",
+  // makesure here is String确保这里是一个字符串，以下是es6写法
+  backgroundImage: `url(${bg1})`,
+  backgroundSize: "cover",
 };
 
 ////////////////////////////////////////////////////////////////////////////////api function:
@@ -252,12 +263,13 @@ export function Home_productDetail(props) {
 
   function handle_add_cart() {
     message.config({
-      top: 500,
+      top: 300,
     });
     var result = checkValidate(props.productDetail);
     if (result == "success") {
       addToCart(props.productDetail);
       history.push("/home");
+      err("已经成功加入购物车");
     } else {
       err(result);
     }
@@ -272,13 +284,6 @@ export function Home_productDetail(props) {
           }}
         >
           <Row>
-            <Col xs={4} style={{ marginLeft: "5%", marginRight: "60%" }}>
-              <div>
-                <a onClick={handle_home}>
-                  <img src={home} style={{ width: "32px" }}></img>
-                </a>
-              </div>
-            </Col>
             <Col xs={4}>
               <div style={{ width: "20%" }}>
                 <a onClick={handle_add_cart}>
@@ -569,7 +574,7 @@ function SmallproductNP(props) {
   return (
     <div style={{ marginTop: "2%" }}>
       <div style={{ diaplay: "inline" }}>
-        <span style={{ marginRight: "15%" }}>{props.middleProductName}</span>
+        <span style={{ marginRight: "2%" }}>{props.middleProductName}</span>
         <Radio.Group onChange={handle_smallProductNP_change}>
           {props.children}
         </Radio.Group>
@@ -603,7 +608,9 @@ function MainProduct_container() {
       <div style={{ marginLeft: "30%" }}>
         <ProductIntro />
       </div>
-      <MainProductAmountPrice />
+      <div style={{ marginTop: "10%" }}>
+        <MainProductAmountPrice />
+      </div>
     </div>
   );
 }
@@ -660,33 +667,41 @@ const mapStateToProps_ProductDetail = (state) => {
 ProductIntro = connect(mapStateToProps_ProductDetail)(ProductIntro);
 
 function MainProductAmountPrice() {
-  function handleChange(value) {
+  const [amount, setAmount] = useState(0);
+
+  function handle_dec() {
+    var val = amount;
+    val--;
+    if (val < 0) {
+      val = 0;
+    }
+    setAmount(val);
     store.dispatch({
       type: "UPDATE_MAINPRODUCT_AMOUNT",
-      amount: Number(value),
+      amount: val,
+    });
+  }
+  function handle_add() {
+    var val = amount;
+    val++;
+    setAmount(val);
+    store.dispatch({
+      type: "UPDATE_MAINPRODUCT_AMOUNT",
+      amount: val,
     });
   }
 
   return (
-    <Row style={{ marginTop: "2%" }}>
-      <Col xs={4}>
-        <h3>数量:</h3>
-      </Col>
-      <Col xs={7}>
-        <Select
-          style={{ width: "80%" }}
-          placeholder="0杯"
-          onChange={handleChange}
-        >
-          <Option value="0">0杯</Option>
-          <Option value="1">1杯</Option>
-          <Option value="2">2杯</Option>
-          <Option value="3">3杯</Option>
-          <Option value="4">4杯</Option>
-          <Option value="5">5杯</Option>
-        </Select>
-      </Col>
-    </Row>
+    <div>
+      <span style={{ fontWeight: "600" }}>数量：</span>
+      <Button style={{ marginRight: "3%" }} onClick={handle_dec}>
+        -
+      </Button>
+      {amount}
+      <Button type="primary " style={{ marginLeft: "3%" }} onClick={handle_add}>
+        +
+      </Button>
+    </div>
   );
 }
 
@@ -713,7 +728,7 @@ function addAllProduct(data) {
   return data1;
 }
 
-function ListCatalog(props) {
+/*function ListCatalog(props) {
   var data = addAllProduct(props.data);
 
   function handle_click(e) {
@@ -739,6 +754,63 @@ function ListCatalog(props) {
         </List.Item>
       )}
     />
+  );
+}*/
+
+function ListCatalog(props) {
+  var data = addAllProduct(props.data);
+
+  function handle_click(e) {
+    store.dispatch({
+      type: "UPDATE_CLASS_INFO",
+      className: e.target.textContent,
+    });
+  }
+
+  const catalig_list = data.map((item, index) => {
+    return (
+      <li
+        key={index}
+        style={{
+          marginRight: "5%",
+          fontSize: "150%",
+
+          display: "inline-block",
+        }}
+      >
+        <a
+          style={{
+            color: item.catalogName == props.className ? "red" : "black",
+          }}
+          onClick={handle_click}
+        >
+          {item.catalogName}
+        </a>
+      </li>
+    );
+  });
+  return (
+    <div
+      style={{
+        overflow: "hidden",
+
+        zIndex: "20",
+        width: "100%",
+      }}
+    >
+      <ul
+        style={{
+          overflow: "Scroll",
+          whiteSpace: "nowrap",
+          listStyle: "none",
+          overflowX: "auto",
+          width: "auto",
+          marginLeft: "2%",
+        }}
+      >
+        {catalig_list}
+      </ul>
+    </div>
   );
 }
 
@@ -808,10 +880,16 @@ function ProductByClass(props) {
       type: "UPDATE_SELECT_INFO",
       productName: mainProductName,
     });
-    history.push("/productDetail");
+    /*history.push("/productDetail");*/
+    setProductDetailVisible(true);
+  }
+
+  function onClose() {
+    setProductDetailVisible(false);
   }
 
   const [loading, setLoading] = useState(true);
+  const [productDetailVisible, setProductDetailVisible] = useState(false);
 
   useEffect(() => {
     //forbidden back
@@ -835,7 +913,6 @@ function ProductByClass(props) {
       for (var j = 0; j < props.data[i].product.length; j++) {
         var productCard = (
           <ProductCard
-            key={j}
             price={props.data[i].product[j].price}
             picFile={props.data[i].product[j].picFile}
             mainProductName={props.data[i].product[j].mainProductName}
@@ -856,7 +933,24 @@ function ProductByClass(props) {
 
   return (
     <Spin spinning={loading}>
-      <ProductCard_container>{puductList}</ProductCard_container>{" "}
+      <div>
+        <ProductCard_container>{puductList}</ProductCard_container>
+        <Modal
+          title="选择规格"
+          visible={productDetailVisible}
+          onOk={onClose}
+          onCancel={onClose}
+          width={600}
+          closable={true}
+          centered={true}
+          maskClosable={true}
+          bodyStyle={sectionStyle}
+          footer={null}
+          destroyOnClose={true}
+        >
+          <Home_productDetail />
+        </Modal>
+      </div>
     </Spin>
   );
 }

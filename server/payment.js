@@ -69,7 +69,9 @@ router_pay.post("/create-payment-intent", async (req, res) => {
 });
 ////////////////////////////////This is direct pay"//////////////////////////////////////
 router_pay.post("/direct-pay", async (req, res) => {
+  console.log("before cal");
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
+  console.log("cal complete");
 
   const db_api = require("./db_api");
 
@@ -111,15 +113,23 @@ router_pay.post("/direct-pay", async (req, res) => {
 
     paymentIntentData.setup_future_usage = "off_session";
 
+    console.log("before paymentIntent");
+
     try {
       const paymentIntent = await stripe.paymentIntents.create(
         paymentIntentData
       );
 
+      console.log(paymentIntent);
+
       if (paymentIntent.status == "requires_capture") {
         req.body.paymentInstend = paymentIntent.id;
+
+        console.log("before update");
         await fun_api.updateOrderStatusInstend(req.body, "requireCapture");
+        console.log(" update1");
         var result2 = await fun_api.updateRewardToDB(req.body);
+        console.log("update2");
 
         res.json({ reward: result2.reward, status: "requireCapture" });
       } else {

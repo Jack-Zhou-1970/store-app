@@ -184,11 +184,11 @@ class RegisterForm_manage extends React.Component {
           onCancel={() => this.setState({ isModalVisible: false })}
         />
         <Modal
-          title="输入验证码"
+          title="输入邮箱收到的验证码"
           visible={this.state.isModalVisible}
           onOk={this.handle_ok}
           onCancel={this.handle_cancel}
-          width={200}
+          width={300}
           closable={false}
           centered={true}
           cancelButtonProps={{ disabled: true }}

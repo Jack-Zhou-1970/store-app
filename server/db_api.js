@@ -224,6 +224,9 @@ async function insertOrderAfterPayment(orderDetails_obj) {
 async function getProductCodeFromName(productType, productName) {
   var result;
 
+  console.log(productType);
+  console.log(productName);
+
   switch (productType) {
     case "mainProduct":
       result = await sqlQuery(
@@ -250,6 +253,8 @@ async function getProductCodeFromName(productType, productName) {
       result = "";
       break;
   }
+
+  console.log(result);
 
   return dbToJson(result)[0].productCode;
 }

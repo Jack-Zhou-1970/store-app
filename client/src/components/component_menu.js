@@ -191,7 +191,6 @@ export function Menu_1(props) {
               count={props.userInfo.reward}
               offset={[-60, 0]}
             >
-              >
               <a style={{ color: "black" }}>
                 <img src={reward} style={{ width: "15%" }} />
                 &nbsp;&nbsp;积分

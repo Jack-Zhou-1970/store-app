@@ -16,6 +16,9 @@ import { store } from "../app";
 import { connect } from "react-redux";
 import { object } from "prop-types";
 
+import home from "../../images/home.svg";
+import cart from "../../images/cart.svg";
+
 function UserInfo(props) {
   return (
     <div>
@@ -146,24 +149,6 @@ function PaymentMethod(props) {
   var ini_value = props.last4 == "" || props.last4 == undefined ? 2 : 1;
   const [value, setValue] = useState(ini_value);
 
-  function handle_home() {
-    var inputObj = new Object();
-    inputObj.orderNumber = props.orderNumber;
-
-    api.deleteUnPayment(inputObj).then((result) => {
-      history.push("/home");
-    });
-  }
-
-  function handle_cart() {
-    var inputObj = new Object();
-    inputObj.orderNumber = props.orderNumber;
-
-    api.deleteUnPayment(inputObj).then((result) => {
-      history.push("/cart");
-    });
-  }
-
   function handle_payment() {
     if (succeeded == true) {
       history.push("/home");
@@ -239,24 +224,18 @@ function PaymentMethod(props) {
             </Radio>
           </Radio.Group>
         </div>
-        <Affix offsetBottom={10} style={{ marginLeft: "5%", marginTop: "10%" }}>
-          <Row>
-            <Col xs={4} style={{ marginRight: "8%" }}>
-              <Button
-                type="primary"
-                disabled={processing}
-                onClick={handle_normal_pay}
-              >
-                {processing ? "支付中…" : "结账"}
-              </Button>
-            </Col>
-            <Col xs={4} style={{ marginRight: "8%" }}>
-              <Button onClick={handle_home}>主页</Button>
-            </Col>
-            <Col xs={4}>
-              <Button onClick={handle_cart}>购物车</Button>
-            </Col>
-          </Row>
+        <Affix offsetBottom={5} style={{ marginLeft: "30%", marginTop: "10%" }}>
+          <div style={{ width: "40%" }}>
+            <Button
+              type="primary"
+              disabled={processing}
+              onClick={handle_normal_pay}
+              block={true}
+              shape="round"
+            >
+              {processing ? "支付中…" : "支付"}
+            </Button>
+          </div>
         </Affix>
         <Modal
           title="支付结果"
@@ -306,6 +285,24 @@ export function createPaymentDetail(orderInfo, userInfo) {
 export function BillInfo(props) {
   const [billInfo, setBillInfo] = useState({});
 
+  function handle_home() {
+    var inputObj = new Object();
+    inputObj.orderNumber = props.orderInfo.orderNumber;
+
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/home");
+    });
+  }
+
+  function handle_cart() {
+    var inputObj = new Object();
+    inputObj.orderNumber = props.orderInfo.orderNumber;
+
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/cart");
+    });
+  }
+
   useEffect(() => {
     console.log(props.orderInfo);
     //forbidden back
@@ -335,7 +332,31 @@ export function BillInfo(props) {
   if (billInfo.TotalPrice != undefined) {
     return (
       <div style={{ height: "100%" }}>
-        <div style={{ height: "50px" }}></div>
+        <Affix offsetTop={5}>
+          <div
+            style={{
+              zIndex: "10",
+            }}
+          >
+            <Row>
+              <Col xs={4} style={{ marginLeft: "5%", marginRight: "60%" }}>
+                <div>
+                  <a onClick={handle_home}>
+                    <img src={home} style={{ width: "32px" }}></img>
+                  </a>
+                </div>
+              </Col>
+
+              <Col xs={4}>
+                <div>
+                  <a onClick={handle_cart}>
+                    <img src={cart} style={{ width: "32px" }}></img>
+                  </a>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </Affix>
         <div style={{ marginTop: "0%", marginLeft: "10%", height: "100%" }}>
           <UserInfo
             orderNumber={billInfo.orderNumber}

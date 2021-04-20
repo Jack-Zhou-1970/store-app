@@ -39,16 +39,6 @@ export default function CheckoutForm(props) {
   const stripe = useStripe();
   const elements = useElements();
 
-  function handle_home() {
-    var inputObj = new Object();
-    console.log(props.orderInfo.orderNumber);
-    inputObj.orderNumber = props.orderInfo.orderNumber;
-
-    api.deleteUnPayment(inputObj).then((result) => {
-      history.push("/home");
-    });
-  }
-
   function handle_payment() {
     if (succeeded == true) {
       history.push("/home");
@@ -214,23 +204,17 @@ export default function CheckoutForm(props) {
             <CardCvcElement options={options} />
           </div>
 
-          <Row style={{ marginTop: "8%" }}>
-            <Col xs={4} style={{ marginRight: "8%" }}>
-              <Button
-                disabled={processing || !clientSecret || !stripe}
-                onClick={handleSubmit}
-                style={{
-                  backgroundColor: "#bd148a",
-                  color: "white",
-                }}
-              >
-                {processing ? "支付中…" : "支付"}
-              </Button>
-            </Col>
-            <Col xs={4} style={{ marginRight: "8%" }}>
-              <Button onClick={handle_home}>主页</Button>
-            </Col>
-          </Row>
+          <div style={{ marginTop: "8%", marginLeft: "10%", width: "40%" }}>
+            <Button
+              disabled={processing || !clientSecret || !stripe}
+              type="primary"
+              onClick={handleSubmit}
+              block={true}
+              shape="round"
+            >
+              {processing ? "支付中…" : "支付"}
+            </Button>
+          </div>
           <Modal
             title="支付结果"
             visible={isModalVisible}
