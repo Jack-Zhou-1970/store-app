@@ -1,30 +1,32 @@
 const express = require("express");
 const expressWs = require("express-ws");
 
-var EventEmitter = require("events").EventEmitter;
+const fun_notify = require("./fun_notify");
 
+var EventEmitter = require("events").EventEmitter;
+// 实例化EventEmitter对象
 var ee = new EventEmitter();
 
 const router_ws = express.Router();
 expressWs(router_ws);
 
 router_ws.ws("/shop400001", function (ws, req) {
-  const fun_notify = require("./fun_notify");
-
-  async function notifyShop(json) {
+  //the function used to send to clent to notify
+  function notifyShop(json) {
+    console.log("json");
     console.log(ws.readyState);
 
     var result = JSON.parse(json);
-    result = await fun_notify.get_order_by_orderNumber(result);
 
     if (ws.readyState == 1) {
-      ws.send(JSON.stringify(result));
+      ws.send(json);
     }
   }
 
-  ws.on("message", async function (msg) {
+  ws.on("message", function (msg) {
+    // 业务代码
+
     console.log("receive msg");
-    console.log(msg);
 
     var req = JSON.parse(msg);
     var result;

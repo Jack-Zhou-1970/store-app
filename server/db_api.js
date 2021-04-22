@@ -528,6 +528,62 @@ async function updateRewardInfo(reward, userCode) {
 
   return dbToJson(result);
 }
+
+//get orderInfo from shopCode
+async function getOrderInfoByShop(shopCode) {
+  var result = await sqlQuery(
+    "select order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.shopCode=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    [shopCode]
+  );
+  return dbToJson(result);
+}
+
+//get orderInfo from orderNumber
+async function getOrderInfoByOrderNumber(orderNumber) {
+  var result = await sqlQuery(
+    "select order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    [orderNumber]
+  );
+  return dbToJson(result);
+}
+
+//get order status fron orderNumber in order to captute money
+async function getOrderStatusByOrderNumber(orderNumber) {
+  var result = await sqlQuery(
+    "select orderStatus,paymentInstend,totalAmount from order_table where orderNumber=?",
+    [orderNumber]
+  );
+  return dbToJson(result);
+}
+
+//ready to pickup
+async function updateOrderStatus_2(
+  orderNumber,
+  paymentInstend,
+  time,
+  orderStatus
+) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set orderStatus=?,okTime=? where orderNumber = ? and paymentInstend = ?",
+    [orderStatus, time, orderNumber, paymentInstend]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
+async function updateOrderStatus_3(orderNumber, time, orderStatus) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set orderStatus=?,getTime=? where orderNumber = ?",
+    [orderStatus, time, orderNumber]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -555,6 +611,11 @@ module.exports = {
   deleteUnpaymentRecord: deleteUnpaymentRecord, //delete UnpaymentRecord by order number
   getOrderInfo: getOrderInfo, //get orderInfo from userCode
   getRewardInfo: getRewardInfo, //get reward_info from orderNumber
+  getOrderInfoByOrderNumber: getOrderInfoByOrderNumber, //get orderInfo from orderNumber
   updateRewardInfo: updateRewardInfo, //update reward info into user_table
   updateOrderStatusNoIntend_db: updateOrderStatusNoIntend_db, //update order status by ordernumber,no paymentInstend
+  getOrderInfoByShop: getOrderInfoByShop, ////get orderInfo from shopCode
+  getOrderStatusByOrderNumber: getOrderStatusByOrderNumber, //get order status fron orderNumber in order to captute money
+  updateOrderStatus_2: updateOrderStatus_2, //ready to pickup
+  updateOrderStatus_3: updateOrderStatus_3, //pickup complete
 };

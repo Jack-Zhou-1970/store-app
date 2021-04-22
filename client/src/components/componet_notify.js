@@ -9,25 +9,31 @@ import history from "../history";
 
 import PropTypes from "prop-types";
 
-export function WebSocketControl() {
-  useEffect(() => {
-    var ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
+var ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
 
+export function WebSocketControl() {
+  function handle_click() {
+    var req = new Object();
+    req.orderNumber = "D21042280473";
+    req.status = "process_pickUp";
+    ws.send(JSON.stringify(req));
+  }
+  useEffect(() => {
     ws.onopen = function () {
-      ws.send("Hello Server!");
+      var result = new Object();
+      result.status = "open";
+      ws.send(JSON.stringify(result));
     };
 
     ws.onmessage = function (event) {
-      var data = event.data;
-      var data1 = JSON.parse(data);
-      console.log(data1);
-      console.log(data1.orderNumber);
+      var data = JSON.parse(event.data);
+      console.log(data);
     };
   }, []);
 
   return (
     <div>
-      <Button>AAAA</Button>
+      <Button onClick={handle_click}>AAAA</Button>
     </div>
   );
 }

@@ -803,10 +803,7 @@ function findSmallIndex(inputObject) {
   return inputObject.smallIndex == this.smallIndex;
 }
 
-async function getOrderListFromUserCode(inputObj) {
-  var order_db = await getOrderInfoFromUserCode(inputObj.userCode);
-  if (order_db.length == 0) return [];
-
+function createOrderInfo(order_db) {
   var orderList = [];
 
   for (var i = 0; i < order_db.length; i++) {
@@ -884,6 +881,13 @@ async function getOrderListFromUserCode(inputObj) {
   return orderList;
 }
 
+async function getOrderListFromUserCode(inputObj) {
+  var order_db = await getOrderInfoFromUserCode(inputObj.userCode);
+  if (order_db.length == 0) return [];
+
+  return createOrderInfo(order_db);
+}
+
 //update reward info to db after payment complete
 async function updateRewardToDB(inputObj) {
   if (inputObj.userCode.charAt(0) == "T") {
@@ -914,6 +918,7 @@ async function updateRewardToDB(inputObj) {
 
   return { reward: reward, status: "success" };
 }
+
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -933,4 +938,5 @@ module.exports = {
   getOrderInfoFromUserCode: getOrderInfoFromUserCode, //get orderInfo from userCode
   getOrderListFromUserCode: getOrderListFromUserCode, ////get orderInfo from userCode
   updateRewardToDB: updateRewardToDB, //update reward info to db after payment complete
+  createOrderInfo: createOrderInfo,
 };
