@@ -12,6 +12,7 @@ import { Register } from "./register";
 import { ShoppingCart } from "./shoppingcart";
 import { OrderList } from "./components/component_orderlist";
 import { Reward } from "./components/component_reward";
+import { WebSocketControl } from "./components/componet_notify";
 
 //for redux
 import { createStore } from "redux";
@@ -87,6 +88,9 @@ function Main() {
       </Route>
       <Route path="/reward">
         <Reward />
+      </Route>
+      <Route path="/notify">
+        <WebSocketControl />
       </Route>
       <Route path="/">
         <Login />

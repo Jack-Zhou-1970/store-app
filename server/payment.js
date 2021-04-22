@@ -10,6 +10,8 @@ const router_pay = express.Router();
 const { resolve } = require("path");
 const { UpdateOrderStatus } = require("./db_api");
 
+const router_ws = require("./ws"); //for webSocket
+
 router_pay.use(bodyParser.json()); // process json
 
 router_pay.get("/public-key", (req, res) => {
@@ -27,6 +29,8 @@ router_pay.post("/paymentComplete", async (req, res) => {
     if (result == "success") {
       await fun_api.storeDbAfterCardPay(data);
       var result1 = await fun_api.updateRewardToDB(data);
+
+      router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
 
       res.json({ reward: result1.reward, status: "requireCapture" });
     } else {
@@ -80,6 +84,8 @@ router_pay.post("/direct-pay", async (req, res) => {
     await db_api.updateOrderStatusNoIntend_db(req.body.orderNumber, "success");
     var result3 = await fun_api.updateRewardToDB(req.body);
 
+    router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
+
     res.json({ reward: result3.reward, status: "requireCapture" });
   } else {
     const paymentIntentData = {
@@ -130,6 +136,8 @@ router_pay.post("/direct-pay", async (req, res) => {
         console.log(" update1");
         var result2 = await fun_api.updateRewardToDB(req.body);
         console.log("update2");
+
+        router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
 
         res.json({ reward: result2.reward, status: "requireCapture" });
       } else {

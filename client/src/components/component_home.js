@@ -839,6 +839,7 @@ function ProductCard(props) {
           <img src={props.picFile} style={{ width: "100%", height: "100%" }} />
         }
         onClick={card_handle_click}
+        onDoubleClick={card_handle_click}
       >
         <h3>{props.mainProductName}</h3>
         <h4 style={{ marginLeft: "5%", marginRight: "2%" }}>
@@ -943,7 +944,7 @@ function ProductByClass(props) {
           width={600}
           closable={true}
           centered={true}
-          maskClosable={true}
+          maskClosable={false}
           bodyStyle={sectionStyle}
           footer={null}
           destroyOnClose={true}

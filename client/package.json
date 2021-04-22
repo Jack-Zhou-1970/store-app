@@ -46,8 +46,10 @@
     "react-redux": "^7.2.3",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.0",
+    "react-websocket": "^2.1.0",
     "redux": "^4.0.5",
     "redux-persist": "^6.0.0",
-    "regenerator-runtime": "^0.13.7"
+    "regenerator-runtime": "^0.13.7",
+    "websocket": "^1.0.34"
   }
 }

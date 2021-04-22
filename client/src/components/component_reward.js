@@ -12,8 +12,6 @@ import { store } from "../app";
 
 import { connect } from "react-redux";
 
-import { checkPic } from "./component_home";
-
 export function Reward(props) {
   const [isModal1Visible, setModal1Visible] = useState(false);
   const [isModal2Visible, setModal2Visible] = useState(false);
