@@ -817,6 +817,7 @@ function createOrderInfo(order_db) {
       orderList_o.orderNumber = order_db[i].orderNumber;
       orderList_o.totalPrice = order_db[i].totalAmount;
       orderList_o.paymentTime = order_db[i].paymentTime;
+      orderList_o.status = order_db[i].orderStatus;
 
       var product_o = new Object();
       product_o.smallIndex = order_db[i].smallIndex;

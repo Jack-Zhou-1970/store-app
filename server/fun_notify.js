@@ -36,7 +36,7 @@ async function get_order_by_orderNumber(inputObj) {
   result.content = "orderInfo";
   result.status = "requireCapture";
 
-  result.orderProduct = order_db;
+  result.orderInfo = order_db;
 
   return result;
 }
@@ -77,6 +77,7 @@ async function processCapture(orderNumber) {
   }
 
   if (result[0].orderStatus == "success") {
+    await db_api.updateOrderStatus_2(orderNumber, new Date(), "readyPickup");
     returnValue.content = "captureSuccess";
     returnValue.orderNumber = orderNumber;
     returnValue.status = "success";
@@ -102,12 +103,7 @@ async function processCapture(orderNumber) {
     return returnValue;
   }
 
-  await db_api.updateOrderStatus_2(
-    orderNumber,
-    result[0].paymentInstend,
-    new Date(),
-    "readyPickup"
-  );
+  await db_api.updateOrderStatus_2(orderNumber, new Date(), "readyPickup");
 
   returnValue.content = "captureSuccess";
   returnValue.orderNumber = orderNumber;
