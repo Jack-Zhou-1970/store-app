@@ -12,6 +12,7 @@ import {
   List,
   Pagination,
   Spin,
+  Badge,
 } from "antd";
 import { Row, Col } from "antd";
 
@@ -19,11 +20,24 @@ import history from "../history";
 
 import { connect } from "react-redux";
 
+import { store } from "../app";
+
 import { processDataFromServer, howManyStatus } from "../manage_api";
+
+import { OrderQuery_container } from "./component_orderquery";
+
+import capture from "../../images/capture.png";
+import pickup from "../../images/pickup.png";
+import complete from "../../images/complete.png";
+
+import { fixControlledValue } from "antd/lib/input/Input";
 
 var ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
 
-export function WebSocketControl() {
+export function WebSocketControl(props) {
+  const [playing, setPlaying] = useState(false);
+  /*const [audio] = useState(new Audio("alert.mp3"));*/
+  var audio = null;
   useEffect(() => {
     ws.onopen = function () {
       //get order_by _shop
@@ -41,19 +55,60 @@ export function WebSocketControl() {
 
       console.log(data);
 
-      processDataFromServer(data);
+      processDataFromServer(data, setPlaying);
     };
 
     ws.onclose = function (event) {
       console.log("disconnect");
     };
-  }, []);
+
+    if (audio == null) {
+      audio = new Audio("alert.mp3");
+    }
+
+    audio.load();
+    playing ? audio.play() : audio.pause();
+  }, [playing]);
 
   return (
     <div>
-      <div style={{ height: "50px" }}></div>
+      <div>
+        <div
+          style={{ width: "3%", position: "absolute", top: "5%", left: "2%" }}
+        >
+          <Badge
+            count={howManyStatus(props.orderList, "requireCapture")}
+            overflowCount={1000}
+            offset={[20, 0]}
+          >
+            <img src={capture} style={{ width: "100%" }} />
+          </Badge>
+        </div>
+        <div
+          style={{ width: "3%", position: "absolute", top: "15%", left: "2%" }}
+        >
+          <Badge
+            count={howManyStatus(props.orderList, "readyPickup")}
+            overflowCount={1000}
+            offset={[20, 0]}
+          >
+            <img src={pickup} style={{ width: "100%" }} />
+          </Badge>
+        </div>
+        <div
+          style={{ width: "3%", position: "absolute", top: "25%", left: "2%" }}
+        >
+          <Badge
+            count={howManyStatus(props.orderList, "complete")}
+            overflowCount={1000}
+            offset={[20, 0]}
+          >
+            <img src={complete} style={{ width: "100%" }} />
+          </Badge>
+        </div>
+      </div>
       <div style={{ marginLeft: "45%" }}>
-        <h2>世界茶饮后台管理系统</h2>
+        <h1>世界茶饮后台管理系统</h1>
       </div>
       <div style={{ marginLeft: "10%" }}>
         <Notify_container />
@@ -62,11 +117,27 @@ export function WebSocketControl() {
   );
 }
 
+const mapStateToProps_WebSocketControl = (state) => {
+  return {
+    orderList: state.orderListReducer,
+  };
+};
+
+WebSocketControl = connect(mapStateToProps_WebSocketControl)(WebSocketControl);
+
 const { TabPane } = Tabs;
 
-function Notify_container() {
+function Notify_container(props) {
+  function onchange(key) {
+    if (key == "6") {
+      store.dispatch({
+        type: "DELETE_MANAGE_STATUS",
+      });
+      history.push("/");
+    }
+  }
   return (
-    <Tabs type="card">
+    <Tabs type="card" onChange={onchange}>
       <TabPane tab="未接订单" key="1">
         <UnAcceptList />
       </TabPane>
@@ -76,9 +147,39 @@ function Notify_container() {
       <TabPane tab="完成订单" key="3">
         <CompleteList />
       </TabPane>
+      <TabPane tab="订单查询" key="4">
+        <div
+          style={{
+            display:
+              props.status == "LEVEL2" || props.status == "LEVEL3"
+                ? "block"
+                : "none",
+          }}
+        >
+          <OrderQuery_container />
+        </div>
+      </TabPane>
+      <TabPane tab="退单处理" key="5">
+        <div
+          style={{
+            display: props.status == "LEVEL3" ? "block" : "none",
+          }}
+        >
+          1111111111
+        </div>
+      </TabPane>
+      <TabPane tab="退出后台" key="6"></TabPane>
     </Tabs>
   );
 }
+
+const mapStateToProps_Notify_container = (state) => {
+  return {
+    status: state.manageReducer,
+  };
+};
+
+Notify_container = connect(mapStateToProps_Notify_container)(Notify_container);
 
 function createData(product) {
   var dataArray = [];
@@ -110,7 +211,7 @@ function createData(product) {
   return dataArray;
 }
 
-function OrderList(props) {
+export function OrderList(props) {
   const data = createData(props.product);
   return (
     <List

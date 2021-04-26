@@ -48,7 +48,7 @@ import {
   productDetailReducer,
 } from "./reducer";
 
-import { orderListReducer } from "./reducer_shop";
+import { orderListReducer, manageReducer } from "./reducer_shop";
 
 const rootReducer = combineReducers({
   orderInfoReducer,
@@ -57,6 +57,7 @@ const rootReducer = combineReducers({
   actionReducer,
   productDetailReducer,
   orderListReducer,
+  manageReducer,
 });
 
 /*export const store = createStore(rootReducer);*/

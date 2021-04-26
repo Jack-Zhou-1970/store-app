@@ -47,17 +47,6 @@ const mapStateToProps_UserInfo = (state) => {
 
 UserInfo = connect(mapStateToProps_UserInfo)(UserInfo);
 
-function convertUTCDateToLocalDate(date) {
-  var newDate = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
-
-  var offset = date.getTimezoneOffset() / 60;
-  var hours = date.getHours();
-
-  newDate.setHours(hours - offset);
-
-  return newDate;
-}
-
 function OrderSum(props) {
   var paymentTime = new Date(props.paymentTime);
   return (

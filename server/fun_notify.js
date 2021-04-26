@@ -16,7 +16,7 @@ async function getOrderInfoByShopCode(inputObj) {
 
 function get_order_byShop(orderInfo) {
   var result = new Object();
-  result.content = "orderInfo";
+  result.content = "addInfo";
   result.status = "requireCapture";
 
   result.orderInfo = orderInfo;
@@ -41,11 +41,45 @@ async function get_order_by_orderNumber(inputObj) {
   return result;
 }
 
-async function captureMoney(payinstent, amount) {
-  console.log("in captureMoney ");
-  console.log(payinstent);
-  console.log(amount);
+async function get_order_by_orderNumberQuery(inputObj) {
+  var order_db = await db_api.getOrderInfoByOrderNumberQuery(
+    inputObj.orderNumber
+  );
 
+  if (order_db.length != 0) {
+    order_db = fun_api.createOrderInfo(order_db);
+  } else {
+    order_db = [];
+  }
+
+  return order_db;
+}
+
+async function get_order_by_DateQuery(inputObj) {
+  var order_db = await db_api.getOrderInfoByDate(
+    inputObj.start_date,
+    inputObj.end_date
+  );
+
+  if (order_db.length != 0) {
+    order_db = fun_api.createOrderInfo(order_db);
+  } else {
+    order_db = [];
+  }
+
+  return order_db;
+}
+
+async function get_product_amountQuery(inputObj) {
+  var product_db = await db_api.getProductAmountByDate(
+    inputObj.start_date,
+    inputObj.end_date
+  );
+
+  return product_db;
+}
+
+async function captureMoney(payinstent, amount) {
   const intent = await payment.stripe.paymentIntents.capture(payinstent, {
     amount_to_capture: amount,
   });
@@ -145,4 +179,7 @@ module.exports = {
   processCapture: processCapture,
   processPickUp: processPickUp,
   get_order_by_orderNumber: get_order_by_orderNumber,
+  get_order_by_orderNumberQuery: get_order_by_orderNumberQuery,
+  get_order_by_DateQuery: get_order_by_DateQuery,
+  get_product_amountQuery: get_product_amountQuery,
 };

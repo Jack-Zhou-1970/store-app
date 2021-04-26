@@ -224,9 +224,6 @@ async function insertOrderAfterPayment(orderDetails_obj) {
 async function getProductCodeFromName(productType, productName) {
   var result;
 
-  console.log(productType);
-  console.log(productName);
-
   switch (productType) {
     case "mainProduct":
       result = await sqlQuery(
@@ -532,7 +529,7 @@ async function updateRewardInfo(reward, userCode) {
 //get orderInfo from shopCode
 async function getOrderInfoByShop(shopCode) {
   var result = await sqlQuery(
-    "select order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,order_table.orderStatus,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.shopCode=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' or order_table.orderStatus = 'readyPickup' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,order_table.orderStatus,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.shopCode=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' or order_table.orderStatus = 'readyPickup' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
     [shopCode]
   );
   return dbToJson(result);
@@ -541,8 +538,25 @@ async function getOrderInfoByShop(shopCode) {
 //get orderInfo from orderNumber
 async function getOrderInfoByOrderNumber(orderNumber) {
   var result = await sqlQuery(
-    "select order_table.orderNumber,order_table.totalAmount,order_table.orderStatus,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.orderStatus,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
     [orderNumber]
+  );
+  return dbToJson(result);
+}
+//skip orderStatus
+async function getOrderInfoByOrderNumberQuery(orderNumber) {
+  var result = await sqlQuery(
+    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.orderStatus,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber=? and order_table.orderNumber = order_product_table.orderNumber and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    [orderNumber]
+  );
+  return dbToJson(result);
+}
+
+//get orderInfo by dat,only date which is complete
+async function getOrderInfoByDate(start_date, end_date) {
+  var result = await sqlQuery(
+    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.orderStatus,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber = order_product_table.orderNumber and order_table.orderStatus = 'complete' and order_table.paymentTime>? and order_table.paymentTime<? and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    [start_date, end_date]
   );
   return dbToJson(result);
 }
@@ -576,6 +590,14 @@ async function updateOrderStatus_3(orderNumber, time, orderStatus) {
   );
   await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
 
+  return dbToJson(result);
+}
+
+async function getProductAmountByDate(start_date, end_date) {
+  var result = await sqlQuery(
+    "select c.productCode,c.productName_c,sum(mainnumber) as total from product_big_table c,(select distinct a.orderNumber,a.mainProductCode as productcode_s,a.smallIndex,avg(a.mainProductNumber) as mainnumber from order_product_table a,order_table b  where a.orderNumber = b.orderNumber and b.orderStatus!='readyPayment' and b.paymentTime>? and b.paymentTime<? group by a.orderNumber,a.mainProductCode,a.smallIndex) d where c.productCode = productcode_s  group by c.productCode,c.productName_c order by sum(mainnumber) DESC",
+    [start_date, end_date]
+  );
   return dbToJson(result);
 }
 
@@ -613,4 +635,7 @@ module.exports = {
   getOrderStatusByOrderNumber: getOrderStatusByOrderNumber, //get order status fron orderNumber in order to captute money
   updateOrderStatus_2: updateOrderStatus_2, //ready to pickup
   updateOrderStatus_3: updateOrderStatus_3, //pickup complete
+  getOrderInfoByOrderNumberQuery: getOrderInfoByOrderNumberQuery, //skip order status
+  getProductAmountByDate: getProductAmountByDate, //get productamount by date,all product
+  getOrderInfoByDate: getOrderInfoByDate, //only order which is complete
 };

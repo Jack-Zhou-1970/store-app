@@ -1,12 +1,30 @@
 import { store } from "./app";
 
-export function processDataFromServer(data) {
+var audio = new Audio("alert.mp3");
+
+export function processDataFromServer(data, setPlaying) {
   switch (data.content) {
     case "orderInfo":
       store.dispatch({
         type: "ADD_ORDER_LIST",
         payload: data.orderInfo,
       });
+
+      setPlaying(true);
+
+      var timer = setTimeout(function () {
+        setPlaying(false);
+        clearTimeout(timer);
+      }, 1500);
+
+      break;
+
+    case "addInfo":
+      store.dispatch({
+        type: "ADD_ORDER_LIST",
+        payload: data.orderInfo,
+      });
+
       break;
 
     case "captureSuccess":

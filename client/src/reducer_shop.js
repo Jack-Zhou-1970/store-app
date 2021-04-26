@@ -47,3 +47,19 @@ export const orderListReducer = (state = [], action) => {
       return state;
   }
 };
+
+//level-1:
+//lever-2: manage
+//lever-3: owner
+export const manageReducer = (state = "", action) => {
+  switch (action.type) {
+    case "UPDATE_MANAGE_STATUS":
+      return action.payload;
+
+    case "DELETE_MANAGE_STATUS":
+      return [];
+
+    default:
+      return state;
+  }
+};
