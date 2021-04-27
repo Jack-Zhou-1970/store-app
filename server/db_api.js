@@ -529,7 +529,7 @@ async function updateRewardInfo(reward, userCode) {
 //get orderInfo from shopCode
 async function getOrderInfoByShop(shopCode) {
   var result = await sqlQuery(
-    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,order_table.orderStatus,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.shopCode=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' or order_table.orderStatus = 'readyPickup' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.paymentTime,order_table.orderStatus,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.shopCode=? and order_table.orderNumber = order_product_table.orderNumber and order_table.orderStatus !='complete' and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
     [shopCode]
   );
   return dbToJson(result);
@@ -593,6 +593,17 @@ async function updateOrderStatus_3(orderNumber, time, orderStatus) {
   return dbToJson(result);
 }
 
+async function updateOrderStatus_4(orderNumber, amount, time, orderStatus) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set orderStatus=?,okTime=?,refund=? where orderNumber = ?",
+    [orderStatus, time, amount, orderNumber]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
 async function getProductAmountByDate(start_date, end_date) {
   var result = await sqlQuery(
     "select c.productCode,c.productName_c,sum(mainnumber) as total from product_big_table c,(select distinct a.orderNumber,a.mainProductCode as productcode_s,a.smallIndex,avg(a.mainProductNumber) as mainnumber from order_product_table a,order_table b  where a.orderNumber = b.orderNumber and b.orderStatus!='readyPayment' and b.paymentTime>? and b.paymentTime<? group by a.orderNumber,a.mainProductCode,a.smallIndex) d where c.productCode = productcode_s  group by c.productCode,c.productName_c order by sum(mainnumber) DESC",
@@ -638,4 +649,5 @@ module.exports = {
   getOrderInfoByOrderNumberQuery: getOrderInfoByOrderNumberQuery, //skip order status
   getProductAmountByDate: getProductAmountByDate, //get productamount by date,all product
   getOrderInfoByDate: getOrderInfoByDate, //only order which is complete
+  updateOrderStatus_4: updateOrderStatus_4, //used to refund
 };

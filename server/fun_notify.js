@@ -80,11 +80,105 @@ async function get_product_amountQuery(inputObj) {
 }
 
 async function captureMoney(payinstent, amount) {
-  const intent = await payment.stripe.paymentIntents.capture(payinstent, {
-    amount_to_capture: amount,
-  });
+  var intent;
+  try {
+    intent = await payment.stripe.paymentIntents.capture(payinstent, {
+      amount_to_capture: amount,
+    });
+  } catch (err) {
+    intent = new Object();
+    intent.status = "fail";
+    console.log(err);
+  }
 
   return intent.status;
+}
+
+async function refundMoney(payinstent, amount) {
+  var intent;
+  try {
+    intent = await payment.stripe.refunds.create({
+      amount: Math.round(amount),
+      payment_intent: payinstent,
+    });
+  } catch (err) {
+    intent = new Object();
+    intent.status = "fail";
+    console.log(err);
+  }
+
+  return intent.status;
+}
+
+async function cancelMoney(payinstent) {
+  try {
+    await payment.stripe.paymentIntents.cancel(payinstent);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function processRefundCancel(inputObj) {
+  var orderNumber = inputObj.orderNumber;
+  var amount = inputObj.amount;
+
+  var returnValue = new Object();
+
+  var result = await db_api.getOrderStatusByOrderNumber(orderNumber);
+
+  if (result.length == 0) {
+    returnValue.content = "refundCancelNotFind";
+    returnValue.orderNumber = orderNumber;
+
+    returnValue.status = "fail";
+    return returnValue;
+  }
+
+  if (
+    result[0].orderStatus == "readyPayment" ||
+    result[0].orderStatus == "success" ||
+    result[0].orderStatus == "refund" ||
+    result[0].orderStatus == "cancel"
+  ) {
+    returnValue.content = "refundCancelNoNeed";
+    returnValue.orderNumber = orderNumber;
+    returnValue.status = "fail";
+    return returnValue;
+  }
+
+  if (result[0].paymentInstend == "" || result[0].paymentInstend == null) {
+    returnValue.content = "refundCancelCanNot";
+    returnValue.orderNumber = orderNumber;
+    returnValue.status = "fail";
+    return returnValue;
+  }
+
+  if (result[0].orderStatus == "requireCapture") {
+    await cancelMoney(result[0].paymentInstend);
+
+    await db_api.updateOrderStatus_2(orderNumber, new Date(), "cancel");
+
+    returnValue.content = "cancelSuccess";
+    returnValue.orderNumber = orderNumber;
+    returnValue.status = "success";
+    return returnValue;
+  } else {
+    var result1 = await refundMoney(result[0].paymentInstend, amount);
+
+    if (result1 != "succeeded") {
+      returnValue.content = "refundFail";
+      returnValue.orderNumber = orderNumber;
+      returnValue.status = "fail";
+      return returnValue;
+    }
+
+    await db_api.updateOrderStatus_4(orderNumber, amount, new Date(), "refund");
+
+    returnValue.content = "refundSuccess";
+    returnValue.orderNumber = orderNumber;
+    returnValue.status = "success";
+    return returnValue;
+  }
 }
 
 async function processCapture(orderNumber) {
@@ -173,6 +267,8 @@ async function processPickUp(orderNumber) {
   return returnValue;
 }
 
+//refund and cancel money
+
 module.exports = {
   getOrderInfoByShopCode: getOrderInfoByShopCode, ////the function below used to notify shop
   get_order_byShop: get_order_byShop,
@@ -182,4 +278,5 @@ module.exports = {
   get_order_by_orderNumberQuery: get_order_by_orderNumberQuery,
   get_order_by_DateQuery: get_order_by_DateQuery,
   get_product_amountQuery: get_product_amountQuery,
+  processRefundCancel: processRefundCancel,
 };

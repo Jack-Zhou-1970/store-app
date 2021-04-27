@@ -25,6 +25,7 @@ import { store } from "../app";
 import { processDataFromServer, howManyStatus } from "../manage_api";
 
 import { OrderQuery_container } from "./component_orderquery";
+import { RefundCancel } from "./component_refundcancel";
 
 import capture from "../../images/capture.png";
 import pickup from "../../images/pickup.png";
@@ -32,7 +33,7 @@ import complete from "../../images/complete.png";
 
 import { fixControlledValue } from "antd/lib/input/Input";
 
-var ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
+export var ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
 
 export function WebSocketControl(props) {
   const [playing, setPlaying] = useState(false);
@@ -165,7 +166,7 @@ function Notify_container(props) {
             display: props.status == "LEVEL3" ? "block" : "none",
           }}
         >
-          1111111111
+          <RefundCancel />
         </div>
       </TabPane>
       <TabPane tab="退出后台" key="6"></TabPane>

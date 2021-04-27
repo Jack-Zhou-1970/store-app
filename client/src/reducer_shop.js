@@ -10,10 +10,13 @@ function addNewOrderList(state, inputObj) {
       if (inputObj[i].status == "success") {
         inputObj[i].status = "requireCapture";
       }
-      if (
-        newArray.find(findOrderNumber, inputObj[i].orderNumber) == undefined
-      ) {
+
+      var index;
+      index = newArray.findIndex(findOrderNumber, inputObj[i].orderNumber);
+      if (index == -1) {
         newArray.push(inputObj[i]);
+      } else {
+        newArray[index] = inputObj[i];
       }
     }
   }

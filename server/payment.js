@@ -104,22 +104,31 @@ router_pay.post("/direct-pay", async (req, res) => {
     var customerId = result[0].customerId;
 
     //get paymentMethodsId
-    var paymentMethods = await stripe.paymentMethods.list({
-      customer: customerId,
-      type: "card",
-    });
+    try {
+      var paymentMethods = await stripe.paymentMethods.list({
+        customer: customerId,
+        type: "card",
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
-    var paymentMethodsId = paymentMethods.data[0].id;
+    try {
+      var paymentMethodsId = paymentMethods.data[0].id;
 
-    paymentIntentData.customer = customerId;
-    paymentIntentData.payment_method = paymentMethodsId;
+      paymentIntentData.customer = customerId;
+      paymentIntentData.payment_method = paymentMethodsId;
 
-    //we use to confirm it without client request
-    paymentIntentData.confirm = "true";
+      //we use to confirm it without client request
+      paymentIntentData.confirm = "true";
 
-    paymentIntentData.setup_future_usage = "off_session";
+      paymentIntentData.setup_future_usage = "off_session";
 
-    console.log("before paymentIntent");
+      console.log("before paymentIntent");
+    } catch (err) {
+      console.log(err);
+      console.log("paymentMethodsId err");
+    }
 
     try {
       const paymentIntent = await stripe.paymentIntents.create(

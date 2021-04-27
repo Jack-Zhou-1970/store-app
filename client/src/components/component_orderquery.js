@@ -91,6 +91,14 @@ function processOrderStatus(status) {
       result = "订单已完结";
       break;
 
+    case "refund":
+      result = "订单已经退款";
+      break;
+
+    case "cancel":
+      result = "订单已经取消";
+      break;
+
     default:
       break;
   }
