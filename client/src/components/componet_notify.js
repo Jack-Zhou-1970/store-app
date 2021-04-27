@@ -2,18 +2,7 @@ import React from "react";
 
 import { useEffect, useState, useRef } from "react";
 
-import {
-  Button,
-  message,
-  Modal,
-  Divider,
-  Tabs,
-  Card,
-  List,
-  Pagination,
-  Spin,
-  Badge,
-} from "antd";
+import { Button, Modal, Tabs, Card, List, Pagination, Spin, Badge } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -33,13 +22,24 @@ import complete from "../../images/complete.png";
 
 import { fixControlledValue } from "antd/lib/input/Input";
 
-export var ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
+export var ws;
+
+export var timer1 = null,
+  timer2;
 
 export function WebSocketControl(props) {
   const [playing, setPlaying] = useState(false);
-  /*const [audio] = useState(new Audio("alert.mp3"));*/
+  const [isVisble, setVisble] = useState(false);
+
   var audio = null;
+
+  function handle_cancel() {
+    setVisble(false);
+    history.push("/");
+  }
+
   useEffect(() => {
+    ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
     ws.onopen = function () {
       //get order_by _shop
 
@@ -70,6 +70,20 @@ export function WebSocketControl(props) {
     audio.load();
     playing ? audio.play() : audio.pause();
   }, [playing]);
+
+  if (isVisble == false && timer1 == null) {
+    timer1 = setInterval(() => {
+      var req = new Object();
+      req.status = "heartBeat";
+      ws.send(JSON.stringify(req));
+      timer2 = setTimeout(() => {
+        clearInterval(timer1);
+        timer1 = null;
+
+        setVisble(true);
+      }, 2000);
+    }, 6000);
+  }
 
   return (
     <div>
@@ -114,6 +128,20 @@ export function WebSocketControl(props) {
       <div style={{ marginLeft: "10%" }}>
         <Notify_container />
       </div>
+      <Modal
+        title="连接错误"
+        visible={isVisble}
+        onOk={handle_cancel}
+        onCancel={handle_cancel}
+        width={300}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        和服务器连接错误，请检查网络连接
+      </Modal>
     </div>
   );
 }

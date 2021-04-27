@@ -47,6 +47,14 @@ router_ws.ws("/shop400001", function (ws, req) {
 
         break;
 
+      case "heartBeat":
+        var reqBack = new Object();
+        reqBack.content = "heartBeat";
+        reqBack.status = "success";
+        ws.send(JSON.stringify(reqBack));
+
+        break;
+
       default:
         break;
     }

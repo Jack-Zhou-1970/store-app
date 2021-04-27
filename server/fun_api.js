@@ -920,6 +920,44 @@ async function updateRewardToDB(inputObj) {
   return { reward: reward, status: "success" };
 }
 
+//judge if can accept order
+async function judgeAcceptOrder(inputObj) {
+  var reqBack = new Object();
+
+  var result = await db_api.getShopTime(inputObj.shopAddress);
+
+  if (result.length == 0) {
+    reqBack.status = "notOk";
+    return reqBack;
+  }
+
+  var startTime = result[0].worktimeBegin_h * 60 + result[0].worktimeBegin_m;
+  var endTime = result[0].worktimeEnd_h * 60 + result[0].worktimeEnd_m;
+
+  var timeNow = new Date();
+
+  var hour = timeNow.getHours();
+  var minute = timeNow.getMinutes();
+  var time = hour * 60 + minute;
+
+  if (time >= startTime && endTime - time >= 30) {
+    reqBack.status = "ok";
+    return reqBack;
+  } else {
+    reqBack.status = "notOk";
+    return reqBack;
+  }
+}
+
+function sentEmailAfterAccept(orderNumber, email) {
+  emailOptions.to = email;
+  emailOptions.subject = "your order is ready";
+  emailOptions.text =
+    "Your order is ready,you can pickup after 30 minutes,your order number is  " +
+    orderNumber;
+  mailSend.mailerSend(emailOptions);
+}
+
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -940,4 +978,6 @@ module.exports = {
   getOrderListFromUserCode: getOrderListFromUserCode, ////get orderInfo from userCode
   updateRewardToDB: updateRewardToDB, //update reward info to db after payment complete
   createOrderInfo: createOrderInfo,
+  judgeAcceptOrder: judgeAcceptOrder, ////judge if can accept order
+  sentEmailAfterAccept: sentEmailAfterAccept,
 };

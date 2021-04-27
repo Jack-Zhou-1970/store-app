@@ -204,11 +204,21 @@ async function processCapture(orderNumber) {
     return returnValue;
   }
 
+  var email = "";
+  var result2 = await db_api.getEmailByOrderNumber(orderNumber);
+
+  if (result2.length != 0) {
+    email = result2[0].email;
+  }
+
   if (result[0].orderStatus == "success") {
     await db_api.updateOrderStatus_2(orderNumber, new Date(), "readyPickup");
     returnValue.content = "captureSuccess";
     returnValue.orderNumber = orderNumber;
     returnValue.status = "success";
+    if (email != "") {
+      fun_api.sentEmailAfterAccept(orderNumber, email);
+    }
     return returnValue;
   }
 
@@ -236,6 +246,9 @@ async function processCapture(orderNumber) {
   returnValue.content = "captureSuccess";
   returnValue.orderNumber = orderNumber;
   returnValue.status = "success";
+  if (email != "") {
+    fun_api.sentEmailAfterAccept(orderNumber, email);
+  }
   return returnValue;
 }
 

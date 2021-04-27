@@ -1,4 +1,5 @@
 import { store } from "./app";
+import { timer2 } from "./components/componet_notify";
 
 var audio = new Audio("alert.mp3");
 
@@ -41,6 +42,10 @@ export function processDataFromServer(data, setPlaying) {
         type: "UPDATE_ORDER_STATUS",
         payload: data,
       });
+      break;
+
+    case "heartBeat":
+      clearTimeout(timer2);
       break;
 
     default:

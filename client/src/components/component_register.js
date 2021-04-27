@@ -13,6 +13,10 @@ import Item from "antd/lib/list/Item";
 
 import { storageLogin } from "./component_login";
 
+message.config({
+  top: 300,
+});
+
 const err1 = (msg) => {
   message.error(msg, 2);
 };
@@ -118,6 +122,49 @@ export function RegisterForm_container() {
   );
 }
 
+function register_check(
+  mail,
+  password,
+  passwordC,
+  phone,
+  nickName,
+  shopAddress
+) {
+  //check Email
+  var regexp = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+  var result = regexp.test(mail);
+  if (result != true) {
+    return "邮箱格式不对";
+  }
+
+  //check password
+  regexp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[^]{6,16}$/;
+  result = regexp.test(password);
+  if (result != true) {
+    return "密码必须包含至少一个大小写字母,数字,特殊字符，且最小为6位，最多16位";
+  }
+
+  if (passwordC != password) {
+    return "两个密码不相等，请重新输入";
+  }
+
+  regexp = /^([0-9]|[-])+$/g;
+  result = regexp.test(phone);
+  if (result != true) {
+    return "电话号码格式不对";
+  }
+
+  if (nickName == "" || nickName == undefined) {
+    return "必须输入昵称";
+  }
+
+  if (shopAddress == "" || shopAddress == undefined) {
+    return "选择pickup店地址";
+  }
+
+  return "success";
+}
+
 class RegisterForm_manage extends React.Component {
   constructor(props) {
     super(props);
@@ -135,18 +182,30 @@ class RegisterForm_manage extends React.Component {
   }
 
   async handle_submit(mail, password, passwordC, phone, nickName, shopAddress) {
-    this.input_obj.email = mail;
-    this.input_obj.password = api.encrypt(password);
-    this.password_NS = password; //important
-    this.input_obj.phone = phone;
-    this.input_obj.nickName = nickName;
-    this.input_obj.shopAddress = shopAddress;
+    var msg = register_check(
+      mail,
+      password,
+      passwordC,
+      phone,
+      nickName,
+      shopAddress
+    );
+    if (msg == "success") {
+      this.input_obj.email = mail;
+      this.input_obj.password = api.encrypt(password);
+      this.password_NS = password; //important
+      this.input_obj.phone = phone;
+      this.input_obj.nickName = nickName;
+      this.input_obj.shopAddress = shopAddress;
 
-    var result = await api.sendRegister(this.input_obj);
-    if (result.status != "success") {
-      err1("该邮箱可能已被注册过，请换一个邮箱注册！");
+      var result = await api.sendRegister(this.input_obj);
+      if (result.status != "success") {
+        err1("该邮箱可能已被注册过，请换一个邮箱注册！");
+      } else {
+        this.setState({ isModalVisible: true });
+      }
     } else {
-      this.setState({ isModalVisible: true });
+      err1(msg);
     }
   }
 

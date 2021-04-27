@@ -181,7 +181,11 @@ function PaymentMethod(props) {
             payload: result.reward,
           });
 
-          setMessage("支付成功，请记下您的订单号" + props.orderNumber);
+          setMessage(
+            "支付成功，请记下您的订单号" +
+              props.orderNumber +
+              "订单接受后，会发邮件给您"
+          );
           setVisible(true);
         } else {
           setSucceeded(false);

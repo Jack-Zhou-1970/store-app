@@ -131,7 +131,11 @@ export default function CheckoutForm(props) {
           payload: result.reward,
         });
 
-        setMessage("支付成功，请记下您的订单号" + props.orderInfo.orderNumber);
+        setMessage(
+          "支付成功，请记下您的订单号" +
+            props.orderInfo.orderNumber +
+            "订单接受后，会发邮件给您"
+        );
         setVisible(true);
       } else {
         setMessage("支付失败! " + payload.error.message);

@@ -181,11 +181,15 @@ function OrderTime_input(props) {
         <Col xs={3}>
           <h3>请选择时间区间：</h3>
         </Col>
-        <Col xs={8}>
+        <Col xs={6}>
           <RangePicker onChange={onChange} />
         </Col>
-        <Col xs={4} style={{ marginLeft: "2%" }}>
-          <h2>销售总金额：${(props.totalAmount / 100).toString()}</h2>
+        <Col xs={3} style={{ marginLeft: "2%" }}>
+          <h2>总金额：${(props.totalAmount / 100).toString()}</h2>
+        </Col>
+
+        <Col xs={3} style={{ marginLeft: "2%" }}>
+          <h2>单数:{props.totalNumber.toString()}</h2>
         </Col>
       </Row>
     </div>
@@ -245,6 +249,7 @@ function OrderInfoDateQuery() {
     <div>
       <OrderTime_input
         totalAmount={calTotalAmount(orderInfo)}
+        totalNumber={orderInfo.length}
         handle_click={handle_click}
       />
       <div

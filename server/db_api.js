@@ -612,6 +612,23 @@ async function getProductAmountByDate(start_date, end_date) {
   return dbToJson(result);
 }
 
+//get shop startTime and endTime from shopCode
+async function getShopTime(shopAddress) {
+  var result = await sqlQuery(
+    "select worktimeBegin_h,worktimeBegin_m,worktimeEnd_h,worktimeEnd_m from shop_table where address = ?",
+    [shopAddress]
+  );
+  return dbToJson(result);
+}
+
+async function getEmailByOrderNumber(orderNumber) {
+  var result = await sqlQuery(
+    "select user_table.email,order_table.userCode from user_table,order_table where order_table.orderNumber=? and order_table.userCode = user_table.userCode",
+    [orderNumber]
+  );
+  return dbToJson(result);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -650,4 +667,6 @@ module.exports = {
   getProductAmountByDate: getProductAmountByDate, //get productamount by date,all product
   getOrderInfoByDate: getOrderInfoByDate, //only order which is complete
   updateOrderStatus_4: updateOrderStatus_4, //used to refund
+  getShopTime: getShopTime, //get shop startTime and endTime from shopCode
+  getEmailByOrderNumber: getEmailByOrderNumber,
 };

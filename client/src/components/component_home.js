@@ -728,35 +728,6 @@ function addAllProduct(data) {
   return data1;
 }
 
-/*function ListCatalog(props) {
-  var data = addAllProduct(props.data);
-
-  function handle_click(e) {
-    store.dispatch({
-      type: "UPDATE_CLASS_INFO",
-      className: e.target.textContent,
-    });
-  }
-  return (
-    <List
-      grid={{ gutter: 1, column: 6 }}
-      style={{ marginLeft: "10%" }}
-      dataSource={data}
-      renderItem={(item) => (
-        <List.Item onClick={handle_click}>
-          <div
-            style={{
-              color: item.catalogName == props.className ? "red" : "black",
-            }}
-          >
-            {item.catalogName}
-          </div>
-        </List.Item>
-      )}
-    />
-  );
-}*/
-
 function ListCatalog(props) {
   var data = addAllProduct(props.data);
 
@@ -882,15 +853,30 @@ function ProductByClass(props) {
       productName: mainProductName,
     });
     /*history.push("/productDetail");*/
-    setProductDetailVisible(true);
+
+    var req = new Object();
+    req.shopAddress = props.shopAddress;
+
+    api.getAcceptOrder(req).then((result) => {
+      if (result.status == "ok") {
+        setProductDetailVisible(true);
+      } else {
+        setVisble(true);
+      }
+    });
   }
 
   function onClose() {
     setProductDetailVisible(false);
   }
 
+  function handle_cancel() {
+    setVisble(false);
+  }
+
   const [loading, setLoading] = useState(true);
   const [productDetailVisible, setProductDetailVisible] = useState(false);
+  const [isVisble, setVisble] = useState(false);
 
   useEffect(() => {
     //forbidden back
@@ -950,6 +936,20 @@ function ProductByClass(props) {
           destroyOnClose={true}
         >
           <Home_productDetail />
+        </Modal>
+        <Modal
+          title="友情提醒"
+          visible={isVisble}
+          onOk={handle_cancel}
+          onCancel={handle_cancel}
+          width={300}
+          closable={false}
+          centered={true}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          "营业时间未到或商家休息，请换个时间选购！"
         </Modal>
       </div>
     </Spin>
