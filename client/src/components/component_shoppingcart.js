@@ -14,6 +14,8 @@ import { connect } from "react-redux";
 
 import { checkPic } from "./component_home";
 
+import { countTotalAmountByProductName } from "./component_home";
+
 import cart from "../../images/cart.svg";
 import home from "../../images/home.svg";
 import deleteAll from "../../images/delete.svg";
@@ -111,11 +113,19 @@ function ShopCard(props) {
   });
 
   function handle_add() {
-    props.handle_add(props.mainProductName, props.smallProductList);
+    props.handle_add(
+      props.mainProductName,
+      props.smallProductList,
+      props.amount
+    );
   }
 
   function handle_dec() {
-    props.handle_dec(props.mainProductName, props.smallProductList);
+    props.handle_dec(
+      props.mainProductName,
+      props.smallProductList,
+      props.amount
+    );
   }
   return (
     <div>
@@ -326,15 +336,42 @@ function findPicFileByName(productList, productName) {
   }
 }
 
+function findProductStockByName(productList, mainProductName) {
+  var stock = 0;
+  for (var i = 0; i < productList.length; i++) {
+    for (var j = 0; j < productList[i].product.length; j++) {
+      if (productList[i].product[j].mainProductName == mainProductName) {
+        stock = productList[i].product[j].stock;
+        return stock;
+      }
+    }
+  }
+}
+
 export function ShopCardList(props) {
   const [loading, setLoading] = useState(true);
+  const [isVisble, setVisble] = useState(false);
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     checkPic(props.productList, props.shopAddress, setLoading);
     setLoading(props.productList.length > 0 ? false : true);
   });
 
-  function handle_add(mainProductName, smallProduct) {
+  function handle_cancel() {
+    setVisble(false);
+  }
+
+  function handle_add(mainProductName, smallProduct, amount) {
+    if (
+      countTotalAmountByProductName(props.orderProduct, mainProductName) + 1 >
+      findProductStockByName(props.productList, mainProductName)
+    ) {
+      var msg_d = "当前库存不够，无法再增加购买";
+      setMsg(msg_d);
+      setVisble(true);
+      return;
+    }
     var productList = new Object();
 
     productList.mainProductName = mainProductName;
@@ -377,7 +414,25 @@ export function ShopCardList(props) {
         />
       );
     });
-    return <ShopCard_container>{shopCardList}</ShopCard_container>;
+    return (
+      <div>
+        <ShopCard_container>{shopCardList}</ShopCard_container>
+        <Modal
+          title="友情提醒"
+          visible={isVisble}
+          onOk={handle_cancel}
+          onCancel={handle_cancel}
+          width={300}
+          closable={false}
+          centered={true}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          {msg}
+        </Modal>
+      </div>
+    );
   } else {
     return <Spin spinning={loading}></Spin>;
   }

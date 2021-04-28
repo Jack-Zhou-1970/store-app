@@ -372,6 +372,12 @@ export const productDetailReducer = (state = [], action) => {
         totalPrice: state.price * action.amount,
       };
 
+    case "UPDATE_MAINPRODUCT_STOCK":
+      return {
+        ...state,
+        stock: action.stock,
+      };
+
     default:
       return state;
   }

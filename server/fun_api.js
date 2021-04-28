@@ -940,11 +940,22 @@ async function judgeAcceptOrder(inputObj) {
   var minute = timeNow.getMinutes();
   var time = hour * 60 + minute;
 
-  if (time >= startTime && endTime - time >= 30) {
+  if (time < startTime || endTime - time < 30) {
+    reqBack.status = "notOk";
+    return reqBack;
+  }
+
+  //let get stock
+
+  var result = await db_api.getProductStockByName(inputObj.mainProductName);
+
+  if (result.length == 0) {
     reqBack.status = "ok";
+    reqBack.stock = 0;
     return reqBack;
   } else {
-    reqBack.status = "notOk";
+    reqBack.status = "ok";
+    reqBack.stock = result[0].stock;
     return reqBack;
   }
 }
@@ -956,6 +967,33 @@ function sentEmailAfterAccept(orderNumber, email) {
     "Your order is ready,you can pickup after 30 minutes,your order number is  " +
     orderNumber;
   mailSend.mailerSend(emailOptions);
+}
+
+async function processAmountSingleProduct(mainProductName, amount) {
+  //get stock
+  var result = await db_api.getProductStockByName(mainProductName);
+  if (result.length == 0) {
+    return;
+  }
+
+  if (result[0].stock != 99999) {
+    var newStock = result[0].stock - amount;
+    if (newStock <= 0) {
+      newstock = 0;
+    }
+    //update
+    await db_api.updateProductStockByName_DB(mainProductName, newStock);
+  }
+}
+
+//update stock after payment
+async function updateStock(paymentDetail) {
+  for (var i = 0; i < paymentDetail.product.length; i++) {
+    await processAmountSingleProduct(
+      paymentDetail.product[i].mainProductName,
+      paymentDetail.product[i].amount
+    );
+  }
 }
 
 module.exports = {
@@ -978,6 +1016,7 @@ module.exports = {
   getOrderListFromUserCode: getOrderListFromUserCode, ////get orderInfo from userCode
   updateRewardToDB: updateRewardToDB, //update reward info to db after payment complete
   createOrderInfo: createOrderInfo,
-  judgeAcceptOrder: judgeAcceptOrder, ////judge if can accept order
+  judgeAcceptOrder: judgeAcceptOrder, ////judge if can accept order and get stock
   sentEmailAfterAccept: sentEmailAfterAccept,
+  updateStock: updateStock, //after payment
 };

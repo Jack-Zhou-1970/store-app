@@ -30,6 +30,8 @@ router_pay.post("/paymentComplete", async (req, res) => {
       await fun_api.storeDbAfterCardPay(data);
       var result1 = await fun_api.updateRewardToDB(data);
 
+      await fun_api.updateStock(req.body);
+
       router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
 
       res.json({ reward: result1.reward, status: "requireCapture" });
@@ -47,8 +49,8 @@ router_pay.post("/paymentComplete", async (req, res) => {
 router_pay.post("/create-payment-intent", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
-  console.log("priceTotal");
-  console.log(priceTotal.totalPriceAfterTax);
+  /* console.log("priceTotal");
+  console.log(priceTotal.totalPriceAfterTax);*/
 
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
@@ -73,9 +75,9 @@ router_pay.post("/create-payment-intent", async (req, res) => {
 });
 ////////////////////////////////This is direct pay"//////////////////////////////////////
 router_pay.post("/direct-pay", async (req, res) => {
-  console.log("before cal");
+  /*console.log("before cal");*/
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
-  console.log("cal complete");
+  /*console.log("cal complete");*/
 
   const db_api = require("./db_api");
 
@@ -83,6 +85,8 @@ router_pay.post("/direct-pay", async (req, res) => {
     //all payment is pay by reward
     await db_api.updateOrderStatusNoIntend_db(req.body.orderNumber, "success");
     var result3 = await fun_api.updateRewardToDB(req.body);
+
+    await fun_api.updateStock(req.body);
 
     router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
 
@@ -124,7 +128,7 @@ router_pay.post("/direct-pay", async (req, res) => {
 
       paymentIntentData.setup_future_usage = "off_session";
 
-      console.log("before paymentIntent");
+      /*console.log("before paymentIntent");*/
     } catch (err) {
       console.log(err);
       console.log("paymentMethodsId err");
@@ -135,16 +139,18 @@ router_pay.post("/direct-pay", async (req, res) => {
         paymentIntentData
       );
 
-      console.log(paymentIntent);
+      /*console.log(paymentIntent);*/
 
       if (paymentIntent.status == "requires_capture") {
         req.body.paymentInstend = paymentIntent.id;
 
-        console.log("before update");
+        /*console.log("before update");*/
         await fun_api.updateOrderStatusInstend(req.body, "requireCapture");
-        console.log(" update1");
+        /* console.log(" update1");*/
         var result2 = await fun_api.updateRewardToDB(req.body);
-        console.log("update2");
+        /* console.log("update2");*/
+
+        await fun_api.updateStock(req.body);
 
         router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
 

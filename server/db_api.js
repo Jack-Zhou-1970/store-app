@@ -251,8 +251,6 @@ async function getProductCodeFromName(productType, productName) {
       break;
   }
 
-  console.log(result);
-
   return dbToJson(result)[0].productCode;
 }
 
@@ -629,6 +627,43 @@ async function getEmailByOrderNumber(orderNumber) {
   return dbToJson(result);
 }
 
+//the function below used to process stock
+
+async function getProductStockByName(mainProductName) {
+  var result = await getProductCodeFromName("mainProduct", mainProductName);
+  if (result == null || result == undefined) {
+    return [];
+  }
+
+  var result1 = await getStockFromProductCode(result);
+
+  return dbToJson(result1);
+}
+
+async function getStockFromProductCode(productCode) {
+  var result = await sqlQuery(
+    "select stock from product_big_table where productCode=?",
+    [productCode]
+  );
+  return dbToJson(result);
+}
+
+async function updateProductStockByName_DB(mainProductName, amount) {
+  var result = await getProductCodeFromName("mainProduct", mainProductName);
+  if (result == null || result == undefined) {
+    return [];
+  }
+
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result1 = await sqlQuery(
+    "update product_big_table set stock=? where productCode = ?",
+    [amount, result]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result1);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -668,5 +703,7 @@ module.exports = {
   getOrderInfoByDate: getOrderInfoByDate, //only order which is complete
   updateOrderStatus_4: updateOrderStatus_4, //used to refund
   getShopTime: getShopTime, //get shop startTime and endTime from shopCode
-  getEmailByOrderNumber: getEmailByOrderNumber,
+  getEmailByOrderNumber: getEmailByOrderNumber, //the function and below used to process stock
+  getProductStockByName: getProductStockByName,
+  updateProductStockByName_DB: updateProductStockByName_DB,
 };

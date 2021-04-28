@@ -212,6 +212,33 @@ async function reloadProductList(shopAddress) {
   });
 }
 
+export function countTotalAmountByProductName(orderProduct, mainProductName) {
+  if (orderProduct == [] || orderProduct.length == 0) {
+    return 0;
+  }
+
+  var total = 0;
+  for (var i = 0; i < orderProduct.length; i++) {
+    if (orderProduct[i].mainProductName == mainProductName) {
+      total = total + orderProduct[i].amount;
+    }
+  }
+
+  return total;
+}
+
+function updateProductListAmount(productList, mainProductName, amount) {
+  for (var i = 0; i < productList.length; i++) {
+    for (var j = 0; j < productList[i].product.length; j++) {
+      if (productList[i].product[j].mainProductName == mainProductName) {
+        productList[i].product[j].stock = amount;
+      }
+    }
+  }
+
+  return productList;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////the function used to display product header
 
 export function Home_header(props) {
@@ -666,8 +693,16 @@ const mapStateToProps_ProductDetail = (state) => {
 
 ProductIntro = connect(mapStateToProps_ProductDetail)(ProductIntro);
 
-function MainProductAmountPrice() {
+///////////////////////////////////////////////////////////////
+
+function MainProductAmountPrice(props) {
   const [amount, setAmount] = useState(0);
+  const [isVisble, setVisble] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  function handle_cancel() {
+    setVisble(false);
+  }
 
   function handle_dec() {
     var val = amount;
@@ -684,6 +719,20 @@ function MainProductAmountPrice() {
   function handle_add() {
     var val = amount;
     val++;
+
+    if (
+      val +
+        countTotalAmountByProductName(
+          props.orderProduct,
+          props.productDetail.productName
+        ) >
+      props.productDetail.stock
+    ) {
+      var msg_d = "库存不够，无法再增加购买";
+      setMsg(msg_d);
+      setVisble(true);
+      return;
+    }
     setAmount(val);
     store.dispatch({
       type: "UPDATE_MAINPRODUCT_AMOUNT",
@@ -701,9 +750,34 @@ function MainProductAmountPrice() {
       <Button type="primary " style={{ marginLeft: "3%" }} onClick={handle_add}>
         +
       </Button>
+      <Modal
+        title="友情提醒"
+        visible={isVisble}
+        onOk={handle_cancel}
+        onCancel={handle_cancel}
+        width={300}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        {msg}
+      </Modal>
     </div>
   );
 }
+
+const mapStateToProps_MainProductAmountPrice = (state) => {
+  return {
+    productDetail: state.productDetailReducer,
+    orderProduct: state.orderInfoReducer.orderProduct,
+  };
+};
+
+MainProductAmountPrice = connect(mapStateToProps_MainProductAmountPrice)(
+  MainProductAmountPrice
+);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////the function  used to display productList area
 export function Home_ProductList() {
@@ -856,11 +930,31 @@ function ProductByClass(props) {
 
     var req = new Object();
     req.shopAddress = props.shopAddress;
+    req.mainProductName = mainProductName;
 
     api.getAcceptOrder(req).then((result) => {
       if (result.status == "ok") {
-        setProductDetailVisible(true);
+        store.dispatch({
+          type: "UPDATE_MAINPRODUCT_STOCK",
+          stock: result.stock,
+        });
+
+        store.dispatch({
+          type: "UPDATE_PRODUCT_INFO",
+          payload: updateProductListAmount(
+            props.data,
+            mainProductName,
+            result.stock
+          ),
+        });
+        if (result.stock > 0) {
+          setProductDetailVisible(true);
+        } else {
+          setMsg("该产品没有库存，请选购其它产品");
+          setVisble(true);
+        }
       } else {
+        setMsg("营业时间未到或商家未营业，请换个时间选购");
         setVisble(true);
       }
     });
@@ -877,6 +971,7 @@ function ProductByClass(props) {
   const [loading, setLoading] = useState(true);
   const [productDetailVisible, setProductDetailVisible] = useState(false);
   const [isVisble, setVisble] = useState(false);
+  const [msg, setMsg] = useState("");
 
   useEffect(() => {
     //forbidden back
@@ -949,7 +1044,7 @@ function ProductByClass(props) {
           okText="确认"
           cancelText="取消"
         >
-          "营业时间未到或商家休息，请换个时间选购！"
+          {msg}
         </Modal>
       </div>
     </Spin>
