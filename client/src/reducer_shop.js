@@ -25,7 +25,29 @@ function addNewOrderList(state, inputObj) {
     return a.paymentTime < b.paymentTime ? 1 : -1;
   });
 
+  /*newArray.sort(function (a, b) {
+    return a.orderNumber < b.orderNumber ? 1 : -1;
+  });*/
+
   return newArray.slice(0);
+}
+
+function updateOrder(state, orderFun) {
+  var newArray = state;
+
+  if (orderFun == "byDate") {
+    newArray.sort(function (a, b) {
+      return a.paymentTime < b.paymentTime ? 1 : -1;
+    });
+
+    return newArray.slice(0);
+  } else {
+    newArray.sort(function (a, b) {
+      return a.orderNumber < b.orderNumber ? 1 : -1;
+    });
+
+    return newArray.slice(0);
+  }
 }
 
 function updateOrderLIst(state, inputObj) {
@@ -43,8 +65,12 @@ export const orderListReducer = (state = [], action) => {
   switch (action.type) {
     case "ADD_ORDER_LIST":
       return addNewOrderList(state, action.payload);
+
     case "UPDATE_ORDER_STATUS":
       return updateOrderLIst(state, action.payload);
+
+    case "UPDATE_ORDER_FUN":
+      return updateOrder(state, action.payload);
 
     default:
       return state;

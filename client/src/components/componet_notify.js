@@ -2,7 +2,17 @@ import React from "react";
 
 import { useEffect, useState, useRef } from "react";
 
-import { Button, Modal, Tabs, Card, List, Pagination, Spin, Badge } from "antd";
+import {
+  Button,
+  Modal,
+  Tabs,
+  Card,
+  List,
+  Pagination,
+  Spin,
+  Badge,
+  Switch,
+} from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -21,6 +31,12 @@ import pickup from "../../images/pickup.png";
 import complete from "../../images/complete.png";
 
 import { fixControlledValue } from "antd/lib/input/Input";
+
+import {
+  printComponent,
+  printExistingElement,
+  printHtml,
+} from "react-print-tool";
 
 export var ws;
 
@@ -165,40 +181,68 @@ function Notify_container(props) {
       history.push("/");
     }
   }
+
+  function handle_change(checked) {
+    console.log("11111111");
+    console.log(checked);
+    if (checked) {
+      store.dispatch({
+        type: "UPDATE_ORDER_FUN",
+        payload: "byDate",
+      });
+    } else {
+      store.dispatch({
+        type: "UPDATE_ORDER_FUN",
+        payload: "byNumber",
+      });
+    }
+  }
   return (
-    <Tabs type="card" onChange={onchange}>
-      <TabPane tab="未接订单" key="1">
-        <UnAcceptList />
-      </TabPane>
-      <TabPane tab="未提订单" key="2">
-        <ReadyPickupList />
-      </TabPane>
-      <TabPane tab="完成订单" key="3">
-        <CompleteList />
-      </TabPane>
-      <TabPane tab="订单查询" key="4">
-        <div
-          style={{
-            display:
-              props.status == "LEVEL2" || props.status == "LEVEL3"
-                ? "block"
-                : "none",
-          }}
-        >
-          <OrderQuery_container />
-        </div>
-      </TabPane>
-      <TabPane tab="退单处理" key="5">
-        <div
-          style={{
-            display: props.status == "LEVEL3" ? "block" : "none",
-          }}
-        >
-          <RefundCancel />
-        </div>
-      </TabPane>
-      <TabPane tab="退出后台" key="6"></TabPane>
-    </Tabs>
+    <div>
+      <div>
+        <Tabs type="card" onChange={onchange}>
+          <TabPane tab="未接订单" key="1">
+            <UnAcceptList />
+          </TabPane>
+          <TabPane tab="未提订单" key="2">
+            <ReadyPickupList />
+          </TabPane>
+          <TabPane tab="完成订单" key="3">
+            <CompleteList />
+          </TabPane>
+          <TabPane tab="订单查询" key="4">
+            <div
+              style={{
+                display:
+                  props.status == "LEVEL2" || props.status == "LEVEL3"
+                    ? "block"
+                    : "none",
+              }}
+            >
+              <OrderQuery_container />
+            </div>
+          </TabPane>
+          <TabPane tab="退单处理" key="5">
+            <div
+              style={{
+                display: props.status == "LEVEL3" ? "block" : "none",
+              }}
+            >
+              <RefundCancel />
+            </div>
+          </TabPane>
+          <TabPane tab="退出后台" key="6"></TabPane>
+        </Tabs>
+      </div>
+      <div style={{ position: "absolute", top: "35%", left: "2%" }}>
+        <Switch
+          checkedChildren="按时间排列"
+          unCheckedChildren="按订单号排列"
+          defaultChecked
+          onChange={handle_change}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -259,8 +303,40 @@ export function OrderList(props) {
   );
 }
 
+function OrderList_print(props) {
+  const data = createData(props.product);
+  return (
+    <div style={{ marginLeft: "20%" }}>
+      <h3>待处理单号：{props.orderNumber}</h3>
+      <List
+        itemLayout="horizontal"
+        split={false}
+        dataSource={data}
+        renderItem={(item) => (
+          <List.Item>
+            <List.Item.Meta
+              title={item.mainProduct}
+              description={item.smallProduct}
+            />
+          </List.Item>
+        )}
+      />
+    </div>
+  );
+}
+
 function UnAcceptCard(props) {
   const [spinning, setSpinning] = useState(false);
+
+  async function handle_dblClick() {
+    await printComponent(
+      <OrderList_print
+        product={props.product}
+        orderNumber={props.orderNumber}
+      />
+    );
+  }
+
   function handle_click() {
     var req = new Object();
     req.status = "process_capture";
@@ -282,6 +358,7 @@ function UnAcceptCard(props) {
           </Spin>
         }
         style={{ width: 300 }}
+        onDoubleClick={handle_dblClick}
       >
         <p>{props.paymentTime}</p>
         <OrderList product={props.product} />
@@ -414,6 +491,15 @@ function ReadyPickupCard(props) {
     setVisble(true);
   }
 
+  async function handle_dblClick() {
+    await printComponent(
+      <OrderList_print
+        product={props.product}
+        orderNumber={props.orderNumber}
+      />
+    );
+  }
+
   function handle_ok() {
     var req = new Object();
     req.status = "process_pickUp";
@@ -440,6 +526,7 @@ function ReadyPickupCard(props) {
           </Spin>
         }
         style={{ width: 300 }}
+        onDoubleClick={handle_dblClick}
       >
         <p>{props.paymentTime}</p>
         <OrderList product={props.product} />
