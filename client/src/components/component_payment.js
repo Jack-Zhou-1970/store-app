@@ -16,7 +16,7 @@ import { store } from "../app";
 
 import { connect } from "react-redux";
 
-const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
+ const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
 
 import home from "../../images/home.svg";
 

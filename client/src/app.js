@@ -4,7 +4,7 @@ import { Switch, Route, Router } from "react-router-dom";
 
 import history from "./history";
 
-import { Payment_1, Payment_2 } from "./payment";
+import { Payment_1, Payment_2, Payment_3 } from "./payment";
 import { Home } from "./home";
 import { Home_productDetail } from "./components/component_home";
 import { Login } from "./login";
@@ -74,6 +74,9 @@ function Main() {
       </Route>
       <Route path="/payment_2">
         <Payment_2 />
+      </Route>
+      <Route path="/payment_3">
+        <Payment_3 />
       </Route>
       <Route path="/register">
         <Register />

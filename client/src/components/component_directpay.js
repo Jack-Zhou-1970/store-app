@@ -18,6 +18,8 @@ import { object } from "prop-types";
 
 import home from "../../images/home.svg";
 import cart from "../../images/cart.svg";
+import wechat from "../../images/wechat.png";
+import alipay from "../../images/alipay.png";
 
 function UserInfo(props) {
   return (
@@ -161,6 +163,10 @@ function PaymentMethod(props) {
   function handle_normal_pay() {
     if (value == 2 && props.orderInfo.totalPrice > 0) {
       history.push("payment_2");
+    } else if (value == 3 && props.orderInfo.totalPrice > 0) {
+      history.push("payment_3");
+    } else if (value == 4 && props.orderInfo.totalPrice > 0) {
+      history.push("payment_2");
     } else {
       //payment direct
       setProcessing(true);
@@ -226,6 +232,22 @@ function PaymentMethod(props) {
             >
               使用新的信用卡付款
             </Radio>
+            <div style={{ display: "inline" }}>
+              <div style={{ width: "20%" }}>
+                <Radio value={3} disabled={props.orderInfo.totalPrice < 0.01}>
+                  <a>
+                    <img src={wechat} style={{ width: "100%" }} />
+                  </a>
+                </Radio>
+              </div>
+              <div style={{ width: "19%" }}>
+                <Radio value={4} disabled={props.orderInfo.totalPrice < 0.01}>
+                  <a>
+                    <img src={alipay} style={{ width: "100%" }} />
+                  </a>
+                </Radio>
+              </div>
+            </div>
           </Radio.Group>
         </div>
         <Affix offsetBottom={5} style={{ marginLeft: "30%", marginTop: "10%" }}>
@@ -288,6 +310,7 @@ export function createPaymentDetail(orderInfo, userInfo) {
 
 export function BillInfo(props) {
   const [billInfo, setBillInfo] = useState({});
+  const [spinning, setSpinning] = useState(false);
 
   function handle_home() {
     var inputObj = new Object();
@@ -308,7 +331,6 @@ export function BillInfo(props) {
   }
 
   useEffect(() => {
-    console.log(props.orderInfo);
     //forbidden back
     window.history.pushState(null, document.title, window.location.href);
     window.addEventListener("popstate", function (event) {
@@ -316,11 +338,14 @@ export function BillInfo(props) {
     });
 
     // Step 1:get bill info and display to customer to confirm
+    setSpinning(true);
+    console.log("get bill info");
     api
       .getBillInfo(createPaymentDetail(props.orderInfo, props.userInfo))
       .then((result) => {
+        setSpinning(false);
         setBillInfo(result);
-
+        console.log(" bill info ok");
         store.dispatch({
           type: "MOD_TOTAL_PRICE",
           totalPrice: result.TotalPrice.totalPriceAfterTax,
@@ -335,67 +360,74 @@ export function BillInfo(props) {
 
   if (billInfo.TotalPrice != undefined) {
     return (
-      <div style={{ height: "100%" }}>
-        <Affix offsetTop={5}>
-          <div
-            style={{
-              zIndex: "10",
-            }}
-          >
-            <Row>
-              <Col xs={4} style={{ marginLeft: "5%", marginRight: "60%" }}>
-                <div>
-                  <a onClick={handle_home}>
-                    <img src={home} style={{ width: "32px" }}></img>
-                  </a>
-                </div>
-              </Col>
+      <Spin spinning={spinning}>
+        <div style={{ height: "100%" }}>
+          <Affix offsetTop={5}>
+            <div
+              style={{
+                zIndex: "10",
+              }}
+            >
+              <Row>
+                <Col xs={4} style={{ marginLeft: "5%", marginRight: "60%" }}>
+                  <div>
+                    <a onClick={handle_home}>
+                      <img src={home} style={{ width: "32px" }}></img>
+                    </a>
+                  </div>
+                </Col>
 
-              <Col xs={4}>
-                <div>
-                  <a onClick={handle_cart}>
-                    <img src={cart} style={{ width: "32px" }}></img>
-                  </a>
-                </div>
-              </Col>
-            </Row>
+                <Col xs={4}>
+                  <div>
+                    <a onClick={handle_cart}>
+                      <img src={cart} style={{ width: "32px" }}></img>
+                    </a>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          </Affix>
+          <div style={{ marginTop: "0%", marginLeft: "10%", height: "100%" }}>
+            <UserInfo
+              orderNumber={billInfo.orderNumber}
+              nickName={props.userInfo.nickName}
+              email={props.userInfo.email}
+              phone={props.userInfo.phone}
+              shopAddress={props.userInfo.shopAddress}
+            />
+            <div style={{ marginTop: "2%" }}>
+              <h3>购买详情：</h3>
+              <OrderList subPrice={billInfo.subPrice} />
+            </div>
+            <TotalPrice
+              totalPriceBeforeTax={billInfo.TotalPrice.totalPriceBeforeTax}
+              reward_in={billInfo.TotalPrice.reward_in}
+              reward_out={billInfo.TotalPrice.reward_out}
+              totalMoney={billInfo.TotalPrice.reward_totalMoney}
+              reward={props.userInfo.reward}
+              shipFee={billInfo.TotalPrice.shipFee}
+              otherFee={billInfo.TotalPrice.otherFee}
+              taxRate={billInfo.TotalPrice.taxRate}
+              tax={billInfo.TotalPrice.tax}
+              totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
+            />
+            <PaymentMethod
+              last4={billInfo.last4}
+              orderNumber={billInfo.orderNumber}
+              orderInfo={props.orderInfo}
+              userInfo={props.userInfo}
+            />
           </div>
-        </Affix>
-        <div style={{ marginTop: "0%", marginLeft: "10%", height: "100%" }}>
-          <UserInfo
-            orderNumber={billInfo.orderNumber}
-            nickName={props.userInfo.nickName}
-            email={props.userInfo.email}
-            phone={props.userInfo.phone}
-            shopAddress={props.userInfo.shopAddress}
-          />
-          <div style={{ marginTop: "2%" }}>
-            <h3>购买详情：</h3>
-            <OrderList subPrice={billInfo.subPrice} />
-          </div>
-          <TotalPrice
-            totalPriceBeforeTax={billInfo.TotalPrice.totalPriceBeforeTax}
-            reward_in={billInfo.TotalPrice.reward_in}
-            reward_out={billInfo.TotalPrice.reward_out}
-            totalMoney={billInfo.TotalPrice.reward_totalMoney}
-            reward={props.userInfo.reward}
-            shipFee={billInfo.TotalPrice.shipFee}
-            otherFee={billInfo.TotalPrice.otherFee}
-            taxRate={billInfo.TotalPrice.taxRate}
-            tax={billInfo.TotalPrice.tax}
-            totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
-          />
-          <PaymentMethod
-            last4={billInfo.last4}
-            orderNumber={billInfo.orderNumber}
-            orderInfo={props.orderInfo}
-            userInfo={props.userInfo}
-          />
+          <div style={{ height: "300px" }}></div>
         </div>
-        <div style={{ height: "300px" }}></div>
-      </div>
+      </Spin>
     );
-  } else return <div></div>;
+  } else
+    return (
+      <Spin spinning={spinning}>
+        <div>正在结算账单，请稍候。。。</div>
+      </Spin>
+    );
 }
 
 const mapStateToProps_BillInfo = (state) => {

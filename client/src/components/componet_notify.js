@@ -43,11 +43,11 @@ export var ws;
 export var timer1 = null,
   timer2;
 
-export function WebSocketControl(props) {
-  const [playing, setPlaying] = useState(false);
-  const [isVisble, setVisble] = useState(false);
+var audio = null;
 
-  var audio = null;
+export function WebSocketControl(props) {
+  const [playing, setPlaying] = useState(true);
+  const [isVisble, setVisble] = useState(false);
 
   function handle_cancel() {
     setVisble(false);
@@ -55,7 +55,9 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
+    console.log("use Effect");
     ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
+
     ws.onopen = function () {
       //get order_by _shop
 
@@ -70,22 +72,27 @@ export function WebSocketControl(props) {
     ws.onmessage = function (event) {
       var data = JSON.parse(event.data);
 
-      console.log(data);
-
       processDataFromServer(data, setPlaying);
     };
 
     ws.onclose = function (event) {
       console.log("disconnect");
     };
+  }, []);
 
-    if (audio == null) {
+  try {
+    if (playing) {
       audio = new Audio("alert.mp3");
+      audio.load();
+      audio.play();
+    } else {
+      if (audio != null) {
+        audio.pause();
+      }
     }
-
-    audio.load();
-    playing ? audio.play() : audio.pause();
-  }, [playing]);
+  } catch (err) {
+    console.log(err);
+  }
 
   if (isVisble == false && timer1 == null) {
     timer1 = setInterval(() => {

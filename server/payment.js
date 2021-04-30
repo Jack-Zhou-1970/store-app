@@ -18,6 +18,35 @@ router_pay.get("/public-key", (req, res) => {
   res.json({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
 
+//wechat pay
+
+router_pay.post("/weChatPay", async (req, res) => {
+  const db_api = require("./db_api");
+
+  const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
+
+  const charge = await stripe.charges.create({
+    amount: priceTotal.totalPriceAfterTax,
+    currency: "cad",
+    source: req.body.source,
+  });
+
+  if (charge.status == "succeeded") {
+    await db_api.updateOrderStatusNoIntend_db(req.body.orderNumber, "success");
+
+    var result1 = await fun_api.updateRewardToDB(req.body);
+
+    await fun_api.updateStock(req.body);
+
+    router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
+
+    res.json({ reward: result1.reward, status: "success" });
+  } else {
+    console.log("!!!!!payment fail");
+    res.json({ status: "fail" });
+  }
+});
+
 ///////////////payment complete /////////////
 
 router_pay.post("/paymentComplete", async (req, res) => {
