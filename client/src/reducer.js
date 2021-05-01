@@ -175,6 +175,12 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         ...state,
         reward_out: action.reward_out,
       };
+
+    case "MOD_CLIENT_SECRET":
+      return {
+        ...state,
+        client_secret: action.client_secret,
+      };
     default:
       return state;
   }

@@ -4,7 +4,13 @@ import { Switch, Route, Router } from "react-router-dom";
 
 import history from "./history";
 
-import { Payment_1, Payment_2, Payment_3 } from "./payment";
+import {
+  Payment_1,
+  Payment_2,
+  Payment_3,
+  Payment_4,
+  Payment_5,
+} from "./payment";
 import { Home } from "./home";
 import { Home_productDetail } from "./components/component_home";
 import { Login } from "./login";
@@ -27,11 +33,14 @@ import { PersistGate } from "redux-persist/lib/integration/react";
 import bg1 from "../images/bg1.jpg";
 
 var sectionStyle = {
-  width: "100%",
-  height: "100%",
   // makesure here is String确保这里是一个字符串，以下是es6写法
   backgroundImage: `url(${bg1})`,
   backgroundSize: "cover",
+
+  backgroundRepeat: "no-repeat",
+  height: "100%",
+  margin: "0",
+  padding: "0",
 };
 
 const storageConfig = {
@@ -77,6 +86,12 @@ function Main() {
       </Route>
       <Route path="/payment_3">
         <Payment_3 />
+      </Route>
+      <Route path="/payment_4">
+        <Payment_4 />
+      </Route>
+      <Route path="/payment_5">
+        <Payment_5 />
       </Route>
       <Route path="/register">
         <Register />

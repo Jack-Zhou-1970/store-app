@@ -18,6 +18,54 @@ router_pay.get("/public-key", (req, res) => {
   res.json({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
 
+//alipay
+router_pay.post("/createIntent_alipay", async (req, res) => {
+  const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
+
+  /* console.log("priceTotal");
+  console.log(priceTotal.totalPriceAfterTax);*/
+
+  const paymentIntentData = {
+    payment_method_types: ["alipay"],
+    amount: priceTotal.totalPriceAfterTax,
+    currency: "CAD",
+  };
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
+
+    await fun_api.updatePaymentInstend(req.body, paymentIntent.id);
+
+    res.json(paymentIntent);
+  } catch (err) {
+    res.json(err);
+  }
+});
+
+router_pay.post("/payComplete_alipay", async (req, res) => {
+  var data = req.body;
+
+  if (data.status == "success") {
+    var result = await fun_api.updateOrderStatus(data, "success");
+
+    if (result == "success") {
+      var result1 = await fun_api.updateRewardToDB(data);
+
+      await fun_api.updateStock(req.body);
+
+      router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
+
+      res.json({ reward: result1.reward, status: "success" });
+    } else {
+      console.log("!!!!!payment fail");
+      res.json({ status: "fail" });
+    }
+  } else {
+    console.log("payment fail");
+    res.json({ status: "fail" });
+  }
+});
+
 //wechat pay
 
 router_pay.post("/weChatPay", async (req, res) => {

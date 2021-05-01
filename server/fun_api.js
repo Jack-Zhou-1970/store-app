@@ -596,7 +596,10 @@ async function updateOrderStatus(paymentDetails_obj, orderStatus) {
   status = "fail";
 
   if (result.length > 0) {
-    if (result[0].orderStatus == "requireCapture") {
+    if (
+      result[0].orderStatus == "requireCapture" ||
+      result[0].orderStatus == "success"
+    ) {
       status = "success";
     }
   }
@@ -884,7 +887,9 @@ function createOrderInfo(order_db) {
 
 async function getOrderListFromUserCode(inputObj) {
   var order_db = await getOrderInfoFromUserCode(inputObj.userCode);
+
   if (order_db.length == 0) return [];
+  console.log(createOrderInfo(order_db));
 
   return createOrderInfo(order_db);
 }

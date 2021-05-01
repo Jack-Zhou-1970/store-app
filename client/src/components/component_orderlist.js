@@ -99,7 +99,9 @@ export function OrderList(props) {
   const [orderInfo, setOrderInfo] = useState([]);
 
   useEffect(() => {
-    api.getOrder(props.userInfo).then((result) => setOrderInfo(result));
+    api.getOrder(props.userInfo).then((result) => {
+      setOrderInfo(result);
+    });
   }, []);
 
   function handle_home() {
@@ -160,7 +162,7 @@ export function OrderList(props) {
       </div>
     );
   } else {
-    return <div></div>;
+    return <div>没有订单，按后退键返回</div>;
   }
 }
 

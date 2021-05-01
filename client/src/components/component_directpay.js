@@ -166,7 +166,7 @@ function PaymentMethod(props) {
     } else if (value == 3 && props.orderInfo.totalPrice > 0) {
       history.push("payment_3");
     } else if (value == 4 && props.orderInfo.totalPrice > 0) {
-      history.push("payment_2");
+      history.push("payment_4");
     } else {
       //payment direct
       setProcessing(true);
