@@ -20,6 +20,7 @@ import { connect } from "react-redux";
 
 import { processDataFromServer, howManyStatus } from "../manage_api";
 import { OrderList } from "./componet_notify";
+import { UserInfo } from "./component_directpay";
 
 import api from "../api"; //import!!
 
@@ -110,7 +111,7 @@ function OrderDetail(props) {
   var paymentTime = new Date(props.paymentTime);
   return (
     <div>
-      <Descriptions title="订单信息:">
+      <Descriptions title="商品信息:">
         <Descriptions.Item label="订单号">
           {props.orderNumber}
         </Descriptions.Item>
@@ -131,6 +132,7 @@ function OrderDetail(props) {
 function OrderNumberQuery() {
   const [visble, setVisble] = useState(false);
   const [orderInfo, setOrderInfo] = useState("");
+  const [userInfo, setUserInfo] = useState("");
 
   function handle_click(value) {
     var data = new Object();
@@ -138,7 +140,15 @@ function OrderNumberQuery() {
     api.getOrderNumberQuery(data).then((result) => {
       if (result.length > 0) {
         setOrderInfo(result[0]);
-        setVisble(true);
+        api.getUserInfoQuery(data).then((result) => {
+          if (result.length > 0) {
+            console.log(result);
+            setUserInfo(result[0]);
+            setVisble(true);
+          } else {
+            setVisble(false);
+          }
+        });
       } else {
         setVisble(false);
       }
@@ -154,6 +164,13 @@ function OrderNumberQuery() {
           marginTop: "5%",
         }}
       >
+        <UserInfo
+          orderNumber={orderInfo.orderNumber}
+          nickName={userInfo.nickName}
+          email={userInfo.email}
+          phone={userInfo.phone}
+          shopAddress={userInfo.pickupShop}
+        />
         <OrderDetail
           orderNumber={orderInfo.orderNumber}
           totalPrice={orderInfo.totalPrice}

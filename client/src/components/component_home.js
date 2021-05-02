@@ -16,6 +16,7 @@ import {
   Drawer,
   Menu,
   Modal,
+  notification,
 } from "antd";
 import { Row, Col } from "antd";
 
@@ -36,10 +37,6 @@ import cash from "../../images/cash.svg";
 
 import api from "../api";
 import { Menu_1 } from "./component_menu";
-
-const err = (msg) => {
-  message.info(msg, 2);
-};
 
 import bg1 from "../../images/bg1.jpg";
 
@@ -74,7 +71,11 @@ function calTotalPrice(productDetail) {
   return (smallTotalPrice + productDetail.price) * productDetail.amount;
 }
 
-function checkValidate(productDetail) {
+function checkValidate(productList, productDetail) {
+  function findMiddleProduct(input) {
+    return input.middleProductName == this;
+  }
+
   if (productDetail.amount == 0) {
     return "主产品数量至少为1";
   }
@@ -96,6 +97,23 @@ function checkValidate(productDetail) {
   }
   if (count > 3) {
     return "加料总和不能超过3份,请重新选择";
+  }
+
+  //check if middProduct Number is correct
+  var midProduct = findMiddleProductNumber_NP(
+    productList,
+    productDetail.productName
+  );
+
+  if (midProduct.length > 0) {
+    for (var k = 0; k < midProduct.length; k++) {
+      if (
+        productDetail.productMiddle.find(findMiddleProduct, midProduct[k]) ==
+        undefined
+      ) {
+        return midProduct[k] + "必须选择";
+      }
+    }
   }
 
   return "success";
@@ -159,6 +177,35 @@ function findSmallPrice_T(productMiddle, middleProductName, smallProductName) {
   return price_t;
 }
 
+//find which middleProductName price = 0;
+
+function findMiddleProductNumber_NP(productList, mainProductName) {
+  var midProduct = [];
+  for (var i = 0; i < productList.length; i++) {
+    for (var j = 0; j < productList[i].product.length; j++) {
+      if (productList[i].product[j].mainProductName == mainProductName) {
+        for (
+          var k = 0;
+          k < productList[i].product[j].productMiddle.length;
+          k++
+        ) {
+          if (
+            productList[i].product[j].productMiddle[k].productSmall.find(
+              findSmallPrice
+            ) == undefined
+          ) {
+            midProduct.push(
+              productList[i].product[j].productMiddle[k].middleProductName
+            );
+          }
+        }
+      }
+    }
+  }
+
+  return midProduct;
+}
+
 //判断图片是否存在
 function is_img_url(imgurl) {
   return new Promise(function (resolve, reject) {
@@ -175,7 +222,7 @@ function is_img_url(imgurl) {
 
 export async function checkPic(data, shopAddress, func) {
   var result1 = true;
-  console.log("checkPic");
+
   if (data != null && data != undefined) {
     for (var i = 0; i < data.length; i++) {
       for (var j = 0; j < data[i].product.length; j++) {
@@ -289,16 +336,23 @@ export function Home_productDetail(props) {
   }
 
   function handle_add_cart() {
-    message.config({
-      top: 300,
-    });
-    var result = checkValidate(props.productDetail);
+    var result = checkValidate(props.productList, props.productDetail);
     if (result == "success") {
       addToCart(props.productDetail);
-      history.push("/home");
-      err("已经成功加入购物车");
+
+      notification.open({
+        message: "成功加入购物车",
+        description: "成功加入购物车.您可继续选购或前往购物车结账",
+        duration: 2,
+      });
+
+      props.handle_close();
     } else {
-      err(result);
+      notification.open({
+        message: "无法加入购物车",
+        description: result,
+        duration: 2,
+      });
     }
   }
 
@@ -340,6 +394,7 @@ export function Home_productDetail(props) {
 const mapStateToProps_Home_productDetail = (state) => {
   return {
     productDetail: state.productDetailReducer,
+    productList: state.productListReducer,
   };
 };
 
@@ -554,32 +609,59 @@ const mapStateToProps_MidSmallProduct = (state) => {
 MidSmallProduct = connect(mapStateToProps_MidSmallProduct)(MidSmallProduct);
 
 function SmallproductP_S(props) {
-  function handle_smallProductP_change(value) {
+  const [value, setValue] = useState(0);
+
+  function handle_add() {
+    var val = value;
+    val++;
+    if (val > 3) {
+      val = 3;
+    }
+    setValue(val);
     props.handle_smallProductP_change(
       props.middleProductName,
       props.smallProductName,
       props.smallPrice,
-      value
+      val
+    );
+  }
+
+  function handle_dec() {
+    var val = value;
+    val--;
+    if (val < 0) {
+      val = 0;
+    }
+    setValue(val);
+    props.handle_smallProductP_change(
+      props.middleProductName,
+      props.smallProductName,
+      props.smallPrice,
+      val
     );
   }
 
   var price_t_s = "$" + (props.price_t / 100).toString();
   return (
     <Row style={{ marginTop: "4%" }}>
-      <Col xs={4}>{props.smallProductName}</Col>
-
-      <Col xs={12}>
-        <Slider
-          style={{ marginLeft: "0%" }}
-          defaultValue={0}
-          min={0}
-          max={3}
-          step={1}
-          dots={true}
-          onChange={handle_smallProductP_change}
-        />
+      <Col xs={8}>
+        {props.smallProductName}:${(props.smallPrice / 100).toString()}
       </Col>
-      <Col xs={4} style={{ marginLeft: "2%" }}>
+
+      <Col xs={10} style={{ marginLeft: "5%" }}>
+        <Button style={{ marginRight: "5%" }} onClick={handle_dec}>
+          -
+        </Button>
+        {value}
+        <Button
+          type="primary "
+          style={{ marginLeft: "5%" }}
+          onClick={handle_add}
+        >
+          +
+        </Button>
+      </Col>
+      <Col xs={4} style={{ marginLeft: "0%" }}>
         {price_t_s}
       </Col>
     </Row>
@@ -1030,7 +1112,7 @@ function ProductByClass(props) {
           footer={null}
           destroyOnClose={true}
         >
-          <Home_productDetail />
+          <Home_productDetail handle_close={onClose} />
         </Modal>
         <Modal
           title="友情提醒"

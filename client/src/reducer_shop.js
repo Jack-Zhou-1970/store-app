@@ -72,6 +72,9 @@ export const orderListReducer = (state = [], action) => {
     case "UPDATE_ORDER_FUN":
       return updateOrder(state, action.payload);
 
+    case "DEL_ORDER_LIST":
+      return [];
+
     default:
       return state;
   }

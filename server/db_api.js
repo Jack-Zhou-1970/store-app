@@ -664,6 +664,15 @@ async function updateProductStockByName_DB(mainProductName, amount) {
   return dbToJson(result1);
 }
 
+async function getUserInfoByOrderNumber(orderNumber) {
+  var result = await sqlQuery(
+    "select a.email,a.nickName,a.phone,a.pickupShop,b.orderNumber from user_table a,order_table b where b.orderNumber =? and b.userCode=a.userCode",
+    [orderNumber]
+  );
+
+  return dbToJson(result);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -706,4 +715,5 @@ module.exports = {
   getEmailByOrderNumber: getEmailByOrderNumber, //the function and below used to process stock
   getProductStockByName: getProductStockByName,
   updateProductStockByName_DB: updateProductStockByName_DB,
+  getUserInfoByOrderNumber: getUserInfoByOrderNumber,
 };

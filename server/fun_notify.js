@@ -282,6 +282,12 @@ async function processPickUp(orderNumber) {
 
 //refund and cancel money
 
+//get userInfo by orderNumber query
+async function getUserInfoByOrderNumberQuery(input_obj) {
+  var result = await db_api.getUserInfoByOrderNumber(input_obj.orderNumber);
+  return result;
+}
+
 module.exports = {
   getOrderInfoByShopCode: getOrderInfoByShopCode, ////the function below used to notify shop
   get_order_byShop: get_order_byShop,
@@ -292,4 +298,5 @@ module.exports = {
   get_order_by_DateQuery: get_order_by_DateQuery,
   get_product_amountQuery: get_product_amountQuery,
   processRefundCancel: processRefundCancel,
+  getUserInfoByOrderNumberQuery: getUserInfoByOrderNumberQuery,
 };

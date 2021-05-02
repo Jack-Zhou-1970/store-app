@@ -2,7 +2,7 @@ import React from "react";
 
 import { useEffect, useState } from "react";
 
-import { Button, message, Modal, Affix, Spin, Divider } from "antd";
+import { Button, Modal, Affix, Spin, Divider, Tooltip } from "antd";
 import { Row, Col } from "antd";
 
 import history from "../history";
@@ -93,10 +93,6 @@ function calShopTotal(productList, orderProduct) {
 }
 
 ///////////////////////////////////////////////////////
-
-const err = (msg) => {
-  message.error(msg, 2);
-};
 
 function ShopCard(props) {
   var price = "价格：$" + (props.price / 100).toString();
@@ -253,27 +249,27 @@ function ShopCard_container(props) {
         >
           <Row>
             <Col xs={4} style={{ marginLeft: "15%", marginRight: "11%" }}>
-              <div>
+              <Tooltip title="返回" color={"blue"} placement={"bottom"}>
                 <a onClick={handle_home}>
                   <img src={home} style={{ width: "32px" }}></img>
                 </a>
-              </div>
+              </Tooltip>
             </Col>
 
             <Col xs={4} style={{ marginRight: "15%" }}>
-              <div>
+              <Tooltip title="去付款" color={"blue"} placement={"bottom"}>
                 <a onClick={handle_pay}>
                   <img src={cash} style={{ width: "32px" }}></img>
                 </a>
-              </div>
+              </Tooltip>
             </Col>
 
             <Col xs={4}>
-              <div>
+              <Tooltip title="清空购物车" color={"blue"} placement={"bottom"}>
                 <a onClick={handle_delete}>
                   <img src={deleteAll} style={{ width: "26px" }}></img>
                 </a>
-              </div>
+              </Tooltip>
             </Col>
 
             <Modal

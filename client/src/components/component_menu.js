@@ -55,6 +55,7 @@ export function Menu_1(props) {
   const [isPayVisible, setPayVisible] = useState(false);
   const [isUserVisible, setUserVisible] = useState(false);
   const [isMapVisible, setMapVisible] = useState(false);
+  const [isRewardVisible, setRewardVisible] = useState(false);
 
   function handle_info() {
     setUserVisible(true);
@@ -82,6 +83,10 @@ export function Menu_1(props) {
 
   function handle_cancel1() {
     setPayVisible(false);
+  }
+
+  function handle_cancel5() {
+    setRewardVisible(false);
   }
 
   function onClose() {
@@ -112,6 +117,10 @@ export function Menu_1(props) {
 
   function handle_cart() {
     history.push("/cart");
+  }
+
+  function handle_reward() {
+    setRewardVisible(true);
   }
 
   function handle_payment() {
@@ -191,7 +200,7 @@ export function Menu_1(props) {
               count={props.userInfo.reward}
               offset={[-60, 0]}
             >
-              <a style={{ color: "black" }}>
+              <a style={{ color: "black" }} onClick={handle_reward}>
                 <img src={reward} style={{ width: "15%" }} />
                 &nbsp;&nbsp;积分
               </a>
@@ -303,6 +312,24 @@ export function Menu_1(props) {
         cancelText="取消"
       >
         <Map />
+      </Modal>
+      <Modal
+        visible={isRewardVisible}
+        onOk={handle_cancel5}
+        onCancel={handle_cancel5}
+        cancelButtonProps={{ disabled: true }}
+        width={400}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        <h3 style={{ color: "red" }}>积分:{props.userInfo.reward}</h3>
+        <h3>当前积分兑换规则：</h3>
+        <p>每购买一杯可兑换10个积分</p>
+        <p>每100积分可换购一杯奶茶，在购买时扣除相应金额</p>
+        <p>欢迎选购！</p>
       </Modal>
     </div>
   );

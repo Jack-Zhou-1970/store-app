@@ -2,7 +2,15 @@ import React from "react";
 import { useRef } from "react";
 
 import { Row, Col } from "antd";
-import { Form, Input, Button, message, Select, Modal } from "antd";
+import {
+  Form,
+  Input,
+  Button,
+  message,
+  Select,
+  Modal,
+  notification,
+} from "antd";
 
 import history from "../history";
 import { store } from "../app";
@@ -59,7 +67,10 @@ function RegisterForm(props) {
         name="password"
         rules={[{ required: true, message: "请输入密码!" }]}
       >
-        <Input.Password ref={refPassword} />
+        <Input.Password
+          ref={refPassword}
+          placeholder="必须包含大小写，数字和特殊字符"
+        />
       </Form.Item>
       <Form.Item
         label="确认密码"
@@ -200,12 +211,20 @@ class RegisterForm_manage extends React.Component {
 
       var result = await api.sendRegister(this.input_obj);
       if (result.status != "success") {
-        err1("该邮箱可能已被注册过，请换一个邮箱注册！");
+        notification.open({
+          message: "错误！",
+          description: "该邮箱已经存在，请换一个邮箱注册！",
+          duration: 3,
+        });
       } else {
         this.setState({ isModalVisible: true });
       }
     } else {
-      err1(msg);
+      notification.open({
+        message: "错误！",
+        description: msg,
+        duration: 2,
+      });
     }
   }
 

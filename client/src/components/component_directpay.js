@@ -4,7 +4,7 @@ import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions, List, Radio, Modal, Affix, Spin } from "antd";
+import { Descriptions, List, Radio, Modal, Affix, Spin, Space } from "antd";
 
 import "antd/dist/antd.css";
 
@@ -21,10 +21,10 @@ import cart from "../../images/cart.svg";
 import wechat from "../../images/wechat.png";
 import alipay from "../../images/alipay.png";
 
-function UserInfo(props) {
+export function UserInfo(props) {
   return (
     <div>
-      <h3>下面是您本次订购的订单信息:</h3>
+      <h3>订单信息:</h3>
       <Descriptions title="用户信息:">
         <Descriptions.Item label="订单号">
           {props.orderNumber}
@@ -145,6 +145,7 @@ function PaymentMethod(props) {
 
   const [processing, setProcessing] = useState(false);
   const [isModalVisible, setVisible] = useState(false);
+  const [isPageVisible, setPageVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [succeeded, setSucceeded] = useState(false);
 
@@ -160,13 +161,18 @@ function PaymentMethod(props) {
     setVisible(false);
   }
 
+  function handle_jump() {
+    history.push("payment_4");
+    setPageVisible(false);
+  }
+
   function handle_normal_pay() {
     if (value == 2 && props.orderInfo.totalPrice > 0) {
       history.push("payment_2");
     } else if (value == 3 && props.orderInfo.totalPrice > 0) {
       history.push("payment_3");
     } else if (value == 4 && props.orderInfo.totalPrice > 0) {
-      history.push("payment_4");
+      setPageVisible(true);
     } else {
       //payment direct
       setProcessing(true);
@@ -232,22 +238,15 @@ function PaymentMethod(props) {
             >
               使用新的信用卡付款
             </Radio>
-            <div style={{ display: "inline" }}>
-              <div style={{ width: "20%" }}>
-                <Radio value={3} disabled={props.orderInfo.totalPrice < 0.01}>
-                  <a>
-                    <img src={wechat} style={{ width: "100%" }} />
-                  </a>
-                </Radio>
-              </div>
-              <div style={{ width: "19%" }}>
-                <Radio value={4} disabled={props.orderInfo.totalPrice < 0.01}>
-                  <a>
-                    <img src={alipay} style={{ width: "100%" }} />
-                  </a>
-                </Radio>
-              </div>
-            </div>
+            <Space direction="horizontal">
+              <Radio value={3} disabled={props.orderInfo.totalPrice < 0.01}>
+                <img src={wechat} style={{ width: "50%" }} />
+              </Radio>
+
+              <Radio value={4} disabled={props.orderInfo.totalPrice < 0.01}>
+                <img src={alipay} style={{ width: "45%" }} />
+              </Radio>
+            </Space>
           </Radio.Group>
         </div>
         <Affix offsetBottom={5} style={{ marginLeft: "30%", marginTop: "10%" }}>
@@ -276,6 +275,20 @@ function PaymentMethod(props) {
           cancelText="取消"
         >
           {message}
+        </Modal>
+        <Modal
+          title="支付宝支付"
+          visible={isPageVisible}
+          onOk={handle_jump}
+          width={400}
+          closable={false}
+          centered={true}
+          cancelButtonProps={{ disabled: true }}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          即将跳到支付页面，跳转需要几秒时间，请耐心等待！
         </Modal>
       </Spin>
     </div>

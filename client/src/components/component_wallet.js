@@ -54,7 +54,13 @@ function WeChatPay(props) {
 
   function handleBack() {
     clearInterval(timer);
-    history.push("/payment_1");
+    var inputObj = new Object();
+
+    inputObj.orderNumber = props.orderInfo.orderNumber;
+
+    api.deleteUnPayment(inputObj).then((result) => {
+      history.push("/payment_1");
+    });
   }
 
   useEffect(() => {
