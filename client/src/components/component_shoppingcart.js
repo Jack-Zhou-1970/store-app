@@ -95,7 +95,7 @@ function calShopTotal(productList, orderProduct) {
 ///////////////////////////////////////////////////////
 
 function ShopCard(props) {
-  var price = "价格：$" + (props.price / 100).toString();
+  var price = "价格：$" + (props.price / 100).toFixed(2).toString();
   var smallProductList = props.smallProductList.map((item, index) => {
     if (item.amount == 0) {
       return <span key={index}>{item.productName} </span>;
@@ -166,7 +166,7 @@ function ShopCard(props) {
 
 function OrderTotal(props) {
   var price = calShopTotal(props.productList, props.orderProduct);
-  var price_s = "总价格:$" + (price / 100).toString();
+  var price_s = "总价格:$" + (price / 100).toFixed(2).toString();
   return (
     <div style={{ marginLeft: "28%", marginTop: "5%" }}>
       <div style={{ marginLeft: "5%" }}>

@@ -56,7 +56,7 @@ function OrderSum(props) {
           {props.orderNumber}
         </Descriptions.Item>
         <Descriptions.Item label="总价(税后)">
-          {(props.totalPrice / 100).toString()}
+          {(props.totalPrice / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="时间">
           {paymentTime.toString()}

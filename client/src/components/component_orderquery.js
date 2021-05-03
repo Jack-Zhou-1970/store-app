@@ -116,7 +116,7 @@ function OrderDetail(props) {
           {props.orderNumber}
         </Descriptions.Item>
         <Descriptions.Item label="总价(税后)">
-          {(props.totalPrice / 100).toString()}
+          {(props.totalPrice / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="付款时间">
           {paymentTime.toString()}
@@ -202,7 +202,7 @@ function OrderTime_input(props) {
           <RangePicker onChange={onChange} />
         </Col>
         <Col xs={3} style={{ marginLeft: "2%" }}>
-          <h2>总金额：${(props.totalAmount / 100).toString()}</h2>
+          <h2>总金额：${(props.totalAmount / 100).toFixed(2).toString()}</h2>
         </Col>
 
         <Col xs={3} style={{ marginLeft: "2%" }}>

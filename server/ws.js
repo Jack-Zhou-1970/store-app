@@ -23,8 +23,8 @@ router_ws.ws("/shop400001", function (ws, req) {
   }
 
   ws.on("message", async function (msg) {
-    console.log("receive msg");
-    console.log(msg);
+    /*console.log("receive msg");
+    console.log(msg);*/
 
     var req = JSON.parse(msg);
     var result;

@@ -406,7 +406,7 @@ Home_productDetail = connect(mapStateToProps_Home_productDetail)(
 
 function MidSmallPrice(props) {
   var price = calTotalPrice(props.productDetail);
-  var price_s = "总价格：$" + (price / 100).toString();
+  var price_s = "总价格：$" + (price / 100).toFixed(2).toString();
 
   return (
     <div style={{ marginTop: "2%" }}>
@@ -641,11 +641,12 @@ function SmallproductP_S(props) {
     );
   }
 
-  var price_t_s = "$" + (props.price_t / 100).toString();
+  var price_t_s = "$" + (props.price_t / 100).toFixed(2).toString();
   return (
     <Row style={{ marginTop: "4%" }}>
       <Col xs={8}>
-        {props.smallProductName}:${(props.smallPrice / 100).toString()}
+        {props.smallProductName}:$
+        {(props.smallPrice / 100).toFixed(2).toString()}
       </Col>
 
       <Col xs={10} style={{ marginLeft: "5%" }}>
@@ -745,7 +746,8 @@ function ProductIntro(props) {
       return item != undefined;
     });
 
-    var price = "价格：" + "$" + (product_detail[0].price / 100).toString();
+    var price =
+      "价格：" + "$" + (product_detail[0].price / 100).toFixed(2).toString();
     return (
       <div>
         <Spin spinning={loading}>
@@ -951,7 +953,7 @@ const mapStateToProps = (state) => {
 ListCatalog = connect(mapStateToProps)(ListCatalog);
 
 function ProductCard(props) {
-  var price = "价格：" + "$" + (props.price / 100).toString();
+  var price = "价格：" + "$" + (props.price / 100).toFixed(2).toString();
 
   function card_handle_click() {
     props.handle_click(props.mainProductName, props.price);

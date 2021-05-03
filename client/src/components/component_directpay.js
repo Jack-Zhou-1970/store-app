@@ -52,11 +52,11 @@ function createData(subPrice) {
     data.mainProduct =
       subPrice[i].mainProductName +
       "      单价:$" +
-      (subPrice[i].price / 100).toString() +
+      (subPrice[i].price / 100).toFixed(2).toString() +
       "      数量:" +
       subPrice[i].amount +
       "    总价(含加料):$" +
-      (subPrice[i].totalPrice / 100).toString();
+      (subPrice[i].totalPrice / 100).toFixed(2).toString();
     data.smallProduct = "";
     for (var j = 0; j < subPrice[i].smallProduct.length; j++) {
       var amount =
@@ -99,16 +99,16 @@ function TotalPrice(props) {
     <div style={{ marginTop: "2%" }}>
       <Descriptions title="订单汇总:">
         <Descriptions.Item label="税前价格">
-          ${(props.totalPriceBeforeTax / 100).toString()}
+          ${(props.totalPriceBeforeTax / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="积分抵扣金额">
-          ${(props.totalMoney / 100).toString()}
+          ${(props.totalMoney / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="运输费用">
-          {(props.shipFee / 100).toString()}
+          {(props.shipFee / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="其它费用">
-          {(props.otherFee / 100).toString()}
+          {(props.otherFee / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="税率">{props.taxRate}</Descriptions.Item>
         <Descriptions.Item label="税费">
@@ -130,7 +130,9 @@ function TotalPrice(props) {
       </div>
 
       <div style={{ marginTop: "2%" }}>
-        <h2>税后总价: ${(props.totalPriceAfterTax / 100).toString()}</h2>
+        <h2>
+          税后总价: ${(props.totalPriceAfterTax / 100).toFixed(2).toString()}
+        </h2>
       </div>
     </div>
   );

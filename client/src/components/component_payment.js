@@ -111,7 +111,7 @@ function UserInfo_pay(props) {
     <div>
       <div style={{ marginBottom: "1%" }}>
         <h3>
-          您本次需要支付${(props.orderInfo.totalPrice / 100).toString()}元:
+          您本次需要支付${(props.orderInfo.totalPrice / 100).toFixed(2).toString()}元:
         </h3>
       </div>
       <div style={{ marginBottom: "1%" }}>

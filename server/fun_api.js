@@ -9,6 +9,8 @@ const db_api = require("./db_api");
 const { json } = require("body-parser");
 const { getUserCodeFromEmail, getUserCodeFromEmail_1 } = require("./db_api");
 
+const fs = require("fs");
+
 const mailSend = require("./email");
 
 let emailOptions = {
@@ -517,9 +519,6 @@ function judgePassword(password1, password2) {
   var result1 = prikey.decrypt(password1, "utf8");
   var result2 = prikey.decrypt(password2, "utf8");
 
-  console.log(result1);
-  console.log(result2);
-
   if (result1 == false || result2 == false) {
     return false;
   }
@@ -624,10 +623,9 @@ async function processRegister(input_obj) {
     return result;
   } else {
     //send email
-    emailOptions.to = result.email;
-    emailOptions.text =
-      "Thank you to register world-tea ,verified code is  " + result.verifyCode;
-    mailSend.mailerSend(emailOptions);
+
+    htmlEamilSent1(result.email, result.verifyCode);
+
     result.verifyCode = "";
     return result;
   }
@@ -889,7 +887,6 @@ async function getOrderListFromUserCode(inputObj) {
   var order_db = await getOrderInfoFromUserCode(inputObj.userCode);
 
   if (order_db.length == 0) return [];
-  console.log(createOrderInfo(order_db));
 
   return createOrderInfo(order_db);
 }
@@ -965,13 +962,51 @@ async function judgeAcceptOrder(inputObj) {
   }
 }
 
-function sentEmailAfterAccept(orderNumber, email) {
+function htmlEamilSent(email, orderNumber) {
+  const path = require("path");
+  var root = path.resolve("worldtea.png");
+  console.log(root);
+
+  var htmlData = fs.readFileSync("email.html", "utf-8");
+  result = htmlData.replace(/%orderNumber%/g, orderNumber);
+
   emailOptions.to = email;
   emailOptions.subject = "your order is ready";
-  emailOptions.text =
-    "Your order is ready,you can pickup after 30 minutes,your order number is  " +
-    orderNumber;
+  emailOptions.html = result;
+  emailOptions.attachments = [
+    {
+      filename: "worldtea.png",
+      path: root,
+      cid: "00001",
+    },
+  ];
+
   mailSend.mailerSend(emailOptions);
+}
+
+function htmlEamilSent1(email, code) {
+  const path = require("path");
+  var root = path.resolve("worldtea.png");
+
+  var htmlData = fs.readFileSync("email1.html", "utf-8");
+  result = htmlData.replace(/%code%/g, code);
+
+  emailOptions.to = email;
+  emailOptions.subject = "verify code from world tea house";
+  emailOptions.html = result;
+  emailOptions.attachments = [
+    {
+      filename: "worldtea.png",
+      path: root,
+      cid: "00001",
+    },
+  ];
+
+  mailSend.mailerSend(emailOptions);
+}
+
+function sentEmailAfterAccept(orderNumber, email) {
+  htmlEamilSent(email, orderNumber);
 }
 
 async function processAmountSingleProduct(mainProductName, amount) {
