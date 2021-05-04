@@ -169,16 +169,49 @@ function PaymentMethod(props) {
   }
 
   function handle_normal_pay() {
+    var paymentDetails;
+
     if (value == 2 && props.orderInfo.totalPrice > 0) {
       history.push("payment_2");
     } else if (value == 3 && props.orderInfo.totalPrice > 0) {
       history.push("payment_3");
     } else if (value == 4 && props.orderInfo.totalPrice > 0) {
       setPageVisible(true);
+    } else if (value == 5 && props.orderInfo.totalPrice > 0) {
+      setProcessing(true);
+      paymentDetails = createPaymentDetail(props.orderInfo, props.userInfo);
+      paymentDetails.orderNumber = props.orderNumber;
+      api.afterPayment(paymentDetails).then((result) => {
+        setProcessing(false);
+        if (result.status == "afterPayment") {
+          setSucceeded(true);
+          //clean shoppingCart
+          store.dispatch({
+            type: "DEL_ALL_ORDER_PRODUCT",
+          });
+
+          //update reward info
+          store.dispatch({
+            type: "UPDATE_REWARD",
+            payload: result.reward,
+          });
+
+          setMessage(
+            "下单成功，请记下您的订单号" +
+              props.orderNumber +
+              "订单接受后，会发邮件给您，请到店付款并取货"
+          );
+          setVisible(true);
+        } else {
+          setSucceeded(false);
+          setMessage("下单失败，请使用信用卡支付!");
+          setVisible(true);
+        }
+      });
     } else {
       //payment direct
       setProcessing(true);
-      var paymentDetails = createPaymentDetail(props.orderInfo, props.userInfo);
+      paymentDetails = createPaymentDetail(props.orderInfo, props.userInfo);
       paymentDetails.orderNumber = props.orderNumber;
       api.direct_pay(paymentDetails).then((result) => {
         setProcessing(false);
@@ -249,6 +282,16 @@ function PaymentMethod(props) {
                 <img src={alipay} style={{ width: "45%" }} />
               </Radio>
             </Space>
+            <Radio
+              style={radioStyle}
+              value={5}
+              disabled={
+                props.orderInfo.totalPrice < 0.01 ||
+                props.userInfo.userCode.charAt(0) == "T"
+              }
+            >
+              到店支付并提货
+            </Radio>
           </Radio.Group>
         </div>
         <Affix offsetBottom={5} style={{ marginLeft: "30%", marginTop: "10%" }}>

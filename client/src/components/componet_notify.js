@@ -55,7 +55,6 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
-    console.log("use Effect");
     ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
 
     ws.onopen = function () {
@@ -190,8 +189,6 @@ function Notify_container(props) {
   }
 
   function handle_change(checked) {
-    console.log("11111111");
-    console.log(checked);
     if (checked) {
       store.dispatch({
         type: "UPDATE_ORDER_FUN",
@@ -229,7 +226,7 @@ function Notify_container(props) {
               <OrderQuery_container />
             </div>
           </TabPane>
-          <TabPane tab="退单处理" key="5">
+          <TabPane tab="退单积分处理" key="5">
             <div
               style={{
                 display: props.status == "LEVEL3" ? "block" : "none",
@@ -368,6 +365,13 @@ function UnAcceptCard(props) {
         onDoubleClick={handle_dblClick}
       >
         <p>{props.paymentTime}</p>
+        {props.status == "afterPayment" ? (
+          <h3 style={{ color: "red" }}>
+            未付金额:${(props.totalPrice / 100).toFixed(2).toString()}
+          </h3>
+        ) : (
+          <p>金额:${(props.totalPrice / 100).toFixed(2).toString()}</p>
+        )}
         <OrderList product={props.product} />
       </Card>
     </Col>
@@ -386,7 +390,11 @@ function UnAcceptList(props) {
   var countNumber = 0;
 
   const unAcceptList = props.orderList.map((item, index) => {
-    if (item.status == "requireCapture") {
+    if (
+      item.status == "requireCapture" ||
+      item.status == "success" ||
+      item.status == "afterPayment"
+    ) {
       skipNumber++;
       if (skipNumber > startNumber && countNumber < 12) {
         countNumber++;
@@ -396,6 +404,8 @@ function UnAcceptList(props) {
             orderNumber={item.orderNumber}
             product={item.product}
             paymentTime={paymentTime.toString()}
+            totalPrice={item.totalPrice}
+            status={item.status}
           />
         );
       }
@@ -432,6 +442,7 @@ function CompleteCard(props) {
     <Col span={6} style={{ marginBottom: "2%" }}>
       <Card title={props.orderNumber} style={{ width: 300 }}>
         <p>{props.paymentTime}</p>
+        <p>金额:${(props.totalPrice / 100).toFixed(2).toString()}</p>
         <OrderList product={props.product} />
       </Card>
     </Col>
@@ -460,6 +471,7 @@ function CompleteList(props) {
             orderNumber={item.orderNumber}
             product={item.product}
             paymentTime={paymentTime.toString()}
+            totalPrice={item.totalPrice}
           />
         );
       }
@@ -536,6 +548,13 @@ function ReadyPickupCard(props) {
         onDoubleClick={handle_dblClick}
       >
         <p>{props.paymentTime}</p>
+        {props.status1 == "nopay" ? (
+          <h3 style={{ color: "red" }}>
+            未付金额:${(props.totalPrice / 100).toFixed(2).toString()}
+          </h3>
+        ) : (
+          <p>金额:${(props.totalPrice / 100).toFixed(2).toString()}</p>
+        )}
         <OrderList product={props.product} />
       </Card>
       <Modal
@@ -550,7 +569,9 @@ function ReadyPickupCard(props) {
         okText="确认"
         cancelText="取消"
       >
-        请确认已经取走货物！
+        {props.status1 == "nopay"
+          ? "请确认用户完成支付并已经取走货物！"
+          : "请确认用户已经取走货物"}
       </Modal>
     </Col>
   );
@@ -578,6 +599,8 @@ function ReadyPickupList(props) {
             orderNumber={item.orderNumber}
             product={item.product}
             paymentTime={paymentTime.toString()}
+            totalPrice={item.totalPrice}
+            status1={item.status1}
           />
         );
       }

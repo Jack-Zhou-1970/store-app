@@ -30,6 +30,16 @@ export function processDataFromServer(data, setPlaying) {
 
     case "captureSuccess":
       data.status = "readyPickup";
+      data.status1 = "pay";
+      store.dispatch({
+        type: "UPDATE_ORDER_STATUS",
+        payload: data,
+      });
+      break;
+
+    case "captureSuccess_NP": //no pay "after payment"
+      data.status = "readyPickup";
+      data.status1 = "nopay";
       store.dispatch({
         type: "UPDATE_ORDER_STATUS",
         payload: data,
@@ -58,8 +68,18 @@ export function howManyStatus(orderInfo, status) {
 
   if (orderInfo.length > 0) {
     for (var i = 0; i < orderInfo.length; i++) {
-      if (orderInfo[i].status == status) {
-        num++;
+      if (status == "requireCapture") {
+        if (
+          orderInfo[i].status == "requireCapture" ||
+          orderInfo[i].status == "success" ||
+          orderInfo[i].status == "afterPayment"
+        ) {
+          num++;
+        }
+      } else {
+        if (orderInfo[i].status == status) {
+          num++;
+        }
       }
     }
   }

@@ -29,6 +29,7 @@ import { ws } from "./componet_notify";
 function RefundCancel_input(props) {
   const inputEl = useRef("");
   const inputEl1 = useRef("");
+  const inputEmail = useRef("");
 
   function handle_click() {
     props.handle_click(
@@ -37,8 +38,13 @@ function RefundCancel_input(props) {
     );
   }
 
+  function handle_click1() {
+    props.handle_click1(inputEmail.current.state.value);
+  }
+
   return (
     <div style={{ marginTop: "2%", marginLeft: "5%" }}>
+      <h3>退款和取消订单:</h3>
       <Row>
         <Col xs={2}>
           <h3>订单号码：</h3>
@@ -55,6 +61,21 @@ function RefundCancel_input(props) {
         <Col xs={4} style={{ marginLeft: "2%" }}>
           <Button type="primary" onClick={handle_click}>
             退款或取消
+          </Button>
+        </Col>
+      </Row>
+      <h3 style={{ marginTop: "2%" }}>积分查询和修改：</h3>
+      <Row>
+        <Col xs={2}>
+          <h3>邮箱地址：</h3>
+        </Col>
+        <Col xs={6}>
+          <Input ref={inputEmail} type="text" />
+        </Col>
+
+        <Col xs={4} style={{ marginLeft: "2%" }}>
+          <Button type="primary" onClick={handle_click1}>
+            查询并修改
           </Button>
         </Col>
       </Row>
@@ -75,7 +96,7 @@ function processStatus(status) {
       break;
 
     case "refundCancelCanNot":
-      result = "无法查询到该笔订单付款信息，无法退款";
+      result = "无法查询到该笔订单付款信息，无法退款，订单已经取消";
       break;
 
     case "refundFail":
@@ -101,6 +122,9 @@ export function RefundCancel() {
   const [msg, setMsg] = useState("");
   const [visble, setVisble] = useState(false);
   const [spinning, setSpinning] = useState(false);
+  const [rewardVisble, setRewardVisble] = useState(false);
+  const [email, setEmail] = useState("");
+  const [reward, setReward] = useState(0);
 
   function handle_click(orderNumber, amount) {
     var reqObj = new Object();
@@ -126,10 +150,71 @@ export function RefundCancel() {
   function handle_cancel() {
     setVisble(false);
   }
+
+  function handle_process() {
+    var reqObj = new Object();
+    reqObj.email = email;
+    reqObj.reward = reward;
+
+    api.updateReward(reqObj).then(
+      (result) => {
+        setMsg("修改成功");
+        setVisble(true);
+        setRewardVisble(false);
+      },
+      (err) => {
+        setMsg(err);
+        setVisble(true);
+        setRewardVisble(false);
+      }
+    );
+  }
+
+  function handle_cancel1() {
+    setRewardVisble(false);
+  }
+
+  function handle_dec() {
+    var val = reward;
+    val = val - 10;
+    if (val < 0) {
+      val = 0;
+    }
+    setReward(val);
+  }
+
+  function handle_add() {
+    var val = reward;
+    val = val + 10;
+
+    setReward(val);
+  }
+
+  function handle_click1(email) {
+    var reqObj = new Object();
+    reqObj.email = email;
+
+    setEmail(email);
+
+    api.getReward(reqObj).then((result) => {
+      if (result.length == 0) {
+        setMsg("输入的邮箱地址不对，没有查询到积分");
+        setVisble(true);
+        return;
+      }
+      //email OK
+
+      setReward(result[0].reward);
+      setRewardVisble(true);
+    });
+  }
   return (
     <div>
       <Spin spinning={spinning}>
-        <RefundCancel_input handle_click={handle_click} />
+        <RefundCancel_input
+          handle_click={handle_click}
+          handle_click1={handle_click1}
+        />
         <Modal
           title="操作结果"
           visible={visble}
@@ -143,6 +228,30 @@ export function RefundCancel() {
           cancelText="取消"
         >
           {msg}
+        </Modal>
+        <Modal
+          title="积分修改"
+          visible={rewardVisble}
+          onOk={handle_process}
+          onCancel={handle_cancel1}
+          width={400}
+          closable={false}
+          centered={true}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          <Button style={{ marginRight: "5%" }} onClick={handle_dec}>
+            -
+          </Button>
+          {reward}
+          <Button
+            type="primary "
+            style={{ marginLeft: "5%" }}
+            onClick={handle_add}
+          >
+            +
+          </Button>
         </Modal>
       </Spin>
     </div>

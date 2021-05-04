@@ -922,6 +922,8 @@ async function updateRewardToDB(inputObj) {
   return { reward: reward, status: "success" };
 }
 
+
+
 //judge if can accept order
 async function judgeAcceptOrder(inputObj) {
   var reqBack = new Object();
@@ -965,7 +967,6 @@ async function judgeAcceptOrder(inputObj) {
 function htmlEamilSent(email, orderNumber) {
   const path = require("path");
   var root = path.resolve("worldtea.png");
-  console.log(root);
 
   var htmlData = fs.readFileSync("email.html", "utf-8");
   result = htmlData.replace(/%orderNumber%/g, orderNumber);

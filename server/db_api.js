@@ -326,7 +326,7 @@ async function getShopAddressFromShopCode(shopCode) {
 async function getUserInfoFromUserCode(userCode) {
   //first get info from user_table
   var result1 = await sqlQuery(
-    "select email,firstName,lastName,nickName,pickupShop from user_table where userCode =?",
+    "select email,firstName,lastName,nickName,pickupShop,reward from user_table where userCode =?",
     [userCode]
   );
 
@@ -369,7 +369,7 @@ async function getUserCodeFromEmail_1(email) {
 //get userCode from email used to judge if client has already register
 async function getUserCodeFromEmail(email) {
   result = await sqlQuery(
-    "select userCode,status from user_table where email = ?",
+    "select userCode,status,reward from user_table where email = ?",
     [email]
   );
   return dbToJson(result);
@@ -505,7 +505,7 @@ async function getOrderInfo(userCode) {
 //get reward_info from orderNumber
 async function getRewardInfo(orderNumber) {
   var result = await sqlQuery(
-    "select reward_in,reward_out from order_table where orderNumber=?",
+    "select reward_in,reward_out,userCode from order_table where orderNumber=?",
     [orderNumber]
   );
   return dbToJson(result);
@@ -524,6 +524,18 @@ async function updateRewardInfo(reward, userCode) {
   return dbToJson(result);
 }
 
+async function updateRewardInfoByEmail_DB(reward, email) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery("update user_table set reward=? where email= ?", [
+    reward,
+    email,
+  ]);
+
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
 //get orderInfo from shopCode
 async function getOrderInfoByShop(shopCode) {
   var result = await sqlQuery(
@@ -536,7 +548,7 @@ async function getOrderInfoByShop(shopCode) {
 //get orderInfo from orderNumber
 async function getOrderInfoByOrderNumber(orderNumber) {
   var result = await sqlQuery(
-    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.orderStatus,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
+    "select distinct order_table.orderNumber,order_table.totalAmount,order_table.orderStatus,order_table.paymentTime,product_big_table.productName_c as productName_main,product_small_table.productName_c as productName_small,order_product_table.smallIndex,order_product_table.mainProductNumber,order_product_table.smallProductNumber from user_table,order_table,product_big_table,product_small_table,order_product_table where order_table.orderNumber=? and order_table.orderNumber = order_product_table.orderNumber and (order_table.orderStatus = 'requireCapture' or order_table.orderStatus = 'success' or order_table.orderStatus = 'afterPayment' )and order_product_table.mainProductCode=product_big_table.productCode and order_product_table.smallProductCode = product_small_table.productCode order by order_table.paymentTime DESC,product_big_table.productName_c,order_product_table.smallIndex,product_small_table.productName_c",
     [orderNumber]
   );
   return dbToJson(result);
@@ -716,4 +728,5 @@ module.exports = {
   getProductStockByName: getProductStockByName,
   updateProductStockByName_DB: updateProductStockByName_DB,
   getUserInfoByOrderNumber: getUserInfoByOrderNumber,
+  updateRewardInfoByEmail_DB: updateRewardInfoByEmail_DB, //update reward by email
 };

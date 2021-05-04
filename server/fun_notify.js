@@ -118,6 +118,46 @@ async function cancelMoney(payinstent) {
   }
 }
 
+//update reward info to db after payment complete
+async function updateRewardToDBAfterCancel(orderNumber) {
+  var result = await db_api.getRewardInfo(orderNumber);
+  if (result[0].reward_out == undefined) {
+    result[0].reward_out = 0;
+  }
+
+  if (result[0].userCode.charAt(0) == "T") {
+    return { reward: 0, status: "success" };
+  }
+
+  if (result[0].reward_in == undefined) {
+    result[0].reward_in = 0;
+  }
+
+  var result1 = await db_api.getUserInfoFromUserCode(result[0].userCode);
+
+  if (result1[0].reward == undefined) {
+    result1[0].reward = 0;
+  }
+
+  var reward = result1[0].reward + result[0].reward_out - result[0].reward_in;
+  if (reward < 0) {
+    reward = 0;
+  }
+
+  await db_api.updateRewardInfo(reward, result[0].userCode);
+
+  return { reward: reward, status: "success" };
+}
+
+//update RewardInfo from email
+async function updateRewardInfoByEmail(inputObj) {
+  var result = await db_api.updateRewardInfoByEmail_DB(
+    inputObj.reward,
+    inputObj.email
+  );
+  return result;
+}
+
 async function processRefundCancel(inputObj) {
   var orderNumber = inputObj.orderNumber;
   var amount = inputObj.amount;
@@ -146,10 +186,26 @@ async function processRefundCancel(inputObj) {
     return returnValue;
   }
 
+  if (result[0].orderStatus == "afterPayment") {
+    //just cancel
+    await db_api.updateOrderStatus_2(orderNumber, new Date(), "cancel");
+
+    await updateRewardToDBAfterCancel(orderNumber);
+
+    returnValue.content = "cancelSuccess";
+    returnValue.orderNumber = orderNumber;
+    returnValue.status = "success";
+    return returnValue;
+  }
+
   if (result[0].paymentInstend == "" || result[0].paymentInstend == null) {
+    await db_api.updateOrderStatus_2(orderNumber, new Date(), "cancel");
+
+    await updateRewardToDBAfterCancel(orderNumber);
+
     returnValue.content = "refundCancelCanNot";
     returnValue.orderNumber = orderNumber;
-    returnValue.status = "fail";
+    returnValue.status = "success";
     return returnValue;
   }
 
@@ -157,6 +213,8 @@ async function processRefundCancel(inputObj) {
     await cancelMoney(result[0].paymentInstend);
 
     await db_api.updateOrderStatus_2(orderNumber, new Date(), "cancel");
+
+    await updateRewardToDBAfterCancel(orderNumber);
 
     returnValue.content = "cancelSuccess";
     returnValue.orderNumber = orderNumber;
@@ -171,6 +229,8 @@ async function processRefundCancel(inputObj) {
       returnValue.status = "fail";
       return returnValue;
     }
+
+    await updateRewardToDBAfterCancel(orderNumber);
 
     await db_api.updateOrderStatus_4(orderNumber, amount, new Date(), "refund");
 
@@ -196,7 +256,8 @@ async function processCapture(orderNumber) {
 
   if (
     result[0].orderStatus != "requireCapture" &&
-    result[0].orderStatus != "success"
+    result[0].orderStatus != "success" &&
+    result[0].orderStatus != "afterPayment"
   ) {
     returnValue.content = "captureNoNeed";
     returnValue.orderNumber = orderNumber;
@@ -211,9 +272,16 @@ async function processCapture(orderNumber) {
     email = result2[0].email;
   }
 
-  if (result[0].orderStatus == "success") {
+  if (
+    result[0].orderStatus == "success" ||
+    result[0].orderStatus == "afterPayment"
+  ) {
     await db_api.updateOrderStatus_2(orderNumber, new Date(), "readyPickup");
-    returnValue.content = "captureSuccess";
+    if (result[0].orderStatus == "success") {
+      returnValue.content = "captureSuccess";
+    } else {
+      returnValue.content = "captureSuccess_NP"; //no payment
+    }
     returnValue.orderNumber = orderNumber;
     returnValue.status = "success";
     if (email != "") {
@@ -299,4 +367,5 @@ module.exports = {
   get_product_amountQuery: get_product_amountQuery,
   processRefundCancel: processRefundCancel,
   getUserInfoByOrderNumberQuery: getUserInfoByOrderNumberQuery,
+  updateRewardInfoByEmail: updateRewardInfoByEmail,
 };

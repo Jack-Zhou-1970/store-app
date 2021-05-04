@@ -95,6 +95,24 @@ router_pay.post("/weChatPay", async (req, res) => {
   }
 });
 
+/////after payment process
+
+router_pay.post("/afterPayment", async (req, res) => {
+  const db_api = require("./db_api");
+
+  await db_api.updateOrderStatusNoIntend_db(
+    req.body.orderNumber,
+    "afterPayment"
+  );
+  var result3 = await fun_api.updateRewardToDB(req.body);
+
+  await fun_api.updateStock(req.body);
+
+  router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
+
+  res.json({ reward: result3.reward, status: "afterPayment" });
+});
+
 ///////////////payment complete /////////////
 
 router_pay.post("/paymentComplete", async (req, res) => {

@@ -7,10 +7,6 @@ function addNewOrderList(state, inputObj) {
 
   if (inputObj.length > 0) {
     for (var i = 0; i < inputObj.length; i++) {
-      if (inputObj[i].status == "success") {
-        inputObj[i].status = "requireCapture";
-      }
-
       var index;
       index = newArray.findIndex(findOrderNumber, inputObj[i].orderNumber);
       if (index == -1) {
@@ -54,6 +50,7 @@ function updateOrderLIst(state, inputObj) {
   const newArray = state.map((item, index) => {
     if (item.orderNumber == inputObj.orderNumber) {
       item.status = inputObj.status;
+      item.status1 = inputObj.status1; //pay or no pay
     }
     return item;
   });
