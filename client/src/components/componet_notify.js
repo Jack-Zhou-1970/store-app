@@ -55,7 +55,7 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
-    ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");
+    ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
 
     ws.onopen = function () {
       //get order_by _shop

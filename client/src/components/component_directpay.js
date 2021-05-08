@@ -303,7 +303,7 @@ function PaymentMethod(props) {
               block={true}
               shape="round"
             >
-              {processing ? "支付中…" : "支付"}
+              {value == 5 ? "到店支付" : "支付"}
             </Button>
           </div>
         </Affix>
