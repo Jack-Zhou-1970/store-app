@@ -7,14 +7,11 @@ import {
   Button,
   Slider,
   Radio,
-  Select,
-  message,
   Badge,
   Affix,
   Spin,
   Divider,
-  Drawer,
-  Menu,
+  Carousel,
   Modal,
   notification,
 } from "antd";
@@ -30,7 +27,7 @@ import { connect } from "react-redux";
 import add from "../../images/add.svg";
 import home from "../../images/home.svg";
 import cart from "../../images/cart.svg";
-import banner from "../../images/banner.png";
+
 import menu from "../../images/menu.svg";
 import order from "../../images/order.png";
 import cash from "../../images/cash.svg";
@@ -288,6 +285,13 @@ function updateProductListAmount(productList, mainProductName, amount) {
 
 ///////////////////////////////////////////////////////////////////////////////////the function used to display product header
 
+import b_1 from "../../images/b_1.jpg";
+import b_2 from "../../images/b_2.jpg";
+import b_3 from "../../images/b_3.jpg";
+import b_4 from "../../images/b_4.jpg";
+import b_5 from "../../images/b_5.jpg";
+import b_main from "../../images/b_main.jpg";
+
 export function Home_header(props) {
   function handle_click() {
     history.push("/cart");
@@ -297,24 +301,41 @@ export function Home_header(props) {
       <div style={{ position: "relative" }}>
         <div
           offsetTop={30}
-          style={{ position: "absolute", top: "10%", left: "5%", zIndex: "20" }}
+          style={{ backgroundColor: "white", marginLeft: "5%" }}
         >
           <Menu_1 />
         </div>
-
-        <div style={{ marginBottom: "5%", zIndex: "-10" }}>
-          <img src={banner} style={{ width: "100%" }} />
+        <div style={{ position: "absolute", top: "2%", left: "85%" }}>
+          <Badge count={props.orderInfo.orderProduct.length}>
+            <a onClick={handle_click}>
+              <img src={cart} style={{ width: "32px" }} />
+            </a>
+          </Badge>
         </div>
-
-        <div style={{ position: "absolute", top: "10%", left: "80%" }}>
-          <div style={{ zIndex: "20" }}>
-            <Badge count={props.orderInfo.orderProduct.length}>
-              <a onClick={handle_click}>
-                <img src={cart} style={{ width: "32px" }} />
-              </a>
-            </Badge>
-          </div>
-        </div>
+        <Row style={{ marginBottom: "5%", zIndex: "-10" }}>
+          <Col xs={8}>
+            <img src={b_main} style={{ width: "103%" }} />
+          </Col>
+          <Col xs={16}>
+            <Carousel autoplay>
+              <div>
+                <img src={b_1} style={{ width: "101%" }} />
+              </div>
+              <div>
+                <img src={b_2} style={{ width: "104%" }} />
+              </div>
+              <div>
+                <img src={b_3} style={{ width: "102%" }} />
+              </div>
+              <div>
+                <img src={b_4} style={{ width: "102%" }} />
+              </div>
+              <div>
+                <img src={b_5} style={{ width: "101%" }} />
+              </div>
+            </Carousel>
+          </Col>
+        </Row>
       </div>
     </Affix>
   );

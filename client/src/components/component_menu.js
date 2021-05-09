@@ -148,8 +148,8 @@ export function Menu_1(props) {
 
   return (
     <div>
-      <div onClick={onClick}>
-        <a>
+      <div>
+        <a onClick={onClick}>
           <img src={menu} style={{ width: "32px" }} />
         </a>
         &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;

@@ -209,7 +209,7 @@ async function processRefundCancel(inputObj) {
     return returnValue;
   }
 
-  if (result[0].orderStatus == "requireCapture") {
+  /* if (result[0].orderStatus == "requireCapture") {
     await cancelMoney(result[0].paymentInstend);
 
     await db_api.updateOrderStatus_2(orderNumber, new Date(), "cancel");
@@ -238,7 +238,26 @@ async function processRefundCancel(inputObj) {
     returnValue.orderNumber = orderNumber;
     returnValue.status = "success";
     return returnValue;
+  }*/
+
+  //no need to cancel
+  var result1 = await refundMoney(result[0].paymentInstend, amount);
+
+  if (result1 != "succeeded") {
+    returnValue.content = "refundFail";
+    returnValue.orderNumber = orderNumber;
+    returnValue.status = "fail";
+    return returnValue;
   }
+
+  await updateRewardToDBAfterCancel(orderNumber);
+
+  await db_api.updateOrderStatus_4(orderNumber, amount, new Date(), "refund");
+
+  returnValue.content = "refundSuccess";
+  returnValue.orderNumber = orderNumber;
+  returnValue.status = "success";
+  return returnValue;
 }
 
 async function processCapture(orderNumber) {
@@ -297,7 +316,9 @@ async function processCapture(orderNumber) {
     return returnValue;
   }
 
-  var result1 = await captureMoney(
+  //now no need to captureMoney then skip
+
+  /*var result1 = await captureMoney(
     result[0].paymentInstend,
     result[0].totalAmount
   );
@@ -307,7 +328,7 @@ async function processCapture(orderNumber) {
     returnValue.orderNumber = orderNumber;
     returnValue.status = "fail";
     return returnValue;
-  }
+  }*/
 
   await db_api.updateOrderStatus_2(orderNumber, new Date(), "readyPickup");
 

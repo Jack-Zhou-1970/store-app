@@ -116,10 +116,15 @@ function RegisterForm(props) {
   );
 }
 
+import title from "../../images/title.jpg";
+import title1 from "../../images/title1.jpg";
+
 export function RegisterForm_container() {
   return (
     <div>
-      <Row style={{ marginTop: "5%", marginLeft: "46%" }}>
+      <img src={title} style={{ width: "100%" }} />
+      <img src={title1} style={{ width: "100%" }} />
+      <Row style={{ marginLeft: "46%" }}>
         <Col offset={2}>
           <h3>注册</h3>
         </Col>
@@ -129,6 +134,7 @@ export function RegisterForm_container() {
           <RegisterForm_manage />
         </Col>
       </Row>
+      <div style={{ height: "50px" }}></div>
     </div>
   );
 }

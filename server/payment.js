@@ -150,7 +150,7 @@ router_pay.post("/create-payment-intent", async (req, res) => {
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
     currency: "CAD",
-    capture_method: "manual",
+    /*capture_method: "manual",*/ //important
   };
 
   const customer = await stripe.customers.create();
@@ -190,7 +190,7 @@ router_pay.post("/direct-pay", async (req, res) => {
     const paymentIntentData = {
       amount: priceTotal.totalPriceAfterTax,
       currency: "CAD",
-      capture_method: "manual",
+      /* capture_method: "manual",*/ //important
     };
 
     var result = await db_api.getCustomerIdFromUserCode(req.body.userCode);
@@ -236,7 +236,10 @@ router_pay.post("/direct-pay", async (req, res) => {
 
       /*console.log(paymentIntent);*/
 
-      if (paymentIntent.status == "requires_capture") {
+      if (
+        paymentIntent.status == "requires_capture" ||
+        paymentIntent.status == "succeeded"
+      ) {
         req.body.paymentInstend = paymentIntent.id;
 
         /*console.log("before update");*/
