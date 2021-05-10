@@ -185,6 +185,19 @@ const mapStateToProps_OrderTotal = (state) => {
 
 OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
 
+/*style={{
+  position: "absolute",
+  width: "100%",
+  height: "100%",
+  left: "0",
+  top: "0",
+  bottom: "0",
+  backgroundImage: `url(${bg1})`,
+  backgroundSize: "cover",
+  backgroundColor: "yellow",
+  overflow: "auto"
+}}*/
+
 function ShopCard_container(props) {
   function getOrderNumber() {
     var orderNumber = 0;
@@ -201,8 +214,7 @@ function ShopCard_container(props) {
       type: "MOD_REWARD_OUT",
       reward_out: 0,
     });
-    console.log("getOrderNumber()");
-    console.log(getOrderNumber());
+
     if (props.orderInfo.orderProduct.length > 0) {
       if (
         props.userInfo.reward + getOrderNumber() * 10 < 80 ||
@@ -240,69 +252,74 @@ function ShopCard_container(props) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isPayVisible, setPayVisible] = useState(false);
   return (
-    <div style={{ marginTop: "0%" }}>
-      <Affix offsetTop={0}>
+    <div>
+      <div
+        style={{ position: "fixed", top: "1%", width: "100%", zIndex: "50" }}
+      >
         <div
           style={{
+            position: "relative",
             zIndex: "10",
           }}
         >
-          <Row>
-            <Col xs={4} style={{ marginLeft: "15%", marginRight: "11%" }}>
-              <Tooltip title="返回" color={"blue"} placement={"bottom"}>
-                <a onClick={handle_home}>
-                  <img src={home} style={{ width: "32px" }}></img>
-                </a>
-              </Tooltip>
-            </Col>
+          <div style={{ position: "absolute", width: "100%" }}>
+            <Row>
+              <Col xs={4} style={{ marginLeft: "15%", marginRight: "11%" }}>
+                <Tooltip title="返回" color={"blue"} placement={"bottom"}>
+                  <a onClick={handle_home}>
+                    <img src={home} style={{ width: "32px" }}></img>
+                  </a>
+                </Tooltip>
+              </Col>
 
-            <Col xs={4} style={{ marginRight: "15%" }}>
-              <Tooltip title="去付款" color={"blue"} placement={"bottom"}>
-                <a onClick={handle_pay}>
-                  <img src={cash} style={{ width: "32px" }}></img>
-                </a>
-              </Tooltip>
-            </Col>
+              <Col xs={4} style={{ marginRight: "15%" }}>
+                <Tooltip title="去付款" color={"blue"} placement={"bottom"}>
+                  <a onClick={handle_pay}>
+                    <img src={cash} style={{ width: "32px" }}></img>
+                  </a>
+                </Tooltip>
+              </Col>
 
-            <Col xs={4}>
-              <Tooltip title="清空购物车" color={"blue"} placement={"bottom"}>
-                <a onClick={handle_delete}>
-                  <img src={deleteAll} style={{ width: "26px" }}></img>
-                </a>
-              </Tooltip>
-            </Col>
+              <Col xs={4}>
+                <Tooltip title="清空购物车" color={"blue"} placement={"bottom"}>
+                  <a onClick={handle_delete}>
+                    <img src={deleteAll} style={{ width: "26px" }}></img>
+                  </a>
+                </Tooltip>
+              </Col>
 
-            <Modal
-              title="清空购物车"
-              visible={isModalVisible}
-              onOk={handle_ok}
-              onCancel={handle_cancel}
-              width={300}
-              closable={false}
-              centered={true}
-              maskClosable={false}
-              okText="确认"
-              cancelText="取消"
-            >
-              "请确认是否清空购物车"
-            </Modal>
-            <Modal
-              title="错误"
-              visible={isPayVisible}
-              onOk={handle_cancel1}
-              onCancel={handle_cancel1}
-              width={300}
-              closable={false}
-              centered={true}
-              maskClosable={false}
-              okText="确认"
-              cancelText="取消"
-            >
-              购物车没有商品，无法结账！
-            </Modal>
-          </Row>
+              <Modal
+                title="清空购物车"
+                visible={isModalVisible}
+                onOk={handle_ok}
+                onCancel={handle_cancel}
+                width={300}
+                closable={false}
+                centered={true}
+                maskClosable={false}
+                okText="确认"
+                cancelText="取消"
+              >
+                "请确认是否清空购物车"
+              </Modal>
+              <Modal
+                title="错误"
+                visible={isPayVisible}
+                onOk={handle_cancel1}
+                onCancel={handle_cancel1}
+                width={300}
+                closable={false}
+                centered={true}
+                maskClosable={false}
+                okText="确认"
+                cancelText="取消"
+              >
+                购物车没有商品，无法结账！
+              </Modal>
+            </Row>
+          </div>
         </div>
-      </Affix>
+      </div>
 
       <div style={{ marginTop: "8%" }}>
         {props.children}

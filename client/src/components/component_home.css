@@ -25,3 +25,12 @@ ul,
 .message1 {
   color: #f79ab9;
 }
+
+html,
+body {
+  height: 100%;
+
+  margin: 0px;
+
+  padding: 0px;
+}

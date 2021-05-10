@@ -136,36 +136,43 @@ function WeChatPay(props) {
   }, [stripe]);
 
   return (
-    <div
-      style={{
-        marginTop: "20%",
-        marginLeft: "25%",
-        display: isQRVisble ? "block" : "none",
-      }}
-    >
-      <h2>请用手机微信扫描下面二维码，并在三分钟内完成支付</h2>
-      <div style={{ marginLeft: "5%" }}>
-        <QRCode value={url} size={150} fgColor="#000000" />
-      </div>
-      <div style={{ marginTop: "8%", marginLeft: "3%", width: "40%" }}>
-        <Button type="primary" onClick={handleBack} block={true} shape="round">
-          返回上一级
-        </Button>
-      </div>
-      <Modal
-        title="支付结果"
-        visible={isModalVisible}
-        onOk={handle_payment}
-        width={300}
-        closable={false}
-        centered={true}
-        cancelButtonProps={{ disabled: true }}
-        maskClosable={false}
-        okText="确认"
-        cancelText="取消"
+    <div style={{ margin: "0" }}>
+      <div style={{ height: "300px" }}></div>
+      <div
+        style={{
+          marginLeft: "25%",
+          display: isQRVisble ? "block" : "none",
+        }}
       >
-        {message}
-      </Modal>
+        <h2>请用手机微信扫描下面二维码，并在三分钟内完成支付</h2>
+        <div style={{ marginLeft: "5%" }}>
+          <QRCode value={url} size={150} fgColor="#000000" />
+        </div>
+        <div style={{ marginTop: "8%", marginLeft: "3%", width: "40%" }}>
+          <Button
+            type="primary"
+            onClick={handleBack}
+            block={true}
+            shape="round"
+          >
+            返回上一级
+          </Button>
+        </div>
+        <Modal
+          title="支付结果"
+          visible={isModalVisible}
+          onOk={handle_payment}
+          width={300}
+          closable={false}
+          centered={true}
+          cancelButtonProps={{ disabled: true }}
+          maskClosable={false}
+          okText="确认"
+          cancelText="取消"
+        >
+          {message}
+        </Modal>
+      </div>
     </div>
   );
 }
@@ -216,7 +223,7 @@ function AliPay(props) {
 
       stripe.confirmAlipayPayment(data.client_secret, {
         // Return URL where the customer should be redirected to after payment
-        return_url: `http://192.168.0.128:4242/payment_5`,
+        return_url: `https://www.worldtea.ca/payment_5`,
       });
     });
   }, [stripe]);

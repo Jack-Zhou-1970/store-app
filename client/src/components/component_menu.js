@@ -33,6 +33,7 @@ import login from "../../images/login.png";
 import logout from "../../images/logout.png";
 import phone from "../../images/phone.png";
 import reward from "../../images/reward.png";
+import address from "../../images/address.jpg";
 
 import api from "../api";
 import { deleteLogin } from "./component_login";
@@ -304,14 +305,14 @@ export function Menu_1(props) {
         onOk={handle_cancel3}
         onCancel={handle_cancel3}
         cancelButtonProps={{ disabled: true }}
-        width={350}
+        width={500}
         closable={false}
         centered={true}
         maskClosable={false}
         okText="确认"
         cancelText="取消"
       >
-        <Map />
+        <img src={address} style={{ width: "100%" }} />
       </Modal>
       <Modal
         visible={isRewardVisible}

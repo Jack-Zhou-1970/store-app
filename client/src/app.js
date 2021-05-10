@@ -39,9 +39,14 @@ var sectionStyle = {
   backgroundAttachment: "fixed",
 
   backgroundRepeat: "no-repeat",
+
+  position: "absolute",
+  width: "100%",
   height: "100%",
-  margin: "0",
-  padding: "0",
+  left: "0",
+  top: "0",
+  bottom: "0",
+  overflow: "auto",
 };
 
 const storageConfig = {

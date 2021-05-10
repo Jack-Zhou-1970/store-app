@@ -25,19 +25,15 @@ import { store } from "../app";
 import { connect } from "react-redux";
 
 import add from "../../images/add.svg";
-import home from "../../images/home.svg";
-import cart from "../../images/cart.svg";
 
-import menu from "../../images/menu.svg";
-import order from "../../images/order.png";
-import cash from "../../images/cash.svg";
+import cart from "../../images/cart.svg";
 
 import api from "../api";
 import { Menu_1 } from "./component_menu";
 
 import bg1 from "../../images/bg1.jpg";
 
-var sectionStyle = {
+export var sectionStyle = {
   width: "100%",
   height: "100%",
   // makesure here is String确保这里是一个字符串，以下是es6写法
@@ -297,7 +293,7 @@ export function Home_header(props) {
     history.push("/cart");
   }
   return (
-    <Affix offsetTop={0}>
+    <div>
       <div style={{ position: "relative" }}>
         <div
           offsetTop={30}
@@ -305,7 +301,9 @@ export function Home_header(props) {
         >
           <Menu_1 />
         </div>
-        <div style={{ position: "absolute", top: "2%", left: "85%" }}>
+        <div
+          style={{ position: "fixed", top: "1%", left: "85%", zIndex: "50" }}
+        >
           <Badge count={props.orderInfo.orderProduct.length}>
             <a onClick={handle_click}>
               <img src={cart} style={{ width: "32px" }} />
@@ -337,7 +335,7 @@ export function Home_header(props) {
           </Col>
         </Row>
       </div>
-    </Affix>
+    </div>
   );
 }
 

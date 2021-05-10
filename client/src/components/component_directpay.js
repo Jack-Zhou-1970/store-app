@@ -476,7 +476,6 @@ export function BillInfo(props) {
               userInfo={props.userInfo}
             />
           </div>
-          <div style={{ height: "300px" }}></div>
         </div>
       </Spin>
     );

@@ -134,7 +134,6 @@ export function RegisterForm_container() {
           <RegisterForm_manage />
         </Col>
       </Row>
-      <div style={{ height: "50px" }}></div>
     </div>
   );
 }

@@ -146,7 +146,7 @@ export function OrderList(props) {
 
     return (
       <div>
-        <Affix offsetTop={0} style={{ position: "absolute", left: "5%" }}>
+        <div style={{ position: "fixed", left: "5%" }}>
           <div
             style={{
               zIndex: "10",
@@ -156,7 +156,7 @@ export function OrderList(props) {
               <img src={home} style={{ width: "32px" }}></img>
             </a>
           </div>
-        </Affix>
+        </div>
         <UserInfo />
         {orderlist}
       </div>
