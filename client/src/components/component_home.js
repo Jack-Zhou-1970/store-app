@@ -216,6 +216,10 @@ function is_img_url(imgurl) {
 export async function checkPic(data, shopAddress, func) {
   var result1 = true;
 
+  console.log("check pic");
+  console.log(data);
+  console.log(shopAddress);
+
   if (data != null && data != undefined) {
     for (var i = 0; i < data.length; i++) {
       for (var j = 0; j < data[i].product.length; j++) {
@@ -234,6 +238,7 @@ export async function checkPic(data, shopAddress, func) {
       payload: [],
     });
     func(true);
+    console.log("reload");
     await reloadProductList(shopAddress);
     func(false);
   }
@@ -750,7 +755,7 @@ function ProductIntro(props) {
   useEffect(() => {
     checkPic(props.productList, props.shopAddress, setLoading);
     setLoading(props.productList.length > 0 ? false : true);
-  });
+  }, []);
 
   if (props.productList.length > 0) {
     var product_detail = props.productList.map((item) => {
@@ -1084,7 +1089,7 @@ function ProductByClass(props) {
     });
     checkPic(props.data, props.shopAddress, setLoading);
     setLoading(props.data.length > 0 ? false : true);
-  });
+  }, []);
 
   //ready to render
   var puductList = [];

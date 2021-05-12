@@ -14,7 +14,7 @@ const fs = require("fs");
 const mailSend = require("./email");
 
 let emailOptions = {
-  from: '"jackzhou"<njzhch@gmail.com>',
+  from: '"chun"<467466257@qq.com>',
   to: "njzhch@163.com",
   subject: "Wellcome world-tea",
   text: "Thank you to register word-tea ,verified code is ",
@@ -922,8 +922,6 @@ async function updateRewardToDB(inputObj) {
   return { reward: reward, status: "success" };
 }
 
-
-
 //judge if can accept order
 async function judgeAcceptOrder(inputObj) {
   var reqBack = new Object();
@@ -966,7 +964,7 @@ async function judgeAcceptOrder(inputObj) {
 
 function htmlEamilSent(email, orderNumber) {
   const path = require("path");
-  var root = path.resolve("worldtea.png");
+  var root = path.resolve("worldtea.jpg");
 
   var htmlData = fs.readFileSync("email.html", "utf-8");
   result = htmlData.replace(/%orderNumber%/g, orderNumber);
@@ -976,7 +974,7 @@ function htmlEamilSent(email, orderNumber) {
   emailOptions.html = result;
   emailOptions.attachments = [
     {
-      filename: "worldtea.png",
+      filename: "worldtea.jpg",
       path: root,
       cid: "00001",
     },
@@ -987,7 +985,7 @@ function htmlEamilSent(email, orderNumber) {
 
 function htmlEamilSent1(email, code) {
   const path = require("path");
-  var root = path.resolve("worldtea.png");
+  var root = path.resolve("worldtea.jpg");
 
   var htmlData = fs.readFileSync("email1.html", "utf-8");
   result = htmlData.replace(/%code%/g, code);
@@ -997,7 +995,7 @@ function htmlEamilSent1(email, code) {
   emailOptions.html = result;
   emailOptions.attachments = [
     {
-      filename: "worldtea.png",
+      filename: "worldtea.jpg",
       path: root,
       cid: "00001",
     },
