@@ -200,6 +200,7 @@ function findMiddleProductNumber_NP(productList, mainProductName) {
 }
 
 //判断图片是否存在
+
 function is_img_url(imgurl) {
   return new Promise(function (resolve, reject) {
     var ImgObj = new Image(); //判断图片是否存在
@@ -214,13 +215,14 @@ function is_img_url(imgurl) {
 }
 
 export async function checkPic(data, shopAddress, func) {
-  var result1 = true;
+  var result1 = false;
 
   console.log("check pic");
   console.log(data);
   console.log(shopAddress);
 
-  if (data != null && data != undefined) {
+  if (data != null && data != undefined && data.length != 0) {
+    result1 = true;
     for (var i = 0; i < data.length; i++) {
       for (var j = 0; j < data[i].product.length; j++) {
         var result = await is_img_url(data[i].product[j].picFile);

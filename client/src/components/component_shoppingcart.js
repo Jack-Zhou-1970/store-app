@@ -369,7 +369,7 @@ export function ShopCardList(props) {
   useEffect(() => {
     checkPic(props.productList, props.shopAddress, setLoading);
     setLoading(props.productList.length > 0 ? false : true);
-  });
+  }, []);
 
   function handle_cancel() {
     setVisble(false);

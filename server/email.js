@@ -10,7 +10,7 @@ const nodeMailer = require("nodemailer");
   },
 });*/
 
-let transporter = nodeMailer.createTransport({
+/*let transporter = nodeMailer.createTransport({
   host: "smtp.qq.com",
   secure: true,
   port: 465,
@@ -18,6 +18,17 @@ let transporter = nodeMailer.createTransport({
     user: "467466257@qq.com",
 
     pass: "ljkxswfaovarbija",
+  },
+});*/
+
+let transporter = nodeMailer.createTransport({
+  host: "smtpdm-ap-southeast-1.aliyun.com",
+  secureConnection: true,
+  port: 465,
+  auth: {
+    user: "webmaster@worldtea.ca",
+
+    pass: "NJzhch655655",
   },
 });
 

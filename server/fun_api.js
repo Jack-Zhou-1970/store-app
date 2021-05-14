@@ -14,7 +14,7 @@ const fs = require("fs");
 const mailSend = require("./email");
 
 let emailOptions = {
-  from: '"chun"<467466257@qq.com>',
+  from: '"worldtea"<webmaster@worldtea.ca>',
   to: "njzhch@163.com",
   subject: "Wellcome world-tea",
   text: "Thank you to register word-tea ,verified code is ",
