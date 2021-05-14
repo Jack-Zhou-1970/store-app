@@ -1,5 +1,6 @@
 import { store } from "./app";
 import { timer2 } from "./components/componet_notify";
+import { link_count } from "./components/componet_notify";
 
 var audio = new Audio("alert.mp3");
 
@@ -55,6 +56,7 @@ export function processDataFromServer(data, setPlaying) {
       break;
 
     case "heartBeat":
+      link_count = 0;
       clearTimeout(timer2);
       break;
 

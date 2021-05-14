@@ -37,13 +37,45 @@ import {
   printExistingElement,
   printHtml,
 } from "react-print-tool";
+import { convertLegacyProps } from "antd/lib/button/button";
 
 export var ws;
 
 export var timer1 = null,
   timer2;
 
+export var link_count = 0;
+
 var audio = null;
+
+function ws_init(setPlaying) {
+  ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
+  /* ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");*/
+
+  ws.onopen = function () {
+    //get order_by _shop
+
+    console.log("begin to get order by shop");
+    var req = new Object();
+    req.status = "get_order_byShop";
+    req.shopCode = "400001";
+
+    ws.send(JSON.stringify(req));
+  };
+
+  ws.onmessage = function (event) {
+    var data = JSON.parse(event.data);
+
+    processDataFromServer(data, setPlaying);
+  };
+
+  ws.onclose = function (event) {
+    console.log("disconnect");
+    /*setTimeout(function () {
+      ws_init();
+    }, 3000);*/
+  };
+}
 
 export function WebSocketControl(props) {
   const [playing, setPlaying] = useState(true);
@@ -55,29 +87,7 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
-    ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
-    /*ws = new WebSocket("ws://192.168.0.128:4242/ws/shop400001");*/
-
-    ws.onopen = function () {
-      //get order_by _shop
-
-      console.log("begin to get order by shop");
-      var req = new Object();
-      req.status = "get_order_byShop";
-      req.shopCode = "400001";
-
-      ws.send(JSON.stringify(req));
-    };
-
-    ws.onmessage = function (event) {
-      var data = JSON.parse(event.data);
-
-      processDataFromServer(data, setPlaying);
-    };
-
-    ws.onclose = function (event) {
-      console.log("disconnect");
-    };
+    ws_init(setPlaying);
   }, []);
 
   try {
@@ -99,13 +109,26 @@ export function WebSocketControl(props) {
       var req = new Object();
       req.status = "heartBeat";
       ws.send(JSON.stringify(req));
-      timer2 = setTimeout(() => {
-        clearInterval(timer1);
-        timer1 = null;
 
-        setVisble(true);
-      }, 2000);
-    }, 6000);
+      /*console.log(link_count);*/
+
+      timer2 = setTimeout(() => {
+        console.log(link_count);
+        link_count++;
+        if (link_count < 5) {
+          audio = new Audio("alert.mp3");
+          audio.load();
+          audio.play();
+          ws_init();
+        } else {
+          link_count = 0;
+          clearInterval(timer1);
+          timer1 = null;
+
+          setVisble(true);
+        }
+      }, 10000);
+    }, 20000);
   }
 
   return (
