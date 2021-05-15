@@ -76,7 +76,7 @@ function checkValidate(productList, productDetail) {
   //counter 加料
   var count = 0;
   for (var i = 0; i < productDetail.productMiddle.length; i++) {
-    if (productDetail.productMiddle[i].middleProductName == "加料") {
+    if (productDetail.productMiddle[i].middleProductName == "TOPPINGS") {
       for (
         var j = 0;
         j < productDetail.productMiddle[i].productSmall.length;
@@ -370,6 +370,7 @@ export function Home_productDetail(props) {
         message: "成功加入购物车",
         description: "成功加入购物车.您可继续选购或前往购物车结账",
         duration: 2,
+        placement: "topLeft",
       });
 
       props.handle_close();
@@ -947,19 +948,16 @@ function ListCatalog(props) {
   return (
     <div
       style={{
-        overflow: "hidden",
-
         zIndex: "20",
         width: "100%",
       }}
     >
       <ul
         style={{
-          overflow: "Scroll",
           whiteSpace: "nowrap",
           listStyle: "none",
           overflowX: "auto",
-          width: "auto",
+
           marginLeft: "2%",
         }}
       >

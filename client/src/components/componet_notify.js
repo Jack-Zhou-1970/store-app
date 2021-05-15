@@ -50,7 +50,7 @@ var audio = null;
 
 function ws_init(setPlaying) {
   ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
-  /* ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");*/
+  /*ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");*/
 
   ws.onopen = function () {
     //get order_by _shop
@@ -116,9 +116,9 @@ export function WebSocketControl(props) {
         console.log(link_count);
         link_count++;
         if (link_count < 5) {
-          audio = new Audio("alert.mp3");
+          /*audio = new Audio("alert.mp3");
           audio.load();
-          audio.play();
+          audio.play();*/
           ws_init();
         } else {
           link_count = 0;
@@ -375,7 +375,7 @@ function UnAcceptCard(props) {
     setSpinning(true);
   }
   return (
-    <Col span={6} style={{ marginBottom: "2%" }}>
+    <Col span={8} style={{ marginBottom: "2%" }}>
       <Card
         title={props.orderNumber}
         extra={
@@ -463,7 +463,7 @@ UnAcceptList = connect(mapStateToProps_UnAcceptList)(UnAcceptList);
 
 function CompleteCard(props) {
   return (
-    <Col span={6} style={{ marginBottom: "2%" }}>
+    <Col span={8} style={{ marginBottom: "2%" }}>
       <Card title={props.orderNumber} style={{ width: 300 }}>
         <p>{props.paymentTime}</p>
         <p>金额:${(props.totalPrice / 100).toFixed(2).toString()}</p>
@@ -558,7 +558,7 @@ function ReadyPickupCard(props) {
     setVisble(false);
   }
   return (
-    <Col span={6} style={{ marginBottom: "2%" }}>
+    <Col span={8} style={{ marginBottom: "2%" }}>
       <Card
         title={props.orderNumber}
         extra={
