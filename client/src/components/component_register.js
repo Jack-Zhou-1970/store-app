@@ -69,7 +69,7 @@ function RegisterForm(props) {
       >
         <Input.Password
           ref={refPassword}
-          placeholder="必须包含大小写，数字和特殊字符"
+          placeholder="必须包含大写字母，小写字母，数字和特殊字符(*,&等)"
         />
       </Form.Item>
       <Form.Item
@@ -267,11 +267,11 @@ class RegisterForm_manage extends React.Component {
           onCancel={() => this.setState({ isModalVisible: false })}
         />
         <Modal
-          title="输入邮箱收到的验证码"
+          title="验证码已发到您邮箱，可能需要几分钟收到！"
           visible={this.state.isModalVisible}
           onOk={this.handle_ok}
           onCancel={this.handle_cancel}
-          width={300}
+          width={400}
           closable={false}
           centered={true}
           cancelButtonProps={{ disabled: true }}

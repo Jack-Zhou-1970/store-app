@@ -78,7 +78,7 @@ function ws_init(setPlaying) {
 }
 
 export function WebSocketControl(props) {
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(false);
   const [isVisble, setVisble] = useState(false);
 
   function handle_cancel() {
@@ -87,17 +87,21 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
+    audio = new Audio("alert.mp3");
+    audio.load();
+    audio.loop = true;
+    audio.autoplay = true;
+    audio.muted = true;
+
     ws_init(setPlaying);
   }, []);
 
   try {
     if (playing) {
-      audio = new Audio("alert.mp3");
-      audio.load();
-      audio.play();
+      audio.muted = false;
     } else {
       if (audio != null) {
-        audio.pause();
+        audio.muted = true;
       }
     }
   } catch (err) {

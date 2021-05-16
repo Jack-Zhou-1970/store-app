@@ -17,7 +17,7 @@ export function processDataFromServer(data, setPlaying) {
       var timer = setTimeout(function () {
         setPlaying(false);
         clearTimeout(timer);
-      }, 1500);
+      }, 5000);
 
       break;
 
