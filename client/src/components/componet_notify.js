@@ -77,6 +77,14 @@ function ws_init(setPlaying) {
   };
 }
 
+function audioInit() {
+  audio = new Audio("alert.mp3");
+  audio.load();
+  audio.loop = true;
+  audio.autoplay = true;
+  audio.muted = true;
+}
+
 export function WebSocketControl(props) {
   const [playing, setPlaying] = useState(false);
   const [isVisble, setVisble] = useState(false);
@@ -87,12 +95,7 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
-    audio = new Audio("alert.mp3");
-    audio.load();
-    audio.loop = true;
-    audio.autoplay = true;
-    audio.muted = true;
-
+    audioInit();
     ws_init(setPlaying);
   }, []);
 
