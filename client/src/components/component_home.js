@@ -33,6 +33,8 @@ import { Menu_1 } from "./component_menu";
 
 import bg1 from "../../images/bg1.jpg";
 
+import css from "./component_home.css";
+
 export var sectionStyle = {
   width: "100%",
   height: "100%",
@@ -929,7 +931,7 @@ function ListCatalog(props) {
         key={index}
         style={{
           marginRight: "5%",
-          fontSize: "150%",
+          fontSize: "120%",
 
           display: "inline-block",
         }}

@@ -21,6 +21,8 @@ import { store } from "../app";
 
 import QRCode from "qrcode.react";
 
+var timer;
+
 const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
 
 function WeChatPay(props) {
@@ -35,7 +37,7 @@ function WeChatPay(props) {
 
   const stripe = useStripe();
 
-  var source, timer;
+  var source;
 
   function handle_payment() {
     if (succeeded == true) {
@@ -96,6 +98,14 @@ function WeChatPay(props) {
               })
               .then((result) => {
                 var source = result.source;
+
+                if (source.status === "failed") {
+                  clearInterval(timer);
+                  setSucceeded(false);
+                  setMessage("支付失败!，请更换支付方式");
+                  setVisible(true);
+                }
+
                 if (source.status === "chargeable") {
                   clearInterval(timer);
                   var payment_o = {
@@ -124,6 +134,7 @@ function WeChatPay(props) {
                       );
                       setVisible(true);
                     } else {
+                      setSucceeded(false);
                       setMessage("支付失败!，请更换支付方式");
                       setVisible(true);
                     }
