@@ -1,8 +1,6 @@
 import { store } from "./app";
-import { timer2 } from "./components/componet_notify";
+import { timer2, audio } from "./components/componet_notify";
 import { link_count } from "./components/componet_notify";
-
-var audio = new Audio("alert.mp3");
 
 export function processDataFromServer(data, setPlaying) {
   switch (data.content) {
@@ -12,12 +10,14 @@ export function processDataFromServer(data, setPlaying) {
         payload: data.orderInfo,
       });
 
-      setPlaying(true);
+      /* setPlaying(true);
 
       var timer = setTimeout(function () {
         setPlaying(false);
         clearTimeout(timer);
-      }, 5000);
+      }, 5000);*/
+
+      audio.currentTime = 0;
 
       break;
 

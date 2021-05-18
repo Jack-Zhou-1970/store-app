@@ -39,7 +39,7 @@ export var sectionStyle = {
   width: "100%",
   height: "100%",
   // makesure here is String确保这里是一个字符串，以下是es6写法
-  backgroundImage: `url(${bg1})`,
+  /*backgroundImage: `url(${bg1})`,*/
   backgroundSize: "cover",
 };
 

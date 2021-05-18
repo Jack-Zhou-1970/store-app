@@ -44,9 +44,11 @@ export var ws;
 export var timer1 = null,
   timer2;
 
+var timerMoniter = null;
+
 export var link_count = 0;
 
-var audio = null;
+export var audio = null;
 
 function ws_init(setPlaying) {
   ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
@@ -78,15 +80,15 @@ function ws_init(setPlaying) {
 }
 
 function audioInit() {
-  audio = new Audio("alert.mp3");
+  audio = new Audio("alert1.mp3");
   audio.load();
   audio.loop = true;
   audio.autoplay = true;
-  audio.muted = true;
+  /*audio.muted = true;*/
 }
 
 export function WebSocketControl(props) {
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const [isVisble, setVisble] = useState(false);
 
   function handle_cancel() {
@@ -99,7 +101,7 @@ export function WebSocketControl(props) {
     ws_init(setPlaying);
   }, []);
 
-  try {
+  /*try {
     if (playing) {
       audio.muted = false;
     } else {
@@ -109,6 +111,15 @@ export function WebSocketControl(props) {
     }
   } catch (err) {
     console.log(err);
+  }*/
+
+  if (timerMoniter == null) {
+    timerMoniter = setInterval(() => {
+      /* console.log(audio.currentTime);*/
+      if (audio.currentTime > 10) {
+        audio.currentTime = 11;
+      }
+    }, 2000);
   }
 
   if (isVisble == false && timer1 == null) {
@@ -215,6 +226,10 @@ function Notify_container(props) {
       store.dispatch({
         type: "DELETE_MANAGE_STATUS",
       });
+      clearInterval(timerMoniter);
+      timerMoniter = null;
+      audio.autoplay = false;
+      audio.loop = false;
       history.push("/");
     }
   }
