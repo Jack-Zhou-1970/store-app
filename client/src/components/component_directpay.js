@@ -355,13 +355,25 @@ export function createPaymentDetail(orderInfo, userInfo) {
     paymentDetail.product.push(orderInfo.orderProduct[i]);
   }
 
-  if (orderInfo.reward_out != undefined && orderInfo.reward_out != "") {
+  if (
+    orderInfo.total_cup != undefined &&
+    orderInfo.total_cup != "" &&
+    orderInfo.total_cup != null
+  ) {
+    paymentDetail.total_cup = orderInfo.total_cup;
+  } else {
+    paymentDetail.total_cup = 0;
+  }
+
+  if (
+    orderInfo.reward_out != undefined &&
+    orderInfo.reward_out != "" &&
+    orderInfo.reward_out != null
+  ) {
     paymentDetail.reward_out = orderInfo.reward_out;
   } else {
     paymentDetail.reward_out = 0;
   }
-
-  /*paymentDetail.reward_out = 100;*/
 
   return paymentDetail;
 }

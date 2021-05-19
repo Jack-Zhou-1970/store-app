@@ -98,19 +98,19 @@ async function calMainProductprice(mainProductCode) {
 }
 
 //this function is used to cal reward
-function calReward(reward_price, reward_amount, reward_number) {
-  function findMaxIndex(array) {
-    max = 0;
+function calReward(reward_price, reward_amount, total_cup, reward_out) {
+  function findMinIndex(array) {
+    var min = 0;
     for (var i = 0; i < array.length; i++) {
-      if (array[i] > array[max]) {
-        max = i;
+      if (array[i] < array[min]) {
+        min = i;
       }
     }
-    return max;
+    return min;
   }
 
-  if (reward_number == undefined || reward_number == "") {
-    reward_number = 0;
+  if (total_cup == undefined || total_cup == "") {
+    total_cup = 0;
   }
 
   var reward_result = new Object();
@@ -118,12 +118,12 @@ function calReward(reward_price, reward_amount, reward_number) {
   //first cal how much many can dec
   var totalMoney = 0;
 
-  var cupNumber = Math.floor(reward_number / 100); //reward 100 = 1 cup
+  var cupNumber = total_cup;
 
   var cupNumber_s = cupNumber;
 
   while (cupNumber > 0 && reward_amount.length > 0) {
-    var index = findMaxIndex(reward_price);
+    var index = findMinIndex(reward_price);
     if (reward_amount[index] >= cupNumber) {
       totalMoney = totalMoney + cupNumber * reward_price[index];
       reward_amount[index] = reward_amount[index] - cupNumber;
@@ -136,8 +136,6 @@ function calReward(reward_price, reward_amount, reward_number) {
       reward_price.splice(index, 1);
     }
   }
-
-  var reward_out = (cupNumber_s - cupNumber) * 100;
 
   //next cal how many reward can get
 
@@ -153,11 +151,7 @@ function calReward(reward_price, reward_amount, reward_number) {
 
   reward_result.totalMoney = totalMoney;
 
-  if (reward_number >= 100) {
-    reward_result.reward_out = reward_out;
-  } else {
-    reward_result.reward_out = 0;
-  }
+  reward_result.reward_out = reward_out;
 
   reward_result.reward_in = reward_in;
 
@@ -245,6 +239,7 @@ async function calPrice(paymentDetails_obj) {
     reward_result = calReward(
       reward_price,
       reward_amount,
+      paymentDetails_obj.total_cup,
       paymentDetails_obj.reward_out
     );
   } else {

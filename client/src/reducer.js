@@ -170,6 +170,12 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         orderNumber: action.orderNumber,
       };
 
+    case "MOD_TOTAL_CUP":
+      return {
+        ...state,
+        total_cup: action.total_cup,
+      };
+
     case "MOD_REWARD_OUT":
       return {
         ...state,

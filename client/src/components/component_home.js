@@ -219,10 +219,6 @@ function is_img_url(imgurl) {
 export async function checkPic(data, shopAddress, func) {
   var result1 = false;
 
-  console.log("check pic");
-  console.log(data);
-  console.log(shopAddress);
-
   if (data != null && data != undefined && data.length != 0) {
     result1 = true;
     for (var i = 0; i < data.length; i++) {

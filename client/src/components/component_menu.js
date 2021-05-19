@@ -126,6 +126,11 @@ export function Menu_1(props) {
 
   function handle_payment() {
     store.dispatch({
+      type: "MOD_TOTAL_CUP",
+      total_cup: 0,
+    });
+
+    store.dispatch({
       type: "MOD_REWARD_OUT",
       reward_out: 0,
     });
@@ -136,7 +141,24 @@ export function Menu_1(props) {
       ) {
         history.push("/payment_1");
       } else {
-        history.push("/reward");
+        var reward;
+        api.getReward(props.userInfo).then((result) => {
+          if (
+            result[0].reward == null ||
+            result[0].reward == undefined ||
+            result[0].reward == ""
+          ) {
+            reward = 0;
+          } else {
+            reward = result[0].reward;
+          }
+          store.dispatch({
+            type: "UPDATE_REWARD",
+            payload: reward,
+          });
+
+          history.push("/reward");
+        });
       }
     } else {
       setPayVisible(true);

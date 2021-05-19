@@ -20,6 +20,7 @@ import cart from "../../images/cart.svg";
 import home from "../../images/home.svg";
 import deleteAll from "../../images/delete.svg";
 import cash from "../../images/cash.svg";
+import api from "../api";
 
 //find mainProduct price
 
@@ -211,6 +212,10 @@ function ShopCard_container(props) {
 
   function handle_pay() {
     store.dispatch({
+      type: "MOD_TOTAL_CUP",
+      total_cup: 0,
+    });
+    store.dispatch({
       type: "MOD_REWARD_OUT",
       reward_out: 0,
     });
@@ -222,7 +227,24 @@ function ShopCard_container(props) {
       ) {
         history.push("/payment_1");
       } else {
-        history.push("/reward");
+        var reward;
+        api.getReward(props.userInfo).then((result) => {
+          if (
+            result[0].reward == null ||
+            result[0].reward == undefined ||
+            result[0].reward == ""
+          ) {
+            reward = 0;
+          } else {
+            reward = result[0].reward;
+          }
+          store.dispatch({
+            type: "UPDATE_REWARD",
+            payload: reward,
+          });
+
+          history.push("/reward");
+        });
       }
     } else {
       setPayVisible(true);

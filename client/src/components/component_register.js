@@ -55,7 +55,7 @@ function RegisterForm(props) {
   return (
     <Form name="basic" initialValues={{ remember: false }}>
       <Form.Item
-        label="邮箱"
+        label="Email"
         name="username"
         rules={[{ required: true, message: "请输入注册邮箱!" }]}
       >
@@ -63,7 +63,7 @@ function RegisterForm(props) {
       </Form.Item>
 
       <Form.Item
-        label="密码"
+        label="Password"
         name="password"
         rules={[{ required: true, message: "请输入密码!" }]}
       >
@@ -73,21 +73,21 @@ function RegisterForm(props) {
         />
       </Form.Item>
       <Form.Item
-        label="确认密码"
+        label="Confirm"
         name="passwordC"
         rules={[{ required: true, message: "请再次输入密码!" }]}
       >
         <Input.Password ref={refPasswordC} />
       </Form.Item>
       <Form.Item
-        label="电话"
+        label="Phone"
         name="phone"
         rules={[{ required: true, message: "电话" }]}
       >
         <Input style={{ height: "5%" }} ref={refPhone} />
       </Form.Item>
       <Form.Item
-        label="昵称"
+        label="NickName"
         name="nickName"
         rules={[{ required: true, message: "请输入昵称" }]}
       >
@@ -95,7 +95,7 @@ function RegisterForm(props) {
       </Form.Item>
 
       <Form.Item
-        label="自取门店"
+        label="Pickup store"
         name="shopAddress"
         rules={[{ required: true, message: "选择自取门店!" }]}
       >
@@ -109,7 +109,7 @@ function RegisterForm(props) {
           type="primary"
           onClick={handle_submit}
         >
-          注册
+          Registered
         </Button>
       </Form.Item>
     </Form>
@@ -126,7 +126,7 @@ export function RegisterForm_container() {
       <img src={title1} style={{ width: "100%" }} />
       <Row style={{ marginLeft: "46%" }}>
         <Col offset={2}>
-          <h3>注册</h3>
+          <h3>Registered</h3>
         </Col>
       </Row>
       <Row justify="center" style={{ marginTop: "2%" }}>
@@ -150,32 +150,32 @@ function register_check(
   var regexp = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
   var result = regexp.test(mail);
   if (result != true) {
-    return "邮箱格式不对";
+    return "邮箱格式不对 Incorrect email format";
   }
 
   //check password
   regexp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[^]{6,16}$/;
   result = regexp.test(password);
   if (result != true) {
-    return "密码必须包含至少一个大小写字母,数字,特殊字符，且最小为6位，最多16位";
+    return "密码必须包含至少一个大小写字母,数字,特殊字符 The password must contain one uppercase and low case,letter,special character";
   }
 
   if (passwordC != password) {
-    return "两个密码不相等，请重新输入";
+    return "两个密码不相等 the two password are not equal";
   }
 
   regexp = /^([0-9]|[-])+$/g;
   result = regexp.test(phone);
   if (result != true) {
-    return "电话号码格式不对";
+    return "电话号码格式不对 phone number format is not correct";
   }
 
   if (nickName == "" || nickName == undefined) {
-    return "必须输入昵称";
+    return "必须输入昵称 nickname must be entered";
   }
 
   if (shopAddress == "" || shopAddress == undefined) {
-    return "选择pickup店地址";
+    return "选择pickup店地址 choose pickup shop address";
   }
 
   return "success";
@@ -217,8 +217,9 @@ class RegisterForm_manage extends React.Component {
       var result = await api.sendRegister(this.input_obj);
       if (result.status != "success") {
         notification.open({
-          message: "错误！",
-          description: "该邮箱已经存在，请换一个邮箱注册！",
+          message: "error！",
+          description:
+            "该邮箱已经存在，请换一个邮箱注册 The Email already exist,please changed to another Email to register！",
           duration: 3,
         });
       } else {
@@ -226,7 +227,7 @@ class RegisterForm_manage extends React.Component {
       }
     } else {
       notification.open({
-        message: "错误！",
+        message: "error！",
         description: msg,
         duration: 2,
       });
@@ -249,7 +250,7 @@ class RegisterForm_manage extends React.Component {
       history.push("/home");
       this.setState({ isModalVisible: false });
     } else {
-      err1("校验码错误，您需要重新注册！");
+      err1("校验码错误  the verification code is wrong！");
       this.setState({ isModalVisible: false });
     }
   }
@@ -267,7 +268,7 @@ class RegisterForm_manage extends React.Component {
           onCancel={() => this.setState({ isModalVisible: false })}
         />
         <Modal
-          title="验证码已发到您邮箱，可能需要几分钟收到！"
+          title="请输入邮箱收到的验证码 Please input the verification code(sent to your email)！"
           visible={this.state.isModalVisible}
           onOk={this.handle_ok}
           onCancel={this.handle_cancel}
@@ -276,8 +277,8 @@ class RegisterForm_manage extends React.Component {
           centered={true}
           cancelButtonProps={{ disabled: true }}
           maskClosable={false}
-          okText="确认"
-          cancelText="取消"
+          okText="OK"
+          cancelText="Cancel"
         >
           <div style={{ width: "80%" }}>
             <Input ref={this.code} />

@@ -11,6 +11,7 @@ import history from "../history";
 import { store } from "../app";
 
 import { connect } from "react-redux";
+import { number } from "prop-types";
 
 export function Reward(props) {
   const [isModal1Visible, setModal1Visible] = useState(false);
@@ -18,6 +19,10 @@ export function Reward(props) {
   const [amount, setAmount] = useState(0);
 
   function handle_cancel() {
+    store.dispatch({
+      type: "MOD_TOTAL_CUP",
+      total_cup: 0,
+    });
     store.dispatch({
       type: "MOD_REWARD_OUT",
       reward_out: 0,
@@ -28,8 +33,19 @@ export function Reward(props) {
 
   function handle_use() {
     store.dispatch({
+      type: "MOD_TOTAL_CUP",
+      total_cup: amount,
+    });
+    store.dispatch({
       type: "MOD_REWARD_OUT",
-      reward_out: amount * 100,
+      reward_out: judgeRewardOut(
+        amount,
+        judgeMaxNumber(
+          props.orderInfo,
+          props.productList,
+          props.userInfo.reward
+        )[1]
+      ),
     });
 
     history.push("/payment_1");
@@ -47,16 +63,70 @@ export function Reward(props) {
     return orderNumber;
   }
 
-  function judgeMaxNumber() {
-    var orderNumber = 0;
+  function judgeRewardOut(amount, number_none_top3) {
+    if (amount <= number_none_top3) {
+      return amount * 100;
+    } else {
+      return number_none_top3 * 100 + (amount - number_none_top3) * 150;
+    }
+  }
 
-    for (var i = 0; i < props.orderInfo.orderProduct.length; i++) {
-      orderNumber = orderNumber + props.orderInfo.orderProduct[i].amount;
+  function judgeClass(mainProductName, productList) {
+    var result = false;
+
+    for (var i = 0; i < productList.length; i++) {
+      for (var j = 0; j < productList[i].product.length; j++) {
+        if (productList[i].product[j].mainProductName == mainProductName) {
+          if (productList[i].catalogName.slice(0, 3) == "TOP") {
+            result = true;
+            break;
+          }
+        }
+      }
     }
 
-    return Math.floor(props.userInfo.reward / 100) > orderNumber
-      ? orderNumber
-      : Math.floor(props.userInfo.reward / 100);
+    return result;
+  }
+
+  function judgeMaxNumber(orderInfo, productList, reward) {
+    //first cal how many Top cup and how many none top cup
+
+    var number_top3 = 0;
+    var number_none_top3 = 0;
+
+    for (var i = 0; i < orderInfo.orderProduct.length; i++) {
+      if (
+        judgeClass(orderInfo.orderProduct[i].mainProductName, productList) ==
+        true
+      ) {
+        number_top3 = number_top3 + orderInfo.orderProduct[i].amount;
+      } else {
+        number_none_top3 = number_none_top3 + orderInfo.orderProduct[i].amount;
+      }
+    }
+
+    var totalCup = 0;
+    var rewardOut = 0;
+
+    if (number_none_top3 * 100 >= reward) {
+      totalCup = Math.floor(reward / 100);
+      rewardOut = rewardOut * 100;
+      return [totalCup, number_none_top3];
+    }
+
+    totalCup = number_none_top3;
+    rewardOut = totalCup * 100;
+
+    var reward_last = reward - rewardOut;
+    var totalCup_top =
+      number_top3 >= Math.floor(reward_last / 150)
+        ? Math.floor(reward_last / 150)
+        : number_top3;
+
+    totalCup = totalCup + totalCup_top;
+    rewardOut = rewardOut + totalCup_top * 150;
+
+    return [totalCup, number_none_top3];
   }
 
   function handle_dec() {
@@ -69,7 +139,14 @@ export function Reward(props) {
   }
 
   function handle_add() {
-    if (amount < judgeMaxNumber()) {
+    if (
+      amount <
+      judgeMaxNumber(
+        props.orderInfo,
+        props.productList,
+        props.userInfo.reward
+      )[0]
+    ) {
       var val = amount;
       val++;
       setAmount(val);
@@ -87,13 +164,18 @@ export function Reward(props) {
   }
 
   useEffect(() => {
-    console.log("in reward");
     if (props.userInfo.reward + getOrderNumber() * 10 < 80) {
       history.push("/payment_1");
     } else {
       if (props.userInfo.reward + getOrderNumber() * 10 < 100) {
         setModal2Visible(true);
-      } else if (props.userInfo.reward >= 100) {
+      } else if (
+        judgeMaxNumber(
+          props.orderInfo,
+          props.productList,
+          props.userInfo.reward
+        )[0] > 0
+      ) {
         setModal1Visible(true);
       } else {
         history.push("/payment_1");
@@ -120,7 +202,12 @@ export function Reward(props) {
         <div>
           您当前可用积分:{props.userInfo.reward.toString()}
           ,本次购物可以用积分换购
-          {judgeMaxNumber().toString()}杯奶茶
+          {judgeMaxNumber(
+            props.orderInfo,
+            props.productList,
+            props.userInfo.reward
+          )[0].toString()}
+          杯奶茶
         </div>
 
         <div style={{ marginTop: "2%" }}>
@@ -172,6 +259,7 @@ const mapStateToProps_Reward = (state) => {
   return {
     orderInfo: state.orderInfoReducer,
     userInfo: state.userInfoReducer,
+    productList: state.productListReducer,
   };
 };
 Reward = connect(mapStateToProps_Reward)(Reward);
