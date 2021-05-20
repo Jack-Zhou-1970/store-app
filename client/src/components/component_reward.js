@@ -188,7 +188,7 @@ export function Reward(props) {
       <div>{amount}</div>
 
       <Modal
-        title="积分使用"
+        title="Message"
         visible={isModal1Visible}
         onOk={handle_use}
         onCancel={handle_cancel}
@@ -196,8 +196,8 @@ export function Reward(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="使用积分"
-        cancelText="不使用，继续"
+        okText="Use points"
+        cancelText="Do not use"
       >
         <div>
           您当前可用积分:{props.userInfo.reward.toString()}
@@ -212,6 +212,22 @@ export function Reward(props) {
 
         <div style={{ marginTop: "2%" }}>
           请选择换购杯数，将直接从货款中扣除：
+        </div>
+
+        <div>
+          Your current points:{props.userInfo.reward.toString()}
+          ,Points can be used to redeem
+          {judgeMaxNumber(
+            props.orderInfo,
+            props.productList,
+            props.userInfo.reward
+          )[0].toString()}
+          cups of milk tea for this purchase
+        </div>
+
+        <div style={{ marginTop: "2%" }}>
+          Please select the number of redemption cups, which will be directly
+          deducted from the purchase price:
         </div>
 
         <div style={{ marginTop: "3%" }}>
@@ -229,7 +245,7 @@ export function Reward(props) {
         </div>
       </Modal>
       <Modal
-        title="友情提醒"
+        title="Message"
         visible={isModal2Visible}
         onOk={handle_continue}
         onCancel={handle_back}
@@ -237,8 +253,8 @@ export function Reward(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="继续结账"
-        cancelText="重新选购"
+        okText="CheckOut"
+        cancelText="Re-purchase"
       >
         <div>
           您当前可用积分:{props.userInfo.reward.toString()}
@@ -248,8 +264,19 @@ export function Reward(props) {
           ).toString()}
           杯奶茶
         </div>
+        <div style={{ marginTop: "2%" }}>您可在下次购物中换购一杯奶茶</div>
+        <div>
+          Your current points:{props.userInfo.reward.toString()}
+          ,Just buy
+          {Math.floor(
+            (100 - props.userInfo.reward - getOrderNumber() * 10) / 10
+          ).toString()}
+          cups of tea,
+        </div>
 
-        <div style={{ marginTop: "2%" }}>下个订单可以免费换购一杯奶茶</div>
+        <div style={{ marginTop: "2%" }}>
+          You can redeem a cup of tea for free with your next order
+        </div>
       </Modal>
     </div>
   );

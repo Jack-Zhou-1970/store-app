@@ -24,15 +24,15 @@ import alipay from "../../images/alipay.png";
 export function UserInfo(props) {
   return (
     <div>
-      <h3>订单信息:</h3>
-      <Descriptions title="用户信息:">
-        <Descriptions.Item label="订单号">
+      <h3>Order Info:</h3>
+      <Descriptions title="User Info:">
+        <Descriptions.Item label="Order Number">
           {props.orderNumber}
         </Descriptions.Item>
-        <Descriptions.Item label="昵称">{props.nickName}</Descriptions.Item>
+        <Descriptions.Item label="NickName">{props.nickName}</Descriptions.Item>
         <Descriptions.Item label="EMAIL">{props.email}</Descriptions.Item>
-        <Descriptions.Item label="电话">{props.phone}</Descriptions.Item>
-        <Descriptions.Item label="店铺地址">
+        <Descriptions.Item label="Phone">{props.phone}</Descriptions.Item>
+        <Descriptions.Item label="Address">
           {props.shopAddress}
         </Descriptions.Item>
       </Descriptions>
@@ -51,11 +51,16 @@ function createData(subPrice) {
     var data = new Object();
     data.mainProduct =
       subPrice[i].mainProductName +
-      "      单价:$" +
+      "," +
+      subPrice[i].productIntro +
+      "," +
+      "      Unit price:$" +
       (subPrice[i].price / 100).toFixed(2).toString() +
-      "      数量:" +
+      "," +
+      "      Quantity:" +
       subPrice[i].amount +
-      "    总价(含加料):$" +
+      "," +
+      "    Total price(includes small materials):$" +
       (subPrice[i].totalPrice / 100).toFixed(2).toString();
     data.smallProduct = "";
     for (var j = 0; j < subPrice[i].smallProduct.length; j++) {
@@ -97,33 +102,35 @@ function OrderList(props) {
 function TotalPrice(props) {
   return (
     <div style={{ marginTop: "2%" }}>
-      <Descriptions title="订单汇总:">
-        <Descriptions.Item label="税前价格">
+      <Descriptions title="Order summary:">
+        <Descriptions.Item label="Pre-tax price">
           ${(props.totalPriceBeforeTax / 100).toFixed(2).toString()}
         </Descriptions.Item>
-        <Descriptions.Item label="积分抵扣金额">
+        <Descriptions.Item label="Use points to deduct the price">
           ${(props.totalMoney / 100).toFixed(2).toString()}
         </Descriptions.Item>
-        <Descriptions.Item label="运输费用">
+        <Descriptions.Item label="Transportation fee">
           {(props.shipFee / 100).toFixed(2).toString()}
         </Descriptions.Item>
-        <Descriptions.Item label="其它费用">
+        <Descriptions.Item label="Other fee">
           {(props.otherFee / 100).toFixed(2).toString()}
         </Descriptions.Item>
-        <Descriptions.Item label="税率">{props.taxRate}</Descriptions.Item>
-        <Descriptions.Item label="税费">
+        <Descriptions.Item label="Tax rate">{props.taxRate}</Descriptions.Item>
+        <Descriptions.Item label="Taxes">
           {" "}
           {(props.tax / 100).toFixed(2).toString()}
         </Descriptions.Item>
       </Descriptions>
 
       <div style={{ marginTop: "2%" }}>
-        <Descriptions title="积分情况:">
-          <Descriptions.Item label="当前积分">{props.reward}</Descriptions.Item>
-          <Descriptions.Item label="预计消耗积分">
+        <Descriptions title="Point:">
+          <Descriptions.Item label="Current points">
+            {props.reward}
+          </Descriptions.Item>
+          <Descriptions.Item label="Estimated consumption points">
             {props.reward_out}
           </Descriptions.Item>
-          <Descriptions.Item label="完成获得积分">
+          <Descriptions.Item label="Expected to earn points">
             {props.reward_in}
           </Descriptions.Item>
         </Descriptions>
@@ -131,7 +138,8 @@ function TotalPrice(props) {
 
       <div style={{ marginTop: "2%" }}>
         <h2>
-          税后总价: ${(props.totalPriceAfterTax / 100).toFixed(2).toString()}
+          Total price after tax: $
+          {(props.totalPriceAfterTax / 100).toFixed(2).toString()}
         </h2>
       </div>
     </div>
@@ -197,14 +205,17 @@ function PaymentMethod(props) {
           });
 
           setMessage(
-            "下单成功，请记下您的订单号" +
+            "下单成功，请记下您的订单号:" +
               props.orderNumber +
-              "订单接受后，会发邮件给您，请到店付款并取货"
+              " 订单接受后，会发邮件给您." +
+              " The order is successful, please write down your order number:" +
+              props.orderNumber +
+              " After the order is received, an email will be sent to you "
           );
           setVisible(true);
         } else {
           setSucceeded(false);
-          setMessage("下单失败，请使用信用卡支付!");
+          setMessage("支付失败 Payment failed!");
           setVisible(true);
         }
       });
@@ -229,9 +240,12 @@ function PaymentMethod(props) {
           });
 
           setMessage(
-            "支付成功，请记下您的订单号" +
+            "下单成功，请记下您的订单号" +
               props.orderNumber +
-              "订单接受后，会发邮件给您"
+              "订单接受后，会发邮件给您" +
+              " The order is successful, please write down your order number:" +
+              props.orderNumber +
+              "After the order is received, an email will be sent to you "
           );
           setVisible(true);
         } else {
@@ -250,7 +264,7 @@ function PaymentMethod(props) {
     <div style={{ marginTop: "5%" }}>
       <Spin size="large" spinning={processing}>
         <div>
-          <h3>请选择付款方式：</h3>
+          <h3>Please choose a payment method:</h3>
           <Radio.Group
             onChange={onChange}
             defaultValue={props.last4 == "" || props.last4 == undefined ? 2 : 1}
@@ -264,14 +278,15 @@ function PaymentMethod(props) {
               }
               value={1}
             >
-              使用尾号为{props.last4}的信用卡付款
+              使用尾号为{props.last4}的信用卡付款 Pay with a credit card ending
+              in {props.last4}
             </Radio>
             <Radio
               style={radioStyle}
               value={2}
               disabled={props.orderInfo.totalPrice < 0.01}
             >
-              使用新的信用卡付款
+              使用新的信用卡付款 Pay with a new credit card
             </Radio>
             <Space direction="horizontal">
               <Radio value={3} disabled={props.orderInfo.totalPrice < 0.01}>
@@ -290,7 +305,7 @@ function PaymentMethod(props) {
                 props.userInfo.userCode.charAt(0) == "T"
               }
             >
-              到店支付并提货
+              到店支付并提货 Pay at the store and pick up the goods
             </Radio>
           </Radio.Group>
         </div>
@@ -303,12 +318,12 @@ function PaymentMethod(props) {
               block={true}
               shape="round"
             >
-              {value == 5 ? "到店支付" : "支付"}
+              {value == 5 ? "到店支付 Pay at the Store" : "支付 Pay"}
             </Button>
           </div>
         </Affix>
         <Modal
-          title="支付结果"
+          title="Message"
           visible={isModalVisible}
           onOk={handle_payment}
           width={300}
@@ -316,8 +331,8 @@ function PaymentMethod(props) {
           centered={true}
           cancelButtonProps={{ disabled: true }}
           maskClosable={false}
-          okText="确认"
-          cancelText="取消"
+          okText="OK"
+          cancelText="Cancel"
         >
           {message}
         </Modal>
@@ -466,7 +481,7 @@ export function BillInfo(props) {
               shopAddress={props.userInfo.shopAddress}
             />
             <div style={{ marginTop: "2%" }}>
-              <h3>购买详情：</h3>
+              <h3>Purchase details：</h3>
               <OrderList subPrice={billInfo.subPrice} />
             </div>
             <TotalPrice
@@ -494,7 +509,7 @@ export function BillInfo(props) {
   } else
     return (
       <Spin spinning={spinning}>
-        <div>正在结算账单，请稍候。。。</div>
+        <div>Please Wait。。。</div>
       </Spin>
     );
 }

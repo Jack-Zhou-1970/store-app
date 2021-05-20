@@ -184,6 +184,8 @@ async function calPrice(paymentDetails_obj) {
     jsonMainProduct.mainProductName =
       paymentDetails_obj.product[i].mainProductName;
 
+    jsonMainProduct.productIntro = paymentDetails_obj.product[i].productIntro;
+
     var mainPrice = await calMainProductprice(productMainCode);
 
     if (mainPrice < 0.001) return [999999999, priceMainProduct];
@@ -818,6 +820,7 @@ function createOrderInfo(order_db) {
       var product_o = new Object();
       product_o.smallIndex = order_db[i].smallIndex;
       product_o.mainProductName = order_db[i].productName_main;
+      product_o.productIntro = order_db[i].productIntro;
       product_o.amount = order_db[i].mainProductNumber;
 
       productSmall_o = new Object();
@@ -846,6 +849,7 @@ function createOrderInfo(order_db) {
       var product_o = new Object();
       product_o.smallIndex = order_db[i].smallIndex;
       product_o.mainProductName = order_db[i].productName_main;
+      product_o.productIntro = order_db[i].productIntro;
       product_o.amount = order_db[i].mainProductNumber;
 
       productSmall_o = new Object();

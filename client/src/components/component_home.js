@@ -72,7 +72,7 @@ function checkValidate(productList, productDetail) {
   }
 
   if (productDetail.amount == 0) {
-    return "主产品数量至少为1";
+    return "主产品数量不能为0 Product Quantity can not be 0";
   }
 
   //counter 加料
@@ -91,7 +91,7 @@ function checkValidate(productList, productDetail) {
     }
   }
   if (count > 3) {
-    return "加料总和不能超过3份,请重新选择";
+    return "Toppings不能超过3份 The sum of toppings can not exceed three";
   }
 
   //check if middProduct Number is correct
@@ -106,7 +106,7 @@ function checkValidate(productList, productDetail) {
         productDetail.productMiddle.find(findMiddleProduct, midProduct[k]) ==
         undefined
       ) {
-        return midProduct[k] + "必须选择";
+        return midProduct[k] + " is required";
       }
     }
   }
@@ -134,6 +134,7 @@ function addToCart(productDetail) {
 
   var productList = new Object();
   productList.mainProductName = productDetail.productName;
+  productList.productIntro = productDetail.productIntro;
   productList.amount = productDetail.amount;
   productList.smallProduct = smallProduct;
 
@@ -365,8 +366,8 @@ export function Home_productDetail(props) {
       addToCart(props.productDetail);
 
       notification.open({
-        message: "成功加入购物车",
-        description: "成功加入购物车.您可继续选购或前往购物车结账",
+        message: "success ",
+        description: "成功加入购物车Successfully added to the shopping cart",
         duration: 2,
         placement: "topLeft",
       });
@@ -374,7 +375,7 @@ export function Home_productDetail(props) {
       props.handle_close();
     } else {
       notification.open({
-        message: "无法加入购物车",
+        message: "无法加入购物车Can't add to shopping cart",
         description: result,
         duration: 2,
       });
@@ -390,7 +391,7 @@ export function Home_productDetail(props) {
           }}
         >
           <Row>
-            <Col xs={4}>
+            <Col xs={4} offset={20}>
               <div style={{ width: "20%" }}>
                 <a onClick={handle_add_cart}>
                   <img src={add} style={{ width: "32px" }}></img>
@@ -406,7 +407,6 @@ export function Home_productDetail(props) {
         </div>
         <Divider />
         <div style={{ marginTop: "5%" }}>
-          <h3>请选择规格:</h3>
           <MidSmallProduct />
           <Divider />
           <MidSmallPrice />
@@ -431,7 +431,7 @@ Home_productDetail = connect(mapStateToProps_Home_productDetail)(
 
 function MidSmallPrice(props) {
   var price = calTotalPrice(props.productDetail);
-  var price_s = "总价格：$" + (price / 100).toFixed(2).toString();
+  var price_s = "Total Price：$" + (price / 100).toFixed(2).toString();
 
   return (
     <div style={{ marginTop: "2%" }}>
@@ -669,26 +669,23 @@ function SmallproductP_S(props) {
   var price_t_s = "$" + (props.price_t / 100).toFixed(2).toString();
   return (
     <Row style={{ marginTop: "4%" }}>
-      <Col xs={8}>
-        {props.smallProductName}:$
-        {(props.smallPrice / 100).toFixed(2).toString()}
-      </Col>
+      <Col xs={10}>{props.smallProductName}</Col>
 
-      <Col xs={10} style={{ marginLeft: "5%" }}>
-        <Button style={{ marginRight: "5%" }} onClick={handle_dec}>
+      <Col xs={8} style={{ marginLeft: "1%" }}>
+        <Button style={{ marginRight: "2%" }} onClick={handle_dec}>
           -
         </Button>
         {value}
         <Button
           type="primary "
-          style={{ marginLeft: "5%" }}
+          style={{ marginLeft: "2%" }}
           onClick={handle_add}
         >
           +
         </Button>
       </Col>
-      <Col xs={4} style={{ marginLeft: "0%" }}>
-        {price_t_s}
+      <Col xs={4} style={{ marginLeft: "4%" }}>
+        ${(props.smallPrice / 100).toFixed(2).toString()}
       </Col>
     </Row>
   );
@@ -740,7 +737,7 @@ function SmallproductP_container(props) {
 function MainProduct_container() {
   return (
     <div>
-      <div style={{ marginLeft: "30%" }}>
+      <div style={{ marginLeft: "20%" }}>
         <ProductIntro />
       </div>
       <div style={{ marginTop: "10%" }}>
@@ -772,14 +769,11 @@ function ProductIntro(props) {
     });
 
     var price =
-      "价格：" + "$" + (product_detail[0].price / 100).toFixed(2).toString();
+      "Price：" + "$" + (product_detail[0].price / 100).toFixed(2).toString();
     return (
       <div>
         <Spin spinning={loading}>
-          <img
-            src={product_detail[0].picFile}
-            style={{ width: "30%", height: "30%" }}
-          />
+          <img src={product_detail[0].picFile} style={{ width: "70%" }} />
 
           <h3>{product_detail[0].mainProductName}</h3>
           <h3>{product_detail[0].productIntro}</h3>
@@ -837,7 +831,7 @@ function MainProductAmountPrice(props) {
         ) >
       props.productDetail.stock
     ) {
-      var msg_d = "库存不够，无法再增加购买";
+      var msg_d = "库存不够 Insufficient inventory to increase purchases";
       setMsg(msg_d);
       setVisble(true);
       return;
@@ -851,7 +845,7 @@ function MainProductAmountPrice(props) {
 
   return (
     <div>
-      <span style={{ fontWeight: "600" }}>数量：</span>
+      <span style={{ fontWeight: "600" }}>Quantity：</span>
       <Button style={{ marginRight: "3%" }} onClick={handle_dec}>
         -
       </Button>
@@ -860,7 +854,7 @@ function MainProductAmountPrice(props) {
         +
       </Button>
       <Modal
-        title="友情提醒"
+        title="Message"
         visible={isVisble}
         onOk={handle_cancel}
         onCancel={handle_cancel}
@@ -868,8 +862,8 @@ function MainProductAmountPrice(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="确认"
-        cancelText="取消"
+        okText="OK"
+        cancelText="Cancel"
       >
         {msg}
       </Modal>
@@ -902,7 +896,7 @@ export function Home_ProductList() {
 function addAllProduct(data) {
   var allProduct = new Object();
 
-  allProduct.catalogName = "全部产品";
+  allProduct.catalogName = "All Product";
 
   var data1 = data.slice(0);
 
@@ -975,14 +969,14 @@ const mapStateToProps = (state) => {
 ListCatalog = connect(mapStateToProps)(ListCatalog);
 
 function ProductCard(props) {
-  var price = "价格：" + "$" + (props.price / 100).toFixed(2).toString();
+  var price = "Price：" + "$" + (props.price / 100).toFixed(2).toString();
 
   function card_handle_click() {
-    props.handle_click(props.mainProductName, props.price);
+    props.handle_click(props.mainProductName, props.price, props.productIntro);
   }
 
   return (
-    <Col xs={12} sm={12} md={12} lg={12} xl={6} style={{ marginTop: "5%" }}>
+    <Col xs={24} sm={24} md={12} lg={12} xl={6} style={{ marginTop: "5%" }}>
       <Card
         hoverable
         style={{ width: "80%" }}
@@ -993,10 +987,8 @@ function ProductCard(props) {
         onDoubleClick={card_handle_click}
       >
         <h3>{props.mainProductName}</h3>
-        <h4 style={{ marginLeft: "5%", marginRight: "2%" }}>
-          {props.productIntro}
-        </h4>
-        <h5>{price}</h5>
+        <h3 style={{ marginRight: "2%" }}>{props.productIntro}</h3>
+        <h3>{price}</h3>
       </Card>
     </Col>
   );
@@ -1016,9 +1008,10 @@ function findProductName(inputProduct) {
 /*puductList_o.push(props.data[i].product[j]);*/
 function ProductByClass(props) {
   //when user click product
-  function handle_click(mainProductName, price) {
+  function handle_click(mainProductName, price, productIntro) {
     var product = new Object();
     product.productName = mainProductName;
+    product.productIntro = productIntro;
     product.price = price;
     product.amount = 0;
     product.totalPrice = 0;
@@ -1056,11 +1049,11 @@ function ProductByClass(props) {
         if (result.stock > 0) {
           setProductDetailVisible(true);
         } else {
-          setMsg("该产品没有库存，请选购其它产品");
+          setMsg("该产品没有库存This product is not in stock");
           setVisble(true);
         }
       } else {
-        setMsg("营业时间未到或商家未营业，请换个时间选购");
+        setMsg("现在不是营业时间 It is not business hours");
         setVisble(true);
       }
     });
@@ -1096,7 +1089,7 @@ function ProductByClass(props) {
   for (var i = 0; i < props.data.length; i++) {
     if (
       props.data[i].catalogName == props.catalogName ||
-      props.catalogName == "全部产品"
+      props.catalogName == "All Product"
     ) {
       for (var j = 0; j < props.data[i].product.length; j++) {
         var productCard = (
@@ -1124,7 +1117,7 @@ function ProductByClass(props) {
       <div>
         <ProductCard_container>{puductList}</ProductCard_container>
         <Modal
-          title="选择规格"
+          title="Choose Specification"
           visible={productDetailVisible}
           onOk={onClose}
           onCancel={onClose}
@@ -1139,7 +1132,7 @@ function ProductByClass(props) {
           <Home_productDetail handle_close={onClose} />
         </Modal>
         <Modal
-          title="友情提醒"
+          title="Message"
           visible={isVisble}
           onOk={handle_cancel}
           onCancel={handle_cancel}
@@ -1147,8 +1140,8 @@ function ProductByClass(props) {
           closable={false}
           centered={true}
           maskClosable={false}
-          okText="确认"
-          cancelText="取消"
+          okText="OK"
+          cancelText="Cancel"
         >
           {msg}
         </Modal>

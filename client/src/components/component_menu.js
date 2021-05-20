@@ -183,18 +183,18 @@ export function Menu_1(props) {
         &nbsp;&nbsp;{props.userInfo.nickName}
       </div>
       <Drawer
-        title="主菜单"
+        title="Main Menu"
         placement={"left"}
         closable={false}
         onClose={onClose}
         visible={visible}
-        width={200}
+        width={250}
       >
         <div>
           <span>
             <a style={{ color: "black" }} onClick={handle_cart}>
               <img src={cart} style={{ width: "20%" }} />
-              &nbsp;&nbsp;购物车
+              &nbsp;&nbsp;Shopping cart
             </a>
           </span>
         </div>
@@ -202,7 +202,7 @@ export function Menu_1(props) {
           <span>
             <a style={{ color: "black" }} onClick={getOrderList}>
               <img src={order} style={{ width: "20%" }} />
-              &nbsp;&nbsp;我的订单
+              &nbsp;&nbsp;My Order
             </a>
           </span>
         </div>
@@ -210,7 +210,7 @@ export function Menu_1(props) {
           <span>
             <a style={{ color: "black" }} onClick={handle_payment}>
               <img src={cash} style={{ width: "20%" }} />
-              &nbsp;&nbsp;付款
+              &nbsp;&nbsp;CheckOut
             </a>
           </span>
         </div>
@@ -225,7 +225,7 @@ export function Menu_1(props) {
             >
               <a style={{ color: "black" }} onClick={handle_reward}>
                 <img src={reward} style={{ width: "15%" }} />
-                &nbsp;&nbsp;积分
+                &nbsp;&nbsp;Point Reward
               </a>
             </Badge>
           </span>
@@ -235,7 +235,7 @@ export function Menu_1(props) {
           <span>
             <a style={{ color: "black" }} onClick={handle_info}>
               <img src={info} style={{ width: "15%" }} />
-              &nbsp;&nbsp;个人信息
+              &nbsp;&nbsp;Personal information
             </a>
           </span>
         </div>
@@ -249,7 +249,7 @@ export function Menu_1(props) {
           <span>
             <a style={{ color: "black" }} onClick={handle_login}>
               <img src={login} style={{ width: "15%" }} />
-              &nbsp;&nbsp;登陆
+              &nbsp;&nbsp;Log in
             </a>
           </span>
         </div>
@@ -263,7 +263,7 @@ export function Menu_1(props) {
           <span>
             <a style={{ color: "black" }} onClick={handle_logout}>
               <img src={logout} style={{ width: "15%" }} />
-              &nbsp;&nbsp;登出
+              &nbsp;&nbsp;Log Out
             </a>
           </span>
         </div>
@@ -272,13 +272,13 @@ export function Menu_1(props) {
           <span>
             <a style={{ color: "black" }} onClick={handle_contact}>
               <img src={phone} style={{ width: "15%" }} />
-              &nbsp;&nbsp;商家信息
+              &nbsp;&nbsp;Business information
             </a>
           </span>
         </div>
       </Drawer>
       <Modal
-        title="错误"
+        title="error"
         visible={isPayVisible}
         onOk={handle_cancel1}
         onCancel={handle_cancel1}
@@ -286,10 +286,10 @@ export function Menu_1(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="确认"
-        cancelText="取消"
+        okText="OK"
+        cancelText="Cancel"
       >
-        购物车没有商品，无法结账！
+        购物车没有商品 No items in the shopping cart！
       </Modal>
       <Modal
         visible={isUserVisible}
@@ -300,29 +300,29 @@ export function Menu_1(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="确认"
-        cancelText="取消"
+        okText="OK"
+        cancelText="Cancel"
       >
-        <Descriptions bordered size="small" title="用户信息:">
-          <Descriptions.Item label="昵称">
+        <Descriptions bordered size="small" title="User Info:">
+          <Descriptions.Item label="NickName">
             {props.userInfo.nickName}
           </Descriptions.Item>
-          <Descriptions.Item label="邮箱">
+          <Descriptions.Item label="Email">
             {props.userInfo.email}
           </Descriptions.Item>
-          <Descriptions.Item label="电话">
+          <Descriptions.Item label="Phone">
             {props.userInfo.phone}
           </Descriptions.Item>
-          <Descriptions.Item label="可用积分">
+          <Descriptions.Item label="Point">
             {props.userInfo.reward}
           </Descriptions.Item>
-          <Descriptions.Item label="pickup地址">
+          <Descriptions.Item label="pickup address">
             {props.userInfo.shopAddress}
           </Descriptions.Item>
         </Descriptions>
       </Modal>
       <Modal
-        title="世界茶饮"
+        title="world tea"
         visible={isMapVisible}
         onOk={handle_cancel3}
         onCancel={handle_cancel3}
@@ -331,8 +331,8 @@ export function Menu_1(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="确认"
-        cancelText="取消"
+        okText="OK"
+        cancelText="Cancel"
       >
         <img src={address} style={{ width: "100%" }} />
       </Modal>
@@ -345,14 +345,21 @@ export function Menu_1(props) {
         closable={false}
         centered={true}
         maskClosable={false}
-        okText="确认"
-        cancelText="取消"
+        okText="OK"
+        cancelText="Cancel"
       >
-        <h3 style={{ color: "red" }}>积分:{props.userInfo.reward}</h3>
+        <h3 style={{ color: "red" }}>Point:{props.userInfo.reward}</h3>
         <h3>当前积分兑换规则：</h3>
         <p>每购买一杯可兑换10个积分</p>
-        <p>每100积分可换购一杯奶茶，在购买时扣除相应金额</p>
+        <p>每100积分可换购一杯奶茶(top3需要150积分），在购买时扣除相应金额</p>
         <p>欢迎选购！</p>
+        <h3>Current points redemption rules：</h3>
+        <p>10 points for every cup purchased</p>
+        <p>
+          Every 100 points can be redeemed for a cup of tea (top3 requires 150
+          points), and the corresponding price will be deducted at the time of
+          purchase
+        </p>
       </Modal>
     </div>
   );

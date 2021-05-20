@@ -21,17 +21,17 @@ function UserInfo(props) {
   console.log(props.userInfo);
   return (
     <div style={{ marginLeft: "15%" }}>
-      <Descriptions title="用户信息:">
-        <Descriptions.Item label="昵称">
+      <Descriptions title="User Info:">
+        <Descriptions.Item label="NickName">
           {props.userInfo.nickName}
         </Descriptions.Item>
         <Descriptions.Item label="EMAIL">
           {props.userInfo.email}
         </Descriptions.Item>
-        <Descriptions.Item label="电话">
+        <Descriptions.Item label="Phone">
           {props.userInfo.phone}
         </Descriptions.Item>
-        <Descriptions.Item label="店铺地址">
+        <Descriptions.Item label="Shop Address">
           {props.userInfo.shopAddress}
         </Descriptions.Item>
       </Descriptions>
@@ -51,14 +51,14 @@ function OrderSum(props) {
   var paymentTime = new Date(props.paymentTime);
   return (
     <div style={{ marginTop: "2%" }}>
-      <Descriptions title="订单信息:">
-        <Descriptions.Item label="订单号">
+      <Descriptions title="Order Info:">
+        <Descriptions.Item label="Order Number">
           {props.orderNumber}
         </Descriptions.Item>
-        <Descriptions.Item label="总价(税后)">
+        <Descriptions.Item label="Total price after tax">
           {(props.totalPrice / 100).toFixed(2).toString()}
         </Descriptions.Item>
-        <Descriptions.Item label="时间">
+        <Descriptions.Item label="Purchase time">
           {paymentTime.toString()}
         </Descriptions.Item>
       </Descriptions>
@@ -76,7 +76,11 @@ function createData(subPrice) {
   for (var i = 0; i < subPrice.length; i++) {
     var data = new Object();
     data.mainProduct =
-      subPrice[i].mainProductName + "      数量:" + subPrice[i].amount;
+      subPrice[i].mainProductName +
+      subPrice[i].productIntro +
+      "," +
+      "      Amount:" +
+      subPrice[i].amount;
     data.smallProduct = "";
     for (var j = 0; j < subPrice[i].smallProduct.length; j++) {
       var amount =
@@ -100,6 +104,7 @@ export function OrderList(props) {
 
   useEffect(() => {
     api.getOrder(props.userInfo).then((result) => {
+      console.log(result);
       setOrderInfo(result);
     });
   }, []);
@@ -162,7 +167,11 @@ export function OrderList(props) {
       </div>
     );
   } else {
-    return <div>没有订单，按后退键返回</div>;
+    return (
+      <div>
+        没有订单，按后退键返回 No order, press the back button to return
+      </div>
+    );
   }
 }
 

@@ -367,7 +367,7 @@ export const productDetailReducer = (state = [], action) => {
         productName: action.product.productName,
         price: action.product.price,
         amount: action.product.amount,
-
+        productIntro: action.product.productIntro,
         productMiddle: [],
       };
 

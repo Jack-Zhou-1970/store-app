@@ -157,7 +157,7 @@ export const orderInfoIni = {
 };
 
 export const actionIni = {
-  className: "全部产品",
+  className: "All Product",
   productName: "",
 };
 
