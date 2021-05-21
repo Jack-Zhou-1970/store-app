@@ -42,6 +42,6 @@ app.get("*", function (request, response) {
   response.sendFile(path.resolve(root1, "dist", "index.html"));
 });
 
-var server = app.listen(4243, "192.168.0.128");
+var server = app.listen(4243, "127.0.0.1");
 
 console.log("server run at port 4243");
