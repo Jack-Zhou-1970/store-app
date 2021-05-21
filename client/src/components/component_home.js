@@ -905,8 +905,19 @@ function addAllProduct(data) {
   return data1;
 }
 
+function findCatalogName(inputProduct) {
+  return inputProduct.catalogName == this;
+}
+
 function ListCatalog(props) {
   var data = addAllProduct(props.data);
+
+  if (props.data.find(findCatalogName, props.className) == undefined) {
+    store.dispatch({
+      type: "UPDATE_CLASS_INFO",
+      className: "All Product",
+    });
+  }
 
   function handle_click(e) {
     store.dispatch({
