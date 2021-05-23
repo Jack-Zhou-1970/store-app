@@ -217,7 +217,8 @@ function is_img_url(imgurl) {
   }).catch((e) => {}); // 加上这句不会报错（Uncaught (in promise)）
 }
 
-export async function checkPic(data, shopAddress, func) {
+export async function checkPic(data, shopAddress, version, func) {
+  console.log("checkPic");
   var result1 = false;
 
   if (data != null && data != undefined && data.length != 0) {
@@ -233,13 +234,29 @@ export async function checkPic(data, shopAddress, func) {
     }
   }
 
-  if (result1 == false) {
+  //check version number
+  var obj = new Object();
+  obj.shopAddress = shopAddress;
+
+  var result = await api.getProductVersion(obj);
+  var result2;
+  if (result.productVersion == version) {
+    result2 == true;
+  } else {
+    result2 = false;
+    store.dispatch({
+      type: "UPDATE_PRODUCT_VERSION",
+      payload: result.productVersion,
+    });
+  }
+
+  if (result1 == false || result2 == false) {
     store.dispatch({
       type: "UPDATE_PRODUCT_INFO",
       payload: [],
     });
     func(true);
-    console.log("reload");
+    console.log("load productList");
     await reloadProductList(shopAddress);
     func(false);
   }
@@ -294,10 +311,46 @@ import b_4 from "../../images/b_4.jpg";
 import b_5 from "../../images/b_5.jpg";
 import b_main from "../../images/b_main.jpg";
 
+import { AliPayResult_manage } from "./component_wallet";
+
 export function Home_header(props) {
+  const [isModalVisible, setVisible] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [message, setMessage] = useState("");
+
   function handle_click() {
     history.push("/cart");
   }
+
+  function handle_payment() {
+    if (succeeded == false) {
+      store.dispatch({
+        type: "MOD_OTHER_FEE",
+        otherFee: 0,
+      });
+      history.push("/payment_1");
+      setVisible(false);
+    } else {
+      setVisible(false);
+    }
+  }
+
+  function handle_result(result) {
+    if (result == "success") {
+      setSucceeded(true);
+      setMessage(
+        "支付成功，请记下您的订单号" +
+          props.orderInfo.orderNumber +
+          "订单接受后，会发邮件给您"
+      );
+      setVisible(true);
+    } else {
+      setSucceeded(false);
+      setMessage("支付失败!");
+      setVisible(true);
+    }
+  }
+
   return (
     <div>
       <div style={{ position: "relative" }}>
@@ -341,6 +394,23 @@ export function Home_header(props) {
           </Col>
         </Row>
       </div>
+      {props.orderInfo.aliProcess == "process" && (
+        <AliPayResult_manage handle_result={handle_result} />
+      )}
+      <Modal
+        title="支付结果"
+        visible={isModalVisible}
+        onOk={handle_payment}
+        width={300}
+        closable={false}
+        centered={true}
+        cancelButtonProps={{ disabled: true }}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        {message}
+      </Modal>
     </div>
   );
 }
@@ -751,7 +821,7 @@ function ProductIntro(props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkPic(props.productList, props.shopAddress, setLoading);
+    checkPic(props.productList, props.shopAddress, props.version, setLoading);
     setLoading(props.productList.length > 0 ? false : true);
   }, []);
 
@@ -791,6 +861,7 @@ const mapStateToProps_ProductDetail = (state) => {
     productList: state.productListReducer,
     mainProductName: state.actionReducer.productName,
     shopAddress: state.userInfoReducer.shopAddress,
+    version: state.userInfoReducer.productVersion,
   };
 };
 
@@ -987,7 +1058,7 @@ function ProductCard(props) {
   }
 
   return (
-    <Col xs={24} sm={24} md={12} lg={12} xl={6} style={{ marginTop: "5%" }}>
+    <Col xs={24} sm={12} md={6} lg={6} xl={6} style={{ marginTop: "5%" }}>
       <Card
         hoverable
         style={{ width: "80%" }}
@@ -1089,7 +1160,7 @@ function ProductByClass(props) {
     window.addEventListener("popstate", function (event) {
       window.history.pushState(null, document.title, window.location.href);
     });
-    checkPic(props.data, props.shopAddress, setLoading);
+    checkPic(props.data, props.shopAddress, props.version, setLoading);
     setLoading(props.data.length > 0 ? false : true);
   }, []);
 
@@ -1166,6 +1237,7 @@ const mapStateToProps_ProductList = (state) => {
     data: state.productListReducer,
     catalogName: state.actionReducer.className,
     shopAddress: state.userInfoReducer.shopAddress,
+    version: state.userInfoReducer.productVersion,
   };
 };
 

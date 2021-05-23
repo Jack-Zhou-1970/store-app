@@ -139,6 +139,10 @@ export function Menu_1(props) {
         props.userInfo.reward + getOrderNumber() * 10 < 80 ||
         props.userInfo.userCode.charAt(0) == "T"
       ) {
+        store.dispatch({
+          type: "MOD_OTHER_FEE",
+          otherFee: 0,
+        });
         history.push("/payment_1");
       } else {
         var reward;

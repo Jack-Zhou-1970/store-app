@@ -57,61 +57,78 @@ function RegisterForm(props) {
       <Form.Item
         label="Email"
         name="username"
-        rules={[{ required: true, message: "请输入注册邮箱!" }]}
+        rules={[{ required: true, message: "Please input email!" }]}
       >
-        <Input style={{ height: "5%" }} ref={refMail} />
+        <Input
+          style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          ref={refMail}
+        />
       </Form.Item>
 
       <Form.Item
         label="Password"
         name="password"
-        rules={[{ required: true, message: "请输入密码!" }]}
+        rules={[{ required: true, message: "Please input password!" }]}
       >
         <Input.Password
+          style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           ref={refPassword}
-          placeholder="必须包含大写字母，小写字母，数字和特殊字符(*,&等)"
         />
       </Form.Item>
       <Form.Item
         label="Confirm"
         name="passwordC"
-        rules={[{ required: true, message: "请再次输入密码!" }]}
+        rules={[{ required: true, message: "Please input password again!" }]}
       >
-        <Input.Password ref={refPasswordC} />
+        <Input.Password
+          style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          ref={refPasswordC}
+        />
       </Form.Item>
       <Form.Item
         label="Phone"
         name="phone"
-        rules={[{ required: true, message: "电话" }]}
+        rules={[{ required: true, message: "Phone" }]}
       >
-        <Input style={{ height: "5%" }} ref={refPhone} />
+        <Input
+          style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          ref={refPhone}
+        />
       </Form.Item>
       <Form.Item
         label="NickName"
         name="nickName"
-        rules={[{ required: true, message: "请输入昵称" }]}
+        rules={[{ required: true, message: "Please input NickName" }]}
       >
-        <Input style={{ height: "5%", width: "50%" }} ref={refNickName} />
+        <Input
+          style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
+          ref={refNickName}
+        />
       </Form.Item>
 
       <Form.Item
         label="Pickup store"
         name="shopAddress"
-        rules={[{ required: true, message: "选择自取门店!" }]}
+        rules={[{ required: true, message: "Please select pickup shop!" }]}
       >
-        <Select placeholder="选择自取门店" ref={refShopAddress}>
+        <Select placeholder="select pickup shop" ref={refShopAddress}>
           {allShopAddress}
         </Select>
       </Form.Item>
-      <Form.Item>
-        <Button
-          style={{ marginLeft: "50%" }}
-          type="primary"
-          onClick={handle_submit}
-        >
-          Registered
-        </Button>
-      </Form.Item>
+      <Row justify="center">
+        <Col>
+          <Form.Item>
+            <Button
+              type="primary"
+              block={true}
+              shape="round"
+              onClick={handle_submit}
+            >
+              Create Account
+            </Button>
+          </Form.Item>
+        </Col>
+      </Row>
     </Form>
   );
 }
@@ -124,13 +141,13 @@ export function RegisterForm_container() {
     <div>
       <img src={title} style={{ width: "100%" }} />
       <img src={title1} style={{ width: "100%" }} />
-      <Row style={{ marginLeft: "46%" }}>
-        <Col offset={2}>
-          <h3>Registered</h3>
+      <Row justify="center">
+        <Col>
+          <h3>Create Account</h3>
         </Col>
       </Row>
       <Row justify="center" style={{ marginTop: "2%" }}>
-        <Col span={8}>
+        <Col span={10}>
           <RegisterForm_manage />
         </Col>
       </Row>
@@ -153,11 +170,8 @@ function register_check(
     return "邮箱格式不对 Incorrect email format";
   }
 
-  //check password
-  regexp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[^]{6,16}$/;
-  result = regexp.test(password);
-  if (result != true) {
-    return "密码必须包含至少一个大小写字母,数字,特殊字符 The password must contain one uppercase and low case,letter,special character";
+  if (password.length < 6) {
+    return "密码长度至少6位 Password length is at least 6 digits ";
   }
 
   if (passwordC != password) {

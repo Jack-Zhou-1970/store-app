@@ -132,13 +132,20 @@ export default function CheckoutForm(props) {
         });
 
         setMessage(
-          "支付成功，请记下您的订单号" +
+          "下单成功，请记下您的订单号" +
+            "" +
             props.orderInfo.orderNumber +
-            "订单接受后，会发邮件给您"
+            "" +
+            "订单接受后，会发邮件给您" +
+            " The order is successful, please write down your order number:" +
+            "" +
+            props.orderInfo.orderNumber +
+            "" +
+            "After the order is received, an email will be sent to you "
         );
         setVisible(true);
       } else {
-        setMessage("支付失败! " + payload.error.message);
+        setMessage("支付失败 Payment failed! " + payload.error.message);
         setVisible(true);
       }
     });

@@ -27,6 +27,12 @@ export function Reward(props) {
       type: "MOD_REWARD_OUT",
       reward_out: 0,
     });
+
+    store.dispatch({
+      type: "MOD_OTHER_FEE",
+      otherFee: 0,
+    });
+
     history.push("/payment_1");
     setModal1Visible(false);
   }
@@ -47,7 +53,10 @@ export function Reward(props) {
         )[1]
       ),
     });
-
+    store.dispatch({
+      type: "MOD_OTHER_FEE",
+      otherFee: 0,
+    });
     history.push("/payment_1");
 
     setModal1Visible(false);
@@ -154,6 +163,10 @@ export function Reward(props) {
   }
 
   function handle_continue() {
+    store.dispatch({
+      type: "MOD_OTHER_FEE",
+      otherFee: 0,
+    });
     history.push("/payment_1");
     setModal2Visible(false);
   }
@@ -165,6 +178,10 @@ export function Reward(props) {
 
   useEffect(() => {
     if (props.userInfo.reward + getOrderNumber() * 10 < 80) {
+      store.dispatch({
+        type: "MOD_OTHER_FEE",
+        otherFee: 0,
+      });
       history.push("/payment_1");
     } else {
       if (props.userInfo.reward + getOrderNumber() * 10 < 100) {
@@ -178,6 +195,10 @@ export function Reward(props) {
       ) {
         setModal1Visible(true);
       } else {
+        store.dispatch({
+          type: "MOD_OTHER_FEE",
+          otherFee: 0,
+        });
         history.push("/payment_1");
       }
     }

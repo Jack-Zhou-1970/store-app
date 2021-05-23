@@ -164,6 +164,12 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         totalPrice: action.totalPrice,
       };
 
+    case "MOD_TOTAL_PRICE_NOTIP":
+      return {
+        ...state,
+        totalPrice_noTip: action.totalPrice_noTip,
+      };
+
     case "MOD_ORDER_NUMBER":
       return {
         ...state,
@@ -187,6 +193,19 @@ export const orderInfoReducer = (state = orderInfoIni, action) => {
         ...state,
         client_secret: action.client_secret,
       };
+
+    case "MOD_OTHER_FEE":
+      return {
+        ...state,
+        otherFee: action.otherFee,
+      };
+
+    case "MOD_ALIPAY_PROCESS":
+      return {
+        ...state,
+        aliProcess: action.aliProcess,
+      };
+
     default:
       return state;
   }
@@ -236,6 +255,12 @@ export const userInfoReducer = (state = loginInfo, action) => {
         reward: action.payload,
       };
 
+    case "UPDATE_PRODUCT_VERSION":
+      return {
+        ...state,
+        productVersion: action.payload,
+      };
+
     case "DEL_USER_INFO":
       return loginInfo;
 
@@ -266,6 +291,12 @@ export const actionReducer = (state = actionIni, action) => {
       return {
         ...state,
         productName: action.productName,
+      };
+
+    case "UPDATE_SELECT_TIP":
+      return {
+        ...state,
+        selectTip: action.selectTip,
       };
 
     default:

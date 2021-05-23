@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions, List, Radio, Modal, Affix, Spin, Space } from "antd";
+import {
+  Form,
+  Descriptions,
+  List,
+  Radio,
+  Modal,
+  Affix,
+  Spin,
+  Space,
+  Input,
+} from "antd";
 
 import "antd/dist/antd.css";
 
@@ -24,13 +34,12 @@ import alipay from "../../images/alipay.png";
 export function UserInfo(props) {
   return (
     <div>
-      <h3>Order Info:</h3>
       <Descriptions title="User Info:">
-        <Descriptions.Item label="Order Number">
+        <Descriptions.Item label="Order number">
           {props.orderNumber}
         </Descriptions.Item>
-        <Descriptions.Item label="NickName">{props.nickName}</Descriptions.Item>
-        <Descriptions.Item label="EMAIL">{props.email}</Descriptions.Item>
+        <Descriptions.Item label="Nickname">{props.nickName}</Descriptions.Item>
+        <Descriptions.Item label="Email">{props.email}</Descriptions.Item>
         <Descriptions.Item label="Phone">{props.phone}</Descriptions.Item>
         <Descriptions.Item label="Address">
           {props.shopAddress}
@@ -51,16 +60,13 @@ function createData(subPrice) {
     var data = new Object();
     data.mainProduct =
       subPrice[i].mainProductName +
-      "," +
+      "(" +
       subPrice[i].productIntro +
-      "," +
-      "      Unit price:$" +
-      (subPrice[i].price / 100).toFixed(2).toString() +
-      "," +
+      ")," +
       "      Quantity:" +
       subPrice[i].amount +
-      "," +
-      "    Total price(includes small materials):$" +
+      ", " +
+      "    Price:$" +
       (subPrice[i].totalPrice / 100).toFixed(2).toString();
     data.smallProduct = "";
     for (var j = 0; j < subPrice[i].smallProduct.length; j++) {
@@ -102,25 +108,33 @@ function OrderList(props) {
 function TotalPrice(props) {
   return (
     <div style={{ marginTop: "2%" }}>
-      <Descriptions title="Order summary:">
-        <Descriptions.Item label="Pre-tax price">
+      <Descriptions title="Order Summary:">
+        <Descriptions.Item label="Subtotal">
           ${(props.totalPriceBeforeTax / 100).toFixed(2).toString()}
+        </Descriptions.Item>
+
+        <Descriptions.Item label="HST">
+          {" "}
+          ${(props.tax / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="Use points to deduct the price">
           ${(props.totalMoney / 100).toFixed(2).toString()}
         </Descriptions.Item>
-        <Descriptions.Item label="Transportation fee">
-          {(props.shipFee / 100).toFixed(2).toString()}
-        </Descriptions.Item>
-        <Descriptions.Item label="Other fee">
-          {(props.otherFee / 100).toFixed(2).toString()}
-        </Descriptions.Item>
-        <Descriptions.Item label="Tax rate">{props.taxRate}</Descriptions.Item>
-        <Descriptions.Item label="Taxes">
-          {" "}
-          {(props.tax / 100).toFixed(2).toString()}
+        <Descriptions.Item label="Amount">
+          $
+          {((props.totalPriceBeforeTax + props.tax - props.totalMoney) / 100)
+            .toFixed(2)
+            .toString()}
         </Descriptions.Item>
       </Descriptions>
+
+      <Tip />
+
+      <div style={{ marginTop: "5%" }}>
+        <h2>
+          Total: ${(props.totalPriceAfterTax / 100).toFixed(2).toString()}
+        </h2>
+      </div>
 
       <div style={{ marginTop: "2%" }}>
         <Descriptions title="Point:">
@@ -135,16 +149,150 @@ function TotalPrice(props) {
           </Descriptions.Item>
         </Descriptions>
       </div>
-
-      <div style={{ marginTop: "2%" }}>
-        <h2>
-          Total price after tax: $
-          {(props.totalPriceAfterTax / 100).toFixed(2).toString()}
-        </h2>
-      </div>
     </div>
   );
 }
+
+function Tip(props) {
+  const inputEl = useRef(null);
+  const [isModalVisible, setVisble] = useState(false);
+
+  useEffect(() => {
+    store.dispatch({
+      type: "UPDATE_SELECT_TIP",
+      selectTip: false,
+    });
+  }, []);
+
+  function handle_tip_change(e) {
+    store.dispatch({
+      type: "UPDATE_SELECT_TIP",
+      selectTip: true,
+    });
+
+    if (e.target.value != 999999) {
+      store.dispatch({
+        type: "MOD_OTHER_FEE",
+        otherFee: Math.round(e.target.value),
+      });
+
+      store.dispatch({
+        type: "MOD_TOTAL_PRICE",
+        totalPrice: Math.round(
+          props.orderInfo.totalPrice_noTip + e.target.value
+        ),
+      });
+    } else {
+      setVisble(true);
+    }
+  }
+
+  function handle_custom_amount() {
+    var result;
+
+    if (
+      isNaN(Number(inputEl.current.state.value)) == true ||
+      Number(inputEl.current.state.value) < 0
+    ) {
+      result = 0;
+    } else {
+      result = Number(inputEl.current.state.value) * 100;
+    }
+
+    store.dispatch({
+      type: "MOD_OTHER_FEE",
+      otherFee: Math.round(result),
+    });
+
+    store.dispatch({
+      type: "MOD_TOTAL_PRICE",
+      totalPrice: Math.round(props.orderInfo.totalPrice_noTip + result),
+    });
+
+    setVisble(false);
+  }
+
+  return (
+    <div>
+      <div>
+        <h3 style={{ marginTop: "2%", marginBottom: "2%" }}>
+          Tip: ${(props.orderInfo.otherFee / 100).toFixed(2).toString()}
+        </h3>
+        <Radio.Group buttonStyle="solid" onChange={handle_tip_change}>
+          <Radio.Button value={0}>No Tip</Radio.Button>
+          <Radio.Button value={props.orderInfo.totalPrice_noTip * 0.1}>
+            10%($
+            {((props.orderInfo.totalPrice_noTip / 100) * 0.1)
+              .toFixed(2)
+              .toString()}
+            )
+          </Radio.Button>
+          <Radio.Button value={props.orderInfo.totalPrice_noTip * 0.15}>
+            15%($
+            {((props.orderInfo.totalPrice_noTip / 100) * 0.15)
+              .toFixed(2)
+              .toString()}
+            )
+          </Radio.Button>
+          <Radio.Button value={props.orderInfo.totalPrice_noTip * 0.2}>
+            20%($
+            {((props.orderInfo.totalPrice_noTip / 100) * 0.2)
+              .toFixed(2)
+              .toString()}
+            )
+          </Radio.Button>
+          <Radio.Button value={props.orderInfo.totalPrice_noTip * 0.25}>
+            25%($
+            {((props.orderInfo.totalPrice_noTip / 100) * 0.25)
+              .toFixed(2)
+              .toString()}
+            )
+          </Radio.Button>
+          <Radio.Button value={999999}>Custom Amount</Radio.Button>
+        </Radio.Group>
+      </div>
+      <Modal
+        title="Tip"
+        visible={isModalVisible}
+        onOk={handle_custom_amount}
+        width={400}
+        closable={false}
+        centered={true}
+        cancelButtonProps={{ disabled: true }}
+        maskClosable={false}
+        okText="OK"
+        cancelText="Cancel"
+      >
+        <Row>
+          <Col span={20}>
+            <Form.Item
+              label="Custom Amount:"
+              name="Amount"
+              rules={[{ required: true, message: "Please input amount!" }]}
+            >
+              <Input
+                style={{
+                  borderTop: "0px",
+                  borderLeft: "0px",
+                  borderRight: "0px",
+                }}
+                ref={inputEl}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Modal>
+    </div>
+  );
+}
+
+const mapStateToProps_Tip = (state) => {
+  return {
+    orderInfo: state.orderInfoReducer,
+  };
+};
+
+Tip = connect(mapStateToProps_Tip)(Tip);
 
 function PaymentMethod(props) {
   const radioStyle = {
@@ -158,6 +306,11 @@ function PaymentMethod(props) {
   const [isPageVisible, setPageVisible] = useState(false);
   const [message, setMessage] = useState("");
   const [succeeded, setSucceeded] = useState(false);
+  const [isTipVisible, setTipVisble] = useState(false);
+
+  function handle_tip() {
+    setTipVisble(false);
+  }
 
   var ini_value = props.last4 == "" || props.last4 == undefined ? 2 : 1;
   const [value, setValue] = useState(ini_value);
@@ -172,12 +325,21 @@ function PaymentMethod(props) {
   }
 
   function handle_jump() {
+    store.dispatch({
+      type: "MOD_ALIPAY_PROCESS",
+      aliProcess: "process",
+    });
     history.push("payment_4");
     setPageVisible(false);
   }
 
   function handle_normal_pay() {
     var paymentDetails;
+
+    if (props.selectTip == false) {
+      setTipVisble(true);
+      return;
+    }
 
     if (value == 2 && props.orderInfo.totalPrice > 0) {
       history.push("payment_2");
@@ -206,10 +368,15 @@ function PaymentMethod(props) {
 
           setMessage(
             "下单成功，请记下您的订单号:" +
+              "" +
               props.orderNumber +
+              "" +
               " 订单接受后，会发邮件给您." +
+              "" +
               " The order is successful, please write down your order number:" +
+              "" +
               props.orderNumber +
+              "" +
               " After the order is received, an email will be sent to you "
           );
           setVisible(true);
@@ -241,16 +408,20 @@ function PaymentMethod(props) {
 
           setMessage(
             "下单成功，请记下您的订单号" +
+              "" +
               props.orderNumber +
+              "" +
               "订单接受后，会发邮件给您" +
               " The order is successful, please write down your order number:" +
+              "" +
               props.orderNumber +
+              "" +
               "After the order is received, an email will be sent to you "
           );
           setVisible(true);
         } else {
           setSucceeded(false);
-          setMessage("支付失败，请换新卡支付!");
+          setMessage("支付失败 Payment failed");
           setVisible(true);
         }
       });
@@ -350,10 +521,33 @@ function PaymentMethod(props) {
         >
           即将跳到支付页面，跳转需要几秒时间，请耐心等待！
         </Modal>
+        <Modal
+          title="Message"
+          visible={isTipVisible}
+          onOk={handle_tip}
+          width={200}
+          closable={false}
+          centered={true}
+          cancelButtonProps={{ disabled: true }}
+          maskClosable={false}
+          okText="OK"
+          cancelText="Cancel"
+        >
+          <p>需要选择小费</p>
+          <p>Need to choose a tip</p>
+        </Modal>
       </Spin>
     </div>
   );
 }
+
+const mapStateToProps_PaymentMethod = (state) => {
+  return {
+    selectTip: state.actionReducer.selectTip,
+  };
+};
+
+PaymentMethod = connect(mapStateToProps_PaymentMethod)(PaymentMethod);
 
 ///////////////////////////////////
 export function createPaymentDetail(orderInfo, userInfo) {
@@ -361,7 +555,8 @@ export function createPaymentDetail(orderInfo, userInfo) {
 
   paymentDetail.userCode = userInfo.userCode;
   paymentDetail.email = userInfo.email;
-  paymentDetail.otherFee = 0; //for test
+
+  paymentDetail.otherFee = orderInfo.otherFee;
 
   paymentDetail.shopAddress = userInfo.shopAddress;
 
@@ -425,15 +620,25 @@ export function BillInfo(props) {
     // Step 1:get bill info and display to customer to confirm
     setSpinning(true);
     console.log("get bill info");
+
+    console.log("in BillInfo_1 ");
+    console.log(props.orderInfo);
+
     api
       .getBillInfo(createPaymentDetail(props.orderInfo, props.userInfo))
       .then((result) => {
         setSpinning(false);
         setBillInfo(result);
+        console.log(result);
         console.log(" bill info ok");
         store.dispatch({
           type: "MOD_TOTAL_PRICE",
           totalPrice: result.TotalPrice.totalPriceAfterTax,
+        });
+
+        store.dispatch({
+          type: "MOD_TOTAL_PRICE_NOTIP",
+          totalPrice_noTip: result.TotalPrice.totalPriceAfterTax,
         });
 
         store.dispatch({
@@ -481,9 +686,10 @@ export function BillInfo(props) {
               shopAddress={props.userInfo.shopAddress}
             />
             <div style={{ marginTop: "2%" }}>
-              <h3>Purchase details：</h3>
+              <h3>Details：</h3>
               <OrderList subPrice={billInfo.subPrice} />
             </div>
+
             <TotalPrice
               totalPriceBeforeTax={billInfo.TotalPrice.totalPriceBeforeTax}
               reward_in={billInfo.TotalPrice.reward_in}
@@ -494,8 +700,9 @@ export function BillInfo(props) {
               otherFee={billInfo.TotalPrice.otherFee}
               taxRate={billInfo.TotalPrice.taxRate}
               tax={billInfo.TotalPrice.tax}
-              totalPriceAfterTax={billInfo.TotalPrice.totalPriceAfterTax}
+              totalPriceAfterTax={props.orderInfo.totalPrice}
             />
+
             <PaymentMethod
               last4={billInfo.last4}
               orderNumber={billInfo.orderNumber}

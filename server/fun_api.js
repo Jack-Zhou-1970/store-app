@@ -268,6 +268,9 @@ async function calPrice(paymentDetails_obj) {
 
   var shipFee = calShipFee(paymentDetails_obj.userCode);
   var otherFee = paymentDetails_obj.otherFee;
+  if (isNaN(otherFee) == true) {
+    otherFee = 0;
+  }
 
   var totalAmountAfterTax =
     totalAmountBeforeTax - reward_result.totalMoney + tax + shipFee + otherFee;
@@ -578,11 +581,23 @@ async function updatePaymentInstend(paymentDetails_obj, paymentInstend) {
 
 //update orderStatus by orderNumber and paymentInstend when payment complete
 async function updateOrderStatus(paymentDetails_obj, orderStatus) {
+  console.log(paymentDetails_obj.orderNumber);
+
+  console.log(paymentDetails_obj.paymentInstend);
+
+  console.log(orderStatus);
+
   await db_api.updateOrderStatus_db(
     paymentDetails_obj.orderNumber,
     paymentDetails_obj.paymentInstend,
     orderStatus
   );
+
+  console.log(paymentDetails_obj.orderNumber);
+
+  console.log(paymentDetails_obj.paymentInstend);
+
+  console.log(paymentDetails_obj.orderStatus);
 
   var result = await db_api.getOrderStatusByOrdetNumberInstend(
     paymentDetails_obj.orderNumber,
@@ -961,6 +976,16 @@ async function judgeAcceptOrder(inputObj) {
   }
 }
 
+async function getProductVersion(inputObj) {
+  //we only used to productversion
+  var result = await db_api.getShopTime(inputObj.shopAddress);
+
+  var reqBack = new Object();
+  reqBack.productVersion = result[0].productVersion;
+
+  return reqBack;
+}
+
 function htmlEamilSent(email, orderNumber) {
   const path = require("path");
   var root = path.resolve("worldtea.jpg");
@@ -1034,6 +1059,22 @@ async function updateStock(paymentDetail) {
   }
 }
 
+async function updateOtherFeeAfterPayment(inputObj) {
+  var result = await db_api.getOrderInfoByOrderNumber(inputObj.orderNumber);
+
+  if (result.length > 0) {
+    var totalAmount = result[0].totalAmount;
+    var otherFee = inputObj.otherFee;
+    result = await db_api.updateTotalAmountAndOtherFeeByOrderNumber(
+      inputObj.orderNumber,
+      totalAmount + otherFee,
+      otherFee
+    );
+  }
+
+  return result;
+}
+
 module.exports = {
   calPrice: calPrice, //this function is used to process price,return price info with json
   billInfoToClient: billInfoToClient, //get bill information this info is used to senrd to send to client and diaplay to the user to confirrm
@@ -1057,4 +1098,6 @@ module.exports = {
   judgeAcceptOrder: judgeAcceptOrder, ////judge if can accept order and get stock
   sentEmailAfterAccept: sentEmailAfterAccept,
   updateStock: updateStock, //after payment
+  getProductVersion: getProductVersion, //used to get product VersionNumber.in order to reflash
+  updateOtherFeeAfterPayment: updateOtherFeeAfterPayment, //used to store otherFee after payment
 };

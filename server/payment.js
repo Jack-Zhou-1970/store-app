@@ -22,8 +22,8 @@ router_pay.get("/public-key", (req, res) => {
 router_pay.post("/createIntent_alipay", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
-  /* console.log("priceTotal");
-  console.log(priceTotal.totalPriceAfterTax);*/
+  console.log("in alipay");
+  console.log(priceTotal.totalPriceAfterTax);
 
   const paymentIntentData = {
     payment_method_types: ["alipay"],
@@ -51,6 +51,8 @@ router_pay.post("/payComplete_alipay", async (req, res) => {
     if (result == "success") {
       var result1 = await fun_api.updateRewardToDB(data);
 
+      await fun_api.updateOtherFeeAfterPayment(data);
+
       await fun_api.updateStock(req.body);
 
       router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
@@ -73,6 +75,9 @@ router_pay.post("/weChatPay", async (req, res) => {
 
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
+  console.log("in wechatpay");
+  console.log(priceTotal.totalPriceAfterTax);
+
   const charge = await stripe.charges.create({
     amount: priceTotal.totalPriceAfterTax,
     currency: "cad",
@@ -83,6 +88,8 @@ router_pay.post("/weChatPay", async (req, res) => {
     await db_api.updateOrderStatusNoIntend_db(req.body.orderNumber, "success");
 
     var result1 = await fun_api.updateRewardToDB(req.body);
+
+    await fun_api.updateOtherFeeAfterPayment(req.body);
 
     await fun_api.updateStock(req.body);
 
@@ -106,6 +113,8 @@ router_pay.post("/afterPayment", async (req, res) => {
   );
   var result3 = await fun_api.updateRewardToDB(req.body);
 
+  await fun_api.updateOtherFeeAfterPayment(req.body);
+
   await fun_api.updateStock(req.body);
 
   router_ws.ee.emit("paymentComplete", JSON.stringify(req.body));
@@ -124,6 +133,8 @@ router_pay.post("/paymentComplete", async (req, res) => {
     if (result == "success") {
       await fun_api.storeDbAfterCardPay(data);
       var result1 = await fun_api.updateRewardToDB(data);
+
+      await fun_api.updateOtherFeeAfterPayment(req.body);
 
       await fun_api.updateStock(req.body);
 
@@ -144,8 +155,8 @@ router_pay.post("/paymentComplete", async (req, res) => {
 router_pay.post("/create-payment-intent", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
 
-  /* console.log("priceTotal");
-  console.log(priceTotal.totalPriceAfterTax);*/
+  console.log("normal pay");
+  console.log(priceTotal.totalPriceAfterTax);
 
   const paymentIntentData = {
     amount: priceTotal.totalPriceAfterTax,
@@ -174,12 +185,17 @@ router_pay.post("/direct-pay", async (req, res) => {
   const [priceMain, priceTotal] = await fun_api.calPrice(req.body);
   /*console.log("cal complete");*/
 
+  console.log("in direct-pay");
+  console.log(priceTotal.totalPriceAfterTax);
+
   const db_api = require("./db_api");
 
   if (priceTotal.totalPriceAfterTax < 0.01 && req.body.product.length > 0) {
     //all payment is pay by reward
     await db_api.updateOrderStatusNoIntend_db(req.body.orderNumber, "success");
     var result3 = await fun_api.updateRewardToDB(req.body);
+
+    await fun_api.updateOtherFeeAfterPayment(req.body);
 
     await fun_api.updateStock(req.body);
 
@@ -247,6 +263,8 @@ router_pay.post("/direct-pay", async (req, res) => {
         /* console.log(" update1");*/
         var result2 = await fun_api.updateRewardToDB(req.body);
         /* console.log("update2");*/
+
+        await fun_api.updateOtherFeeAfterPayment(req.body);
 
         await fun_api.updateStock(req.body);
 

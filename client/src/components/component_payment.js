@@ -16,7 +16,7 @@ import { store } from "../app";
 
 import { connect } from "react-redux";
 
- const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
+const stripePromise = api.getPublicStripeKey().then((key) => loadStripe(key));
 
 import home from "../../images/home.svg";
 
@@ -111,7 +111,8 @@ function UserInfo_pay(props) {
     <div>
       <div style={{ marginBottom: "1%" }}>
         <h3>
-          您本次需要支付${(props.orderInfo.totalPrice / 100).toFixed(2).toString()}元:
+          您本次需要支付$
+          {(props.orderInfo.totalPrice / 100).toFixed(2).toString()}元:
         </h3>
       </div>
       <div style={{ marginBottom: "1%" }}>
@@ -120,7 +121,7 @@ function UserInfo_pay(props) {
       <Row>
         <Col xs={4}>
           <Input
-            placeholder="姓"
+            placeholder="Last Name"
             onChange={handle_lastName}
             style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           />
@@ -128,7 +129,7 @@ function UserInfo_pay(props) {
 
         <Col style={{ marginLeft: "2%" }} xs={4}>
           <Input
-            placeholder="名"
+            placeholder="First Name"
             onChange={handle_firstName}
             style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           />
@@ -137,7 +138,7 @@ function UserInfo_pay(props) {
       <Row style={{ marginTop: "2%" }}>
         <Col xs={10}>
           <Input
-            placeholder="地址"
+            placeholder="Address"
             onChange={handle_address}
             style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           />
@@ -146,7 +147,7 @@ function UserInfo_pay(props) {
       <Row style={{ marginTop: "2%" }}>
         <Col xs={6}>
           <Input
-            placeholder="城市"
+            placeholder="City"
             onChange={handle_city}
             style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           />
@@ -154,7 +155,7 @@ function UserInfo_pay(props) {
 
         <Col style={{ marginLeft: "2%" }} xs={6}>
           <Input
-            placeholder="邮编"
+            placeholder="Postcode"
             onChange={handle_postalCode}
             style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           />

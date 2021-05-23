@@ -626,7 +626,7 @@ async function getProductAmountByDate(start_date, end_date) {
 //get shop startTime and endTime from shopCode
 async function getShopTime(shopAddress) {
   var result = await sqlQuery(
-    "select worktimeBegin_h,worktimeBegin_m,worktimeEnd_h,worktimeEnd_m from shop_table where address = ?",
+    "select worktimeBegin_h,worktimeBegin_m,worktimeEnd_h,worktimeEnd_m,productVersion from shop_table where address = ?",
     [shopAddress]
   );
   return dbToJson(result);
@@ -686,6 +686,22 @@ async function getUserInfoByOrderNumber(orderNumber) {
   return dbToJson(result);
 }
 
+//update total amount and otherFee  by ordernumber
+async function updateTotalAmountAndOtherFeeByOrderNumber(
+  orderNumber,
+  totalAmount,
+  otherFee
+) {
+  await sqlQuery("SET SQL_SAFE_UPDATES=0", []);
+  var result = await sqlQuery(
+    "update order_table set totalAmount=?,otherFee=? where orderNumber = ?",
+    [totalAmount, otherFee, orderNumber]
+  );
+  await sqlQuery("SET SQL_SAFE_UPDATES=1", []);
+
+  return dbToJson(result);
+}
+
 module.exports = {
   insertRegister: insertRegister, //insert register info from clent to user_table
   getProductList: getProductList, //get product list
@@ -730,4 +746,6 @@ module.exports = {
   updateProductStockByName_DB: updateProductStockByName_DB,
   getUserInfoByOrderNumber: getUserInfoByOrderNumber,
   updateRewardInfoByEmail_DB: updateRewardInfoByEmail_DB, //update reward by email
+  updateTotalAmountAndOtherFeeByOrderNumber:
+    updateTotalAmountAndOtherFeeByOrderNumber, ////update total amount and otherFee  by ordernumber
 };

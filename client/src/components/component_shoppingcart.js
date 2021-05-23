@@ -129,38 +129,42 @@ function ShopCard(props) {
     <div>
       <div
         style={{
-          marginLeft: "15%",
           marginTop: "5%",
         }}
       >
-        <div style={{ marginLeft: "28%" }}>
-          <img src={props.picFile} style={{ width: "20%", height: "20%" }} />
-        </div>
-        <div style={{ marginLeft: "20%", marginTop: "5%" }}>
-          <Row>
-            <Col xs={8}>
-              <h3>{props.mainProductName}</h3>
-              <h3>{props.productIntro}</h3>
-            </Col>
-            <Col xs={10} style={{ marginLeft: "0%" }}>
-              <Button style={{ marginRight: "5%" }} onClick={handle_dec}>
-                -
-              </Button>
-              {props.amount}
-              <Button
-                type="primary "
-                style={{ marginLeft: "5%" }}
-                onClick={handle_add}
-              >
-                +
-              </Button>
-            </Col>
-          </Row>
-          <div style={{ marginTop: "2%" }}>{smallProductList}</div>
-          <div style={{ marginTop: "5%" }}>
+        <Row justify="center">
+          <Col span={6}>
+            <img src={props.picFile} style={{ width: "100%" }} />
+          </Col>
+        </Row>
+
+        <Row justify="center" gutter={16} style={{ marginTop: "2%" }}>
+          <Col>
+            <Button onClick={handle_dec}>-</Button>
+          </Col>
+          <Col>{props.amount}</Col>
+          <Col>
+            <Button type="primary " onClick={handle_add}>
+              +
+            </Button>
+          </Col>
+        </Row>
+
+        <Row justify="center" style={{ marginTop: "2%" }}>
+          <Col>
+            <h3>
+              {props.mainProductName}
+              {props.productIntro}
+            </h3>
+            {smallProductList}
+          </Col>
+        </Row>
+
+        <Row justify="center" style={{ marginTop: "2%" }}>
+          <Col>
             <h3>{price}</h3>
-          </div>
-        </div>
+          </Col>
+        </Row>
       </div>
       <Divider />
     </div>
@@ -171,11 +175,11 @@ function OrderTotal(props) {
   var price = calShopTotal(props.productList, props.orderProduct);
   var price_s = "Total Price:$" + (price / 100).toFixed(2).toString();
   return (
-    <div style={{ marginLeft: "28%", marginTop: "5%" }}>
-      <div style={{ marginLeft: "5%" }}>
+    <Row justify="center">
+      <Col>
         <h2>{price_s}</h2>
-      </div>
-    </div>
+      </Col>
+    </Row>
   );
 }
 
@@ -214,6 +218,10 @@ function ShopCard_container(props) {
         props.userInfo.reward + getOrderNumber() * 10 < 80 ||
         props.userInfo.userCode.charAt(0) == "T"
       ) {
+        store.dispatch({
+          type: "MOD_OTHER_FEE",
+          otherFee: 0,
+        });
         history.push("/payment_1");
       } else {
         var reward;
@@ -326,8 +334,8 @@ function ShopCard_container(props) {
                 closable={false}
                 centered={true}
                 maskClosable={false}
-                okText="确认"
-                cancelText="取消"
+                okText="OK"
+                cancelText="Cancel"
               >
                 购物车没有商品，无法结账! No items can not be Checked out!
               </Modal>
@@ -382,7 +390,7 @@ export function ShopCardList(props) {
   const [msg, setMsg] = useState("");
 
   useEffect(() => {
-    checkPic(props.productList, props.shopAddress, setLoading);
+    checkPic(props.productList, props.shopAddress, props.version, setLoading);
     setLoading(props.productList.length > 0 ? false : true);
   }, []);
 
@@ -473,6 +481,7 @@ const mapStateToProps_ShopCardList = (state) => {
     orderProduct: state.orderInfoReducer.orderProduct,
     productList: state.productListReducer,
     shopAddress: state.userInfoReducer.shopAddress,
+    version: state.userInfoReducer.productVersion,
   };
 };
 
