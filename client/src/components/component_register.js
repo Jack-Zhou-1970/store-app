@@ -163,43 +163,69 @@ function register_check(
   nickName,
   shopAddress
 ) {
+  var back = [];
   //check Email
   var regexp = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
   var result = regexp.test(mail);
   if (result != true) {
-    return "邮箱格式不对 Incorrect email format";
+    back.push("邮箱格式不对");
+    back.push("Incorrect email format");
+    return back;
+  }
+
+  if (password == "" || password == null || password == undefined) {
+    back.push("密码长度至少6位");
+    back.push(" Password length is at least 6 digits");
+    return back;
   }
 
   if (password.length < 6) {
-    return "密码长度至少6位 Password length is at least 6 digits ";
+    back.push("密码长度至少6位");
+    back.push(" Password length is at least 6 digits");
+    return back;
   }
 
   if (passwordC != password) {
-    return "两个密码不相等 the two password are not equal";
+    back.push("两个密码不相等");
+    back.push("The two password are not equal");
+    return back;
   }
 
   regexp = /^([0-9]|[-])+$/g;
   result = regexp.test(phone);
   if (result != true) {
-    return "电话号码格式不对 phone number format is not correct";
+    back.push("电话号码格式不对");
+    back.push("Phone number format is not correct");
+    return back;
   }
 
   if (nickName == "" || nickName == undefined) {
-    return "必须输入昵称 nickname must be entered";
+    back.push("必须输入昵称");
+    back.push("Nickname must be entered");
+    return back;
   }
 
   if (shopAddress == "" || shopAddress == undefined) {
-    return "选择pickup店地址 choose pickup shop address";
+    back.push("选择pickup店地址");
+    back.push("Choose pickup shop address");
+    return back;
   }
 
-  return "success";
+  back.push("success");
+
+  return back;
 }
 
 class RegisterForm_manage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { isModalVisible: false };
+    this.state = {
+      isModalVisible: false,
+      isVisble: false,
+      msg1: "",
+      msg2: "",
+    };
 
     this.code = React.createRef();
 
@@ -220,7 +246,7 @@ class RegisterForm_manage extends React.Component {
       nickName,
       shopAddress
     );
-    if (msg == "success") {
+    if (msg[0] == "success") {
       this.input_obj.email = mail;
       this.input_obj.password = api.encrypt(password);
       this.password_NS = password; //important
@@ -230,21 +256,16 @@ class RegisterForm_manage extends React.Component {
 
       var result = await api.sendRegister(this.input_obj);
       if (result.status != "success") {
-        notification.open({
-          message: "error！",
-          description:
-            "该邮箱已经存在，请换一个邮箱注册 The Email already exist,please changed to another Email to register！",
-          duration: 3,
+        this.setState({
+          msg1: "该邮箱已经存在，请换一个邮箱注册",
+          msg2: "The Email already exist,please changed to another Email to register！",
+          isVisble: true,
         });
       } else {
         this.setState({ isModalVisible: true });
       }
     } else {
-      notification.open({
-        message: "error！",
-        description: msg,
-        duration: 2,
-      });
+      this.setState({ msg1: msg[0], msg2: msg[1], isVisble: true });
     }
   }
 
@@ -271,6 +292,7 @@ class RegisterForm_manage extends React.Component {
 
   handle_cancel() {
     this.setState({ isModalVisible: false });
+    this.setState({ isVisble: false });
   }
 
   render() {
@@ -297,6 +319,21 @@ class RegisterForm_manage extends React.Component {
           <div style={{ width: "80%" }}>
             <Input ref={this.code} />
           </div>
+        </Modal>
+        <Modal
+          title="Message"
+          visible={this.state.isVisble}
+          onOk={this.handle_cancel}
+          onCancel={this.handle_cancel}
+          width={400}
+          closable={false}
+          centered={true}
+          maskClosable={false}
+          okText="OK"
+          cancelText="Cancel"
+        >
+          <p>{this.state.msg1}</p>
+          <p>{this.state.msg2}</p>
         </Modal>
       </div>
     );

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 
 import api from "../api";
 
-import { Button } from "antd";
+import { Button, Divider } from "antd";
 import { Row, Col } from "antd";
 import {
   Form,
@@ -34,14 +34,12 @@ import alipay from "../../images/alipay.png";
 export function UserInfo(props) {
   return (
     <div>
-      <Descriptions title="User Info:">
-        <Descriptions.Item label="Order number">
+      <Descriptions title="Order Info:">
+        <Descriptions.Item label="Order number:">
           {props.orderNumber}
         </Descriptions.Item>
-        <Descriptions.Item label="Nickname">{props.nickName}</Descriptions.Item>
-        <Descriptions.Item label="Email">{props.email}</Descriptions.Item>
-        <Descriptions.Item label="Phone">{props.phone}</Descriptions.Item>
-        <Descriptions.Item label="Address">
+
+        <Descriptions.Item label="Pickup address:">
           {props.shopAddress}
         </Descriptions.Item>
       </Descriptions>
@@ -216,7 +214,8 @@ function Tip(props) {
     <div>
       <div>
         <h3 style={{ marginTop: "2%", marginBottom: "2%" }}>
-          Tip: ${(props.orderInfo.otherFee / 100).toFixed(2).toString()}
+          Please select a tip: $
+          {(props.orderInfo.otherFee / 100).toFixed(2).toString()}
         </h3>
         <Radio.Group buttonStyle="solid" onChange={handle_tip_change}>
           <Radio.Button value={0}>No Tip</Radio.Button>
@@ -295,16 +294,11 @@ const mapStateToProps_Tip = (state) => {
 Tip = connect(mapStateToProps_Tip)(Tip);
 
 function PaymentMethod(props) {
-  const radioStyle = {
-    display: "block",
-    height: "30px",
-    lineHeight: "30px",
-  };
-
   const [processing, setProcessing] = useState(false);
   const [isModalVisible, setVisible] = useState(false);
   const [isPageVisible, setPageVisible] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message1, setMessage1] = useState("");
+  const [message2, setMessage2] = useState("");
   const [succeeded, setSucceeded] = useState(false);
   const [isTipVisible, setTipVisble] = useState(false);
 
@@ -366,23 +360,24 @@ function PaymentMethod(props) {
             payload: result.reward,
           });
 
-          setMessage(
+          setMessage1(
             "下单成功，请记下您的订单号:" +
-              "" +
               props.orderNumber +
-              "" +
-              " 订单接受后，会发邮件给您." +
-              "" +
-              " The order is successful, please write down your order number:" +
-              "" +
+              " " +
+              "若您是注册用户，订单接受后，会发邮件给您."
+          );
+          setMessage2(
+            " The order is successful, please write down your order number:" +
+              " " +
               props.orderNumber +
-              "" +
-              " After the order is received, an email will be sent to you "
+              " " +
+              "if you are a registered user,after the order is received, an email will be sent to you "
           );
           setVisible(true);
         } else {
           setSucceeded(false);
-          setMessage("支付失败 Payment failed!");
+          setMessage1("支付失败");
+          setMessage2("Payment failed");
           setVisible(true);
         }
       });
@@ -406,22 +401,24 @@ function PaymentMethod(props) {
             payload: result.reward,
           });
 
-          setMessage(
-            "下单成功，请记下您的订单号" +
-              "" +
+          setMessage1(
+            "下单成功，请记下您的订单号:" +
               props.orderNumber +
-              "" +
-              "订单接受后，会发邮件给您" +
-              " The order is successful, please write down your order number:" +
-              "" +
+              " " +
+              "若您是注册用户，订单接受后，会发邮件给您."
+          );
+          setMessage2(
+            " The order is successful, please write down your order number:" +
+              " " +
               props.orderNumber +
-              "" +
-              "After the order is received, an email will be sent to you "
+              " " +
+              "if you are a registered user,after the order is received, an email will be sent to you "
           );
           setVisible(true);
         } else {
           setSucceeded(false);
-          setMessage("支付失败 Payment failed");
+          setMessage1("支付失败");
+          setMessage2("Payment failed");
           setVisible(true);
         }
       });
@@ -432,55 +429,56 @@ function PaymentMethod(props) {
     setValue(e.target.value);
   }
   return (
-    <div style={{ marginTop: "5%" }}>
+    <div style={{ marginTop: "3%" }}>
       <Spin size="large" spinning={processing}>
         <div>
-          <h3>Please choose a payment method:</h3>
+          <h2>Please choose a payment method:</h2>
           <Radio.Group
             onChange={onChange}
             defaultValue={props.last4 == "" || props.last4 == undefined ? 2 : 1}
           >
-            <Radio
-              style={radioStyle}
-              disabled={
-                props.last4 == "" ||
-                props.last4 == undefined ||
-                props.orderInfo.totalPrice < 0.01
-              }
-              value={1}
-            >
-              使用尾号为{props.last4}的信用卡付款 Pay with a credit card ending
-              in {props.last4}
-            </Radio>
-            <Radio
-              style={radioStyle}
-              value={2}
-              disabled={props.orderInfo.totalPrice < 0.01}
-            >
-              使用新的信用卡付款 Pay with a new credit card
-            </Radio>
-            <Space direction="horizontal">
-              <Radio value={3} disabled={props.orderInfo.totalPrice < 0.01}>
-                <img src={wechat} style={{ width: "50%" }} />
+            <Space direction="vertical">
+              <Radio
+                disabled={
+                  props.last4 == "" ||
+                  props.last4 == undefined ||
+                  props.orderInfo.totalPrice < 0.01
+                }
+                value={1}
+              >
+                <h3>使用尾号为{props.last4}的信用卡付款</h3>
+                <h3> Pay with a credit card ending in {props.last4} </h3>
               </Radio>
+              <Radio value={2} disabled={props.orderInfo.totalPrice < 0.01}>
+                <h3>使用新的信用卡付款</h3>
+                <h3> Pay with a new credit card</h3>
+              </Radio>
+              <Space direction="horizontal">
+                <Radio value={3} disabled={props.orderInfo.totalPrice < 0.01}>
+                  <img src={wechat} style={{ width: "50%" }} />
+                </Radio>
 
-              <Radio value={4} disabled={props.orderInfo.totalPrice < 0.01}>
-                <img src={alipay} style={{ width: "45%" }} />
+                <Radio value={4} disabled={props.orderInfo.totalPrice < 0.01}>
+                  <img src={alipay} style={{ width: "45%" }} />
+                </Radio>
+              </Space>
+              <Radio
+                value={5}
+                disabled={
+                  props.orderInfo.totalPrice < 0.01 ||
+                  props.userInfo.userCode.charAt(0) == "T"
+                }
+              >
+                <h3>到店支付并提货</h3>
+                <h3>Pay at the store and pick up the goods</h3>
               </Radio>
             </Space>
-            <Radio
-              style={radioStyle}
-              value={5}
-              disabled={
-                props.orderInfo.totalPrice < 0.01 ||
-                props.userInfo.userCode.charAt(0) == "T"
-              }
-            >
-              到店支付并提货 Pay at the store and pick up the goods
-            </Radio>
           </Radio.Group>
         </div>
-        <Affix offsetBottom={5} style={{ marginLeft: "30%", marginTop: "10%" }}>
+        <Affix
+          offsetBottom={15}
+          style={{ marginLeft: "30%", marginTop: "10%" }}
+        >
           <div style={{ width: "40%" }}>
             <Button
               type="primary"
@@ -497,7 +495,7 @@ function PaymentMethod(props) {
           title="Message"
           visible={isModalVisible}
           onOk={handle_payment}
-          width={300}
+          width={400}
           closable={false}
           centered={true}
           cancelButtonProps={{ disabled: true }}
@@ -505,7 +503,8 @@ function PaymentMethod(props) {
           okText="OK"
           cancelText="Cancel"
         >
-          {message}
+          <p>{message1}</p>
+          <p>{message2}</p>
         </Modal>
         <Modal
           title="支付宝支付"
@@ -525,7 +524,7 @@ function PaymentMethod(props) {
           title="Message"
           visible={isTipVisible}
           onOk={handle_tip}
-          width={200}
+          width={400}
           closable={false}
           centered={true}
           cancelButtonProps={{ disabled: true }}
@@ -702,6 +701,8 @@ export function BillInfo(props) {
               tax={billInfo.TotalPrice.tax}
               totalPriceAfterTax={props.orderInfo.totalPrice}
             />
+
+            <Divider />
 
             <PaymentMethod
               last4={billInfo.last4}

@@ -4,7 +4,7 @@ import api from "../api";
 
 import { Button } from "antd";
 import { Row, Col } from "antd";
-import { Descriptions, List, Radio, Modal, Affix } from "antd";
+import { Descriptions, List, Modal, Spin } from "antd";
 
 import "antd/dist/antd.css";
 
@@ -22,16 +22,16 @@ function UserInfo(props) {
   return (
     <div style={{ marginLeft: "15%" }}>
       <Descriptions title="User Info:">
-        <Descriptions.Item label="NickName">
+        <Descriptions.Item label="Nickname">
           {props.userInfo.nickName}
         </Descriptions.Item>
-        <Descriptions.Item label="EMAIL">
+        <Descriptions.Item label="Email">
           {props.userInfo.email}
         </Descriptions.Item>
         <Descriptions.Item label="Phone">
           {props.userInfo.phone}
         </Descriptions.Item>
-        <Descriptions.Item label="Shop Address">
+        <Descriptions.Item label="Shop address">
           {props.userInfo.shopAddress}
         </Descriptions.Item>
       </Descriptions>
@@ -51,11 +51,11 @@ function OrderSum(props) {
   var paymentTime = new Date(props.paymentTime);
   return (
     <div style={{ marginTop: "2%" }}>
-      <Descriptions title="Order Info:">
+      <Descriptions title="Order info:">
         <Descriptions.Item label="Order Number">
           {props.orderNumber}
         </Descriptions.Item>
-        <Descriptions.Item label="Total price after tax">
+        <Descriptions.Item label="Total:">
           {(props.totalPrice / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="Purchase time">
@@ -101,10 +101,12 @@ function createData(subPrice) {
 
 export function OrderList(props) {
   const [orderInfo, setOrderInfo] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     api.getOrder(props.userInfo).then((result) => {
-      console.log(result);
+      setLoading(false);
       setOrderInfo(result);
     });
   }, []);
@@ -168,9 +170,11 @@ export function OrderList(props) {
     );
   } else {
     return (
-      <div>
-        没有订单，按后退键返回 No order, press the back button to return
-      </div>
+      <Spin spinning={loading}>
+        <div>
+          没有订单，按后退键返回 No order, press the back button to return
+        </div>
+      </Spin>
     );
   }
 }

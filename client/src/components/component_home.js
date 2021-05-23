@@ -67,12 +67,15 @@ function calTotalPrice(productDetail) {
 }
 
 function checkValidate(productList, productDetail) {
+  var result = [];
   function findMiddleProduct(input) {
     return input.middleProductName == this;
   }
 
   if (productDetail.amount == 0) {
-    return "主产品数量不能为0 Product Quantity can not be 0";
+    result.push("主产品数量不能为0");
+    result.push("Product Quantity can not be 0");
+    return result;
   }
 
   //counter 加料
@@ -91,7 +94,9 @@ function checkValidate(productList, productDetail) {
     }
   }
   if (count > 3) {
-    return "Toppings不能超过3份 The sum of toppings can not exceed three";
+    result.push("Toppings不能超过3份");
+    result.push("The sum of toppings can not exceed three");
+    return result;
   }
 
   //check if middProduct Number is correct
@@ -106,12 +111,16 @@ function checkValidate(productList, productDetail) {
         productDetail.productMiddle.find(findMiddleProduct, midProduct[k]) ==
         undefined
       ) {
-        return midProduct[k] + " is required";
+        result.push(midProduct[k] + "必须选择");
+        result.push(midProduct[k] + " " + "is required");
+        return result;
       }
     }
   }
 
-  return "success";
+  result.push("success");
+
+  return result;
 }
 
 function addToCart(productDetail) {
@@ -426,29 +435,35 @@ Home_header = connect(mapStateToProps_Home_header)(Home_header);
 ///////////////////////////////////////////////////////////////////////////////the function used to display product detail
 
 export function Home_productDetail(props) {
+  const [message_c, setMessage_c] = useState("");
+  const [message_e, setMessage_e] = useState("");
+  const [isVisble, setVisble] = useState(false);
   function handle_home() {
     history.push("/home");
   }
 
+  function handle_cancel() {
+    setVisble(false);
+  }
+
   function handle_add_cart() {
     var result = checkValidate(props.productList, props.productDetail);
-    if (result == "success") {
+    console.log(result);
+    if (result[0] == "success") {
       addToCart(props.productDetail);
 
       notification.open({
-        message: "success ",
-        description: "成功加入购物车Successfully added to the shopping cart",
+        message: "",
+        description: "成功加入购物车 Successfully added to the shopping cart",
         duration: 2,
         placement: "topLeft",
       });
 
       props.handle_close();
     } else {
-      notification.open({
-        message: "无法加入购物车Can't add to shopping cart",
-        description: result,
-        duration: 2,
-      });
+      setMessage_c(result[0]);
+      setMessage_e(result[1]);
+      setVisble(true);
     }
   }
 
@@ -482,6 +497,21 @@ export function Home_productDetail(props) {
           <MidSmallPrice />
         </div>
       </div>
+      <Modal
+        title="Message"
+        visible={isVisble}
+        onOk={handle_cancel}
+        onCancel={handle_cancel}
+        width={400}
+        closable={false}
+        centered={true}
+        maskClosable={false}
+        okText="OK"
+        cancelText="Cancel"
+      >
+        <p>{message_c}</p>
+        <p>{message_e}</p>
+      </Modal>
     </div>
   );
 }
@@ -872,7 +902,8 @@ ProductIntro = connect(mapStateToProps_ProductDetail)(ProductIntro);
 function MainProductAmountPrice(props) {
   const [amount, setAmount] = useState(0);
   const [isVisble, setVisble] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [msg1, setMsg1] = useState("");
+  const [msg2, setMsg2] = useState("");
 
   function handle_cancel() {
     setVisble(false);
@@ -902,8 +933,8 @@ function MainProductAmountPrice(props) {
         ) >
       props.productDetail.stock
     ) {
-      var msg_d = "库存不够 Insufficient inventory to increase purchases";
-      setMsg(msg_d);
+      setMsg1("库存不够,无法增加购买");
+      setMsg2("Insufficient inventory to increase purchases");
       setVisble(true);
       return;
     }
@@ -929,14 +960,15 @@ function MainProductAmountPrice(props) {
         visible={isVisble}
         onOk={handle_cancel}
         onCancel={handle_cancel}
-        width={300}
+        width={400}
         closable={false}
         centered={true}
         maskClosable={false}
         okText="OK"
         cancelText="Cancel"
       >
-        {msg}
+        <p>{msg1}</p>
+        <p>{msg2}</p>
       </Modal>
     </div>
   );
@@ -1131,11 +1163,13 @@ function ProductByClass(props) {
         if (result.stock > 0) {
           setProductDetailVisible(true);
         } else {
-          setMsg("该产品没有库存This product is not in stock");
+          setMsg1("该产品没有库存!");
+          setMsg2("This product is not in stock!");
           setVisble(true);
         }
       } else {
-        setMsg("现在不是营业时间 It is not business hours");
+        setMsg1("现在不是营业时间");
+        setMsg2("It is not business hours");
         setVisble(true);
       }
     });
@@ -1152,7 +1186,8 @@ function ProductByClass(props) {
   const [loading, setLoading] = useState(true);
   const [productDetailVisible, setProductDetailVisible] = useState(false);
   const [isVisble, setVisble] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [msg1, setMsg1] = useState("");
+  const [msg2, setMsg2] = useState("");
 
   useEffect(() => {
     //forbidden back
@@ -1225,7 +1260,8 @@ function ProductByClass(props) {
           okText="OK"
           cancelText="Cancel"
         >
-          {msg}
+          <p> {msg1}</p>
+          <p> {msg2}</p>
         </Modal>
       </div>
     </Spin>

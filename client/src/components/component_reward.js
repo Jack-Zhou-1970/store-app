@@ -220,7 +220,7 @@ export function Reward(props) {
         okText="Use points"
         cancelText="Do not use"
       >
-        <div>
+        <p>
           您当前可用积分:{props.userInfo.reward.toString()}
           ,本次购物可以用积分换购
           {judgeMaxNumber(
@@ -229,13 +229,11 @@ export function Reward(props) {
             props.userInfo.reward
           )[0].toString()}
           杯奶茶
-        </div>
+        </p>
 
-        <div style={{ marginTop: "2%" }}>
-          请选择换购杯数，将直接从货款中扣除：
-        </div>
+        <p>请选择换购杯数，将直接从货款中扣除：</p>
 
-        <div>
+        <p>
           Your current points:{props.userInfo.reward.toString()}
           ,Points can be used to redeem
           {judgeMaxNumber(
@@ -243,13 +241,13 @@ export function Reward(props) {
             props.productList,
             props.userInfo.reward
           )[0].toString()}
-          cups of milk tea for this purchase
-        </div>
+          &nbsp;cups of milk tea for this purchase
+        </p>
 
-        <div style={{ marginTop: "2%" }}>
+        <p>
           Please select the number of redemption cups, which will be directly
           deducted from the purchase price:
-        </div>
+        </p>
 
         <div style={{ marginTop: "3%" }}>
           <Button style={{ marginRight: "5%" }} onClick={handle_dec}>
@@ -277,27 +275,24 @@ export function Reward(props) {
         okText="CheckOut"
         cancelText="Re-purchase"
       >
-        <div>
+        <p>
           您当前可用积分:{props.userInfo.reward.toString()}
           ,再选购
           {Math.floor(
             (100 - props.userInfo.reward - getOrderNumber() * 10) / 10
           ).toString()}
-          杯奶茶
-        </div>
-        <div style={{ marginTop: "2%" }}>您可在下次购物中换购一杯奶茶</div>
-        <div>
+          杯奶茶,您可在下次购物中换购一杯奶茶
+        </p>
+
+        <p>
           Your current points:{props.userInfo.reward.toString()}
           ,Just buy
           {Math.floor(
             (100 - props.userInfo.reward - getOrderNumber() * 10) / 10
           ).toString()}
-          cups of tea,
-        </div>
-
-        <div style={{ marginTop: "2%" }}>
-          You can redeem a cup of tea for free with your next order
-        </div>
+          &nbsp;cups of tea, You can redeem a cup of tea for free with your next
+          order
+        </p>
       </Modal>
     </div>
   );

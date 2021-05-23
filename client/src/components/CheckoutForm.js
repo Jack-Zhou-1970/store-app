@@ -27,7 +27,8 @@ export default function CheckoutForm(props) {
   const [clientSecret, setClientSecret] = useState(null);
   const [customerId, setCustomerId] = useState("");
   const [isModalVisible, setVisible] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message1, setMessage1] = useState("");
+  const [message2, setMessage2] = useState("");
 
   const [error, setError] = useState(null);
   const [paymentDetails, setPayment] = useState(
@@ -131,21 +132,22 @@ export default function CheckoutForm(props) {
           payload: result.reward,
         });
 
-        setMessage(
-          "下单成功，请记下您的订单号" +
-            "" +
+        setMessage1(
+          "下单成功，请记下您的订单号:" +
             props.orderInfo.orderNumber +
-            "" +
-            "订单接受后，会发邮件给您" +
-            " The order is successful, please write down your order number:" +
-            "" +
+            " " +
+            "若您是注册用户，订单接受后，会发邮件给您."
+        );
+        setMessage2(
+          " The order is successful, please write down your order number:" +
+            " " +
             props.orderInfo.orderNumber +
-            "" +
-            "After the order is received, an email will be sent to you "
+            " " +
+            "if you are a registered user,after the order is received, an email will be sent to you "
         );
         setVisible(true);
       } else {
-        setMessage("支付失败 Payment failed! " + payload.error.message);
+        setMessage1("支付失败 Payment failed! " + payload.error.message);
         setVisible(true);
       }
     });
@@ -223,22 +225,23 @@ export default function CheckoutForm(props) {
               block={true}
               shape="round"
             >
-              {processing ? "支付中…" : "支付"}
+              {processing ? "支付中 processing..." : "支付 Pay "}
             </Button>
           </div>
           <Modal
-            title="支付结果"
+            title="Message"
             visible={isModalVisible}
             onOk={handle_payment}
-            width={300}
+            width={400}
             closable={false}
             centered={true}
             cancelButtonProps={{ disabled: true }}
             maskClosable={false}
-            okText="确认"
-            cancelText="取消"
+            okText="OK"
+            cancelText="Cancel"
           >
-            {message}
+            <p>{message1}</p>
+            <p>{message2}</p>
           </Modal>
         </Spin>
       </div>

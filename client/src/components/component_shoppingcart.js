@@ -323,7 +323,8 @@ function ShopCard_container(props) {
                 okText="OK"
                 cancelText="Cancel"
               >
-                "清空购物车? Empty Shopping cart? "
+                <p>清空购物车?</p>
+                <p> Empty Shopping cart? </p>
               </Modal>
               <Modal
                 title="Error"
@@ -337,7 +338,8 @@ function ShopCard_container(props) {
                 okText="OK"
                 cancelText="Cancel"
               >
-                购物车没有商品，无法结账! No items can not be Checked out!
+                <p>购物车没有商品，无法结账!</p>
+                <p> No items,can not be Checked out! </p>
               </Modal>
             </Row>
           </div>
@@ -387,7 +389,8 @@ function findProductStockByName(productList, mainProductName) {
 export function ShopCardList(props) {
   const [loading, setLoading] = useState(true);
   const [isVisble, setVisble] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [msg1, setMsg1] = useState("");
+  const [msg2, setMsg2] = useState("");
 
   useEffect(() => {
     checkPic(props.productList, props.shopAddress, props.version, setLoading);
@@ -403,9 +406,8 @@ export function ShopCardList(props) {
       countTotalAmountByProductName(props.orderProduct, mainProductName) + 1 >
       findProductStockByName(props.productList, mainProductName)
     ) {
-      var msg_d =
-        "当前库存不够，无法再增加购买 Insufficient inventory to increase purchases";
-      setMsg(msg_d);
+      setMsg1("当前库存不够，无法再增加购买");
+      setMsg2("Insufficient inventory to increase purchases");
       setVisble(true);
       return;
     }
@@ -460,14 +462,15 @@ export function ShopCardList(props) {
           visible={isVisble}
           onOk={handle_cancel}
           onCancel={handle_cancel}
-          width={300}
+          width={400}
           closable={false}
           centered={true}
           maskClosable={false}
           okText="OK"
           cancelText="Cancel"
         >
-          {msg}
+          <p>{msg1}</p>
+          <p>{msg2}</p>
         </Modal>
       </div>
     );
