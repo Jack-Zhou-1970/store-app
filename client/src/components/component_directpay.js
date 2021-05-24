@@ -319,10 +319,6 @@ function PaymentMethod(props) {
   }
 
   function handle_jump() {
-    store.dispatch({
-      type: "MOD_ALIPAY_PROCESS",
-      aliProcess: "process",
-    });
     history.push("payment_4");
     setPageVisible(false);
   }

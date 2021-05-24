@@ -323,41 +323,8 @@ import b_main from "../../images/b_main.jpg";
 import { AliPayResult_manage } from "./component_wallet";
 
 export function Home_header(props) {
-  const [isModalVisible, setVisible] = useState(false);
-  const [succeeded, setSucceeded] = useState(false);
-  const [message, setMessage] = useState("");
-
   function handle_click() {
     history.push("/cart");
-  }
-
-  function handle_payment() {
-    if (succeeded == false) {
-      store.dispatch({
-        type: "MOD_OTHER_FEE",
-        otherFee: 0,
-      });
-      history.push("/payment_1");
-      setVisible(false);
-    } else {
-      setVisible(false);
-    }
-  }
-
-  function handle_result(result) {
-    if (result == "success") {
-      setSucceeded(true);
-      setMessage(
-        "支付成功，请记下您的订单号" +
-          props.orderInfo.orderNumber +
-          "订单接受后，会发邮件给您"
-      );
-      setVisible(true);
-    } else {
-      setSucceeded(false);
-      setMessage("支付失败!");
-      setVisible(true);
-    }
   }
 
   return (
@@ -403,23 +370,6 @@ export function Home_header(props) {
           </Col>
         </Row>
       </div>
-      {props.orderInfo.aliProcess == "process" && (
-        <AliPayResult_manage handle_result={handle_result} />
-      )}
-      <Modal
-        title="支付结果"
-        visible={isModalVisible}
-        onOk={handle_payment}
-        width={300}
-        closable={false}
-        centered={true}
-        cancelButtonProps={{ disabled: true }}
-        maskClosable={false}
-        okText="确认"
-        cancelText="取消"
-      >
-        {message}
-      </Modal>
     </div>
   );
 }
@@ -1146,6 +1096,9 @@ function ProductByClass(props) {
     req.mainProductName = mainProductName;
 
     api.getAcceptOrder(req).then((result) => {
+      /*result.status = "ok"; //////////////////////////////////////////////////for test,must be delete
+      result.stock = 999999; /////////////////////////////*/
+
       if (result.status == "ok") {
         store.dispatch({
           type: "UPDATE_MAINPRODUCT_STOCK",

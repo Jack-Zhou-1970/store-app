@@ -217,6 +217,18 @@ export function WeChatPay_manage() {
 
 /////////////////////////////////alipay///////////////////////////////////////////////
 
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i = 0; i < vars.length; i++) {
+    var pair = vars[i].split("=");
+    if (pair[0] == variable) {
+      return pair[1];
+    }
+  }
+  return false;
+}
+
 function AliPay(props) {
   const [paymentDetails, setPayment] = useState(
     createPaymentDetail(props.orderInfo, props.userInfo)
@@ -226,6 +238,13 @@ function AliPay(props) {
 
   useEffect(() => {
     if (stripe == null) {
+      return;
+    }
+
+    if (getQueryVariable("payment_intent") != false) {
+      console.log("push payment_5");
+
+      history.push("/payment_5");
       return;
     }
 
@@ -247,7 +266,8 @@ function AliPay(props) {
 
       stripe.confirmAlipayPayment(data.client_secret, {
         // Return URL where the customer should be redirected to after payment
-        return_url: `https://www.worldtea.ca/home`,
+        /*return_url: `https://www.worldtea.ca/home`,*/
+        return_url: `${window.location.href}`,
       });
     });
   }, [stripe]);
@@ -276,7 +296,26 @@ function AliPayResult(props) {
   const [paymentDetails, setPayment] = useState(
     createPaymentDetail(props.orderInfo, props.userInfo)
   );
+
+  const [isModalVisible, setVisible] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
+  const [message, setMessage] = useState("");
+
   const stripe = useStripe();
+
+  function handle_payment() {
+    if (succeeded == false) {
+      store.dispatch({
+        type: "MOD_OTHER_FEE",
+        otherFee: 0,
+      });
+      history.push("/payment_1");
+      setVisible(false);
+    } else {
+      history.push("/home");
+      setVisible(false);
+    }
+  }
 
   var payment;
 
@@ -285,10 +324,8 @@ function AliPayResult(props) {
       return;
     }
 
-    store.dispatch({
-      type: "MOD_ALIPAY_PROCESS",
-      aliProcess: "",
-    });
+    console.log("enter result manage");
+    console.log(props.orderInfo);
 
     var payment_o = {
       ...paymentDetails,
@@ -333,7 +370,13 @@ function AliPayResult(props) {
               payload: result.reward,
             });
 
-            props.handle_result("success");
+            setSucceeded(true);
+            setMessage(
+              "支付成功，请记下您的订单号" +
+                props.orderInfo.orderNumber +
+                "订单接受后，会发邮件给您"
+            );
+            setVisible(true);
           } else {
             var inputObj = new Object();
 
@@ -341,13 +384,33 @@ function AliPayResult(props) {
 
             api.deleteUnPayment(inputObj).then((result) => {
               console.log("server say fail");
-              props.handle_result("fail");
+
+              setSucceeded(false);
+              setMessage("支付失败!");
+              setVisible(true);
             });
           }
         });
       });
   }, [stripe]);
-  return <div></div>;
+  return (
+    <div>
+      <Modal
+        title="支付结果"
+        visible={isModalVisible}
+        onOk={handle_payment}
+        width={300}
+        closable={false}
+        centered={true}
+        cancelButtonProps={{ disabled: true }}
+        maskClosable={false}
+        okText="确认"
+        cancelText="取消"
+      >
+        {message}
+      </Modal>
+    </div>
+  );
 }
 
 const mapStateToProps_AliPayResult = (state) => {
@@ -362,7 +425,7 @@ AliPayResult = connect(mapStateToProps_AliPayResult)(AliPayResult);
 export function AliPayResult_manage(props) {
   return (
     <Elements stripe={stripePromise}>
-      <AliPayResult handle_result={props.handle_result} />
+      <AliPayResult />
     </Elements>
   );
 }
