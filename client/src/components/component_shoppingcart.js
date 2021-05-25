@@ -152,10 +152,9 @@ function ShopCard(props) {
 
         <Row justify="center" style={{ marginTop: "2%" }}>
           <Col>
-            <h3>
-              {props.mainProductName}&nbsp;
-              {props.productIntro}
-            </h3>
+            <h3>{props.mainProductName}</h3>
+            <h3>{props.productIntro}</h3>
+
             {smallProductList}
           </Col>
         </Row>
@@ -342,7 +341,7 @@ function ShopCard_container(props) {
         <OrderTotal />
       </div>
       <div style={{ position: "fixed", top: "80%", left: "72%", zIndex: "20" }}>
-        <Tooltip title="去付款 CheckOut" color={"blue"} placement={"bottom"}>
+        <Tooltip title="结账 CheckOut" color={"blue"} placement={"bottom"}>
           <a onClick={handle_pay}>
             <img src={checkout} style={{ width: "100%" }}></img>
           </a>

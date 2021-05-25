@@ -28,7 +28,7 @@ router_pay.post("/createIntent_alipay", async (req, res) => {
   const paymentIntentData = {
     payment_method_types: ["alipay"],
     amount: priceTotal.totalPriceAfterTax,
-    currency: "CAD",
+    currency: "cad",
   };
 
   try {

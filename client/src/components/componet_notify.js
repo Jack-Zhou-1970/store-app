@@ -286,8 +286,8 @@ function Notify_container(props) {
       </div>
       <div style={{ position: "absolute", top: "35%", left: "2%" }}>
         <Switch
-          checkedChildren="按时间排列"
-          unCheckedChildren="按订单号排列"
+          checkedChildren="时间"
+          unCheckedChildren="订单号"
           defaultChecked
           onChange={handle_change}
         />
@@ -397,7 +397,7 @@ function UnAcceptCard(props) {
     setSpinning(true);
   }
   return (
-    <Col span={8} style={{ marginBottom: "2%" }}>
+    <Col xs={24} sm={12} md={8} style={{ marginBottom: "2%" }}>
       <Card
         title={props.orderNumber}
         extra={
@@ -485,7 +485,7 @@ UnAcceptList = connect(mapStateToProps_UnAcceptList)(UnAcceptList);
 
 function CompleteCard(props) {
   return (
-    <Col span={8} style={{ marginBottom: "2%" }}>
+    <Col xs={24} sm={12} md={8} style={{ marginBottom: "2%" }}>
       <Card title={props.orderNumber} style={{ width: 300 }}>
         <p>{props.paymentTime}</p>
         <p>金额:${(props.totalPrice / 100).toFixed(2).toString()}</p>
@@ -580,7 +580,7 @@ function ReadyPickupCard(props) {
     setVisble(false);
   }
   return (
-    <Col span={8} style={{ marginBottom: "2%" }}>
+    <Col xs={24} sm={12} md={8} style={{ marginBottom: "2%" }}>
       <Card
         title={props.orderNumber}
         extra={
