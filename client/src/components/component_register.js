@@ -304,11 +304,11 @@ class RegisterForm_manage extends React.Component {
           onCancel={() => this.setState({ isModalVisible: false })}
         />
         <Modal
-          title="请输入邮箱收到的验证码 Please input the verification code(sent to your email)！"
+          title="Message"
           visible={this.state.isModalVisible}
           onOk={this.handle_ok}
           onCancel={this.handle_cancel}
-          width={400}
+          width={450}
           closable={false}
           centered={true}
           cancelButtonProps={{ disabled: true }}
@@ -316,6 +316,16 @@ class RegisterForm_manage extends React.Component {
           okText="OK"
           cancelText="Cancel"
         >
+          <p>请输入邮箱收到的验证码</p>
+          <p>您的邮箱预计最长3-4分钟收到验证码</p>
+          <p>在收到验证码之前请不要关闭此对话框</p>
+          <p>Please enter the verification code received by the email</p>
+          <p>You will receive the verification code in up to 3-4 minutes</p>
+          <p>
+            Please do not close this dialog box until you receive the
+            verification code
+          </p>
+
           <div style={{ width: "80%" }}>
             <Input ref={this.code} />
           </div>

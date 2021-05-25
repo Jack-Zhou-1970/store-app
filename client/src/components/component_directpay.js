@@ -111,12 +111,12 @@ function TotalPrice(props) {
           ${(props.totalPriceBeforeTax / 100).toFixed(2).toString()}
         </Descriptions.Item>
 
-        <Descriptions.Item label="HST">
-          {" "}
-          ${(props.tax / 100).toFixed(2).toString()}
-        </Descriptions.Item>
         <Descriptions.Item label="Use points to deduct the price">
           ${(props.totalMoney / 100).toFixed(2).toString()}
+        </Descriptions.Item>
+
+        <Descriptions.Item label="HST">
+          ${(props.tax / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="Amount">
           $
@@ -434,17 +434,22 @@ function PaymentMethod(props) {
             defaultValue={props.last4 == "" || props.last4 == undefined ? 2 : 1}
           >
             <Space direction="vertical">
-              <Radio
-                disabled={
-                  props.last4 == "" ||
-                  props.last4 == undefined ||
-                  props.orderInfo.totalPrice < 0.01
-                }
-                value={1}
-              >
-                <h3>使用尾号为{props.last4}的信用卡付款</h3>
-                <h3> Pay with a credit card ending in {props.last4} </h3>
-              </Radio>
+              {props.last4 != "" &&
+                props.last4 != undefined &&
+                props.last4 != null && (
+                  <Radio
+                    disabled={
+                      props.last4 == "" ||
+                      props.last4 == undefined ||
+                      props.orderInfo.totalPrice < 0.01
+                    }
+                    value={1}
+                  >
+                    <h3>使用尾号为{props.last4}的信用卡付款</h3>
+                    <h3> Pay with a credit card ending in {props.last4} </h3>
+                  </Radio>
+                )}
+
               <Radio value={2} disabled={props.orderInfo.totalPrice < 0.01}>
                 <h3>使用新的信用卡付款</h3>
                 <h3> Pay with a new credit card</h3>

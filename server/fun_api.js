@@ -994,7 +994,7 @@ function htmlEamilSent(email, orderNumber) {
   result = htmlData.replace(/%orderNumber%/g, orderNumber);
 
   emailOptions.to = email;
-  emailOptions.subject = "your order is ready";
+  emailOptions.subject = "Your order is ready";
   emailOptions.html = result;
   emailOptions.attachments = [
     {
@@ -1015,7 +1015,7 @@ function htmlEamilSent1(email, code) {
   result = htmlData.replace(/%code%/g, code);
 
   emailOptions.to = email;
-  emailOptions.subject = "verify code from world tea house";
+  emailOptions.subject = "Verify code from World Tea";
   emailOptions.html = result;
   emailOptions.attachments = [
     {

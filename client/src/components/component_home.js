@@ -1096,8 +1096,8 @@ function ProductByClass(props) {
     req.mainProductName = mainProductName;
 
     api.getAcceptOrder(req).then((result) => {
-      /*result.status = "ok"; //////////////////////////////////////////////////for test,must be delete
-      result.stock = 999999; /////////////////////////////*/
+      result.status = "ok"; //////////////////////////////////////////////////for test,must be delete
+      result.stock = 999999; /////////////////////////////
 
       if (result.status == "ok") {
         store.dispatch({

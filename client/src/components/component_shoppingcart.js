@@ -126,7 +126,7 @@ function ShopCard(props) {
     );
   }
   return (
-    <div>
+    <div style={{ marginLeft: "5%", marginRight: "5%" }}>
       <div
         style={{
           marginTop: "5%",
@@ -138,12 +138,12 @@ function ShopCard(props) {
           </Col>
         </Row>
 
-        <Row justify="center" gutter={16} style={{ marginTop: "2%" }}>
+        <Row justify="center" style={{ marginTop: "2%" }}>
           <Col>
             <Button onClick={handle_dec}>-</Button>
-          </Col>
-          <Col>{props.amount}</Col>
-          <Col>
+
+            <span>&nbsp;&nbsp;{props.amount}&nbsp;&nbsp;</span>
+
             <Button type="primary " onClick={handle_add}>
               +
             </Button>
@@ -153,7 +153,7 @@ function ShopCard(props) {
         <Row justify="center" style={{ marginTop: "2%" }}>
           <Col>
             <h3>
-              {props.mainProductName}
+              {props.mainProductName}&nbsp;
               {props.productIntro}
             </h3>
             {smallProductList}
@@ -173,7 +173,8 @@ function ShopCard(props) {
 
 function OrderTotal(props) {
   var price = calShopTotal(props.productList, props.orderProduct);
-  var price_s = "Total Price:$" + (price / 100).toFixed(2).toString();
+  var price_s =
+    "Total Price:" + " " + "$" + (price / 100).toFixed(2).toString();
   return (
     <Row justify="center">
       <Col>
@@ -191,6 +192,8 @@ const mapStateToProps_OrderTotal = (state) => {
 };
 
 OrderTotal = connect(mapStateToProps_OrderTotal)(OrderTotal);
+
+import checkout from "../../images/checkout.jpg";
 
 function ShopCard_container(props) {
   function getOrderNumber() {
@@ -291,19 +294,7 @@ function ShopCard_container(props) {
                 </Tooltip>
               </Col>
 
-              <Col xs={4} style={{ marginRight: "15%" }}>
-                <Tooltip
-                  title="去付款 CheckOut"
-                  color={"blue"}
-                  placement={"bottom"}
-                >
-                  <a onClick={handle_pay}>
-                    <img src={cash} style={{ width: "32px" }}></img>
-                  </a>
-                </Tooltip>
-              </Col>
-
-              <Col xs={4}>
+              <Col xs={4} style={{ marginLeft: "32%" }}>
                 <Tooltip title="清空 Empty" color={"blue"} placement={"bottom"}>
                   <a onClick={handle_delete}>
                     <img src={deleteAll} style={{ width: "26px" }}></img>
@@ -349,6 +340,13 @@ function ShopCard_container(props) {
       <div style={{ marginTop: "8%" }}>
         {props.children}
         <OrderTotal />
+      </div>
+      <div style={{ position: "fixed", top: "80%", left: "72%", zIndex: "20" }}>
+        <Tooltip title="去付款 CheckOut" color={"blue"} placement={"bottom"}>
+          <a onClick={handle_pay}>
+            <img src={checkout} style={{ width: "100%" }}></img>
+          </a>
+        </Tooltip>
       </div>
     </div>
   );

@@ -286,7 +286,7 @@ export function Reward(props) {
 
         <p>
           Your current points:{props.userInfo.reward.toString()}
-          ,Just buy
+          ,Just buy&nbsp;
           {Math.floor(
             (100 - props.userInfo.reward - getOrderNumber() * 10) / 10
           ).toString()}

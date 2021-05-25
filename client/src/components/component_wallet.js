@@ -92,6 +92,7 @@ function WeChatPay(props) {
           currency: "cad",
         })
         .then((result) => {
+          console.log(result);
           setUrl(result.source.wechat.qr_code_url);
           setQRVisble(true);
           timer = setInterval(() => {

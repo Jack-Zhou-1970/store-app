@@ -55,8 +55,8 @@ function OrderSum(props) {
         <Descriptions.Item label="Order Number">
           {props.orderNumber}
         </Descriptions.Item>
-        <Descriptions.Item label="Total:">
-          {(props.totalPrice / 100).toFixed(2).toString()}
+        <Descriptions.Item label="Total">
+          ${(props.totalPrice / 100).toFixed(2).toString()}
         </Descriptions.Item>
         <Descriptions.Item label="Purchase time">
           {paymentTime.toString()}
@@ -77,9 +77,10 @@ function createData(subPrice) {
     var data = new Object();
     data.mainProduct =
       subPrice[i].mainProductName +
+      " " +
       subPrice[i].productIntro +
       "," +
-      "      Amount:" +
+      "      Quantity:" +
       subPrice[i].amount;
     data.smallProduct = "";
     for (var j = 0; j < subPrice[i].smallProduct.length; j++) {
