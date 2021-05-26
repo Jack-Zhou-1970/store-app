@@ -994,15 +994,15 @@ function htmlEamilSent(email, orderNumber) {
   result = htmlData.replace(/%orderNumber%/g, orderNumber);
 
   emailOptions.to = email;
-  emailOptions.subject = "Your order is ready";
+  emailOptions.subject = "World Tea";
   emailOptions.html = result;
-  emailOptions.attachments = [
+  /*emailOptions.attachments = [
     {
       filename: "worldtea.jpg",
       path: root,
       cid: "00001",
     },
-  ];
+  ];*/
 
   mailSend.mailerSend(emailOptions);
 }
@@ -1015,15 +1015,15 @@ function htmlEamilSent1(email, code) {
   result = htmlData.replace(/%code%/g, code);
 
   emailOptions.to = email;
-  emailOptions.subject = "Verify code from World Tea";
+  emailOptions.subject = "World Tea";
   emailOptions.html = result;
-  emailOptions.attachments = [
+  /* emailOptions.attachments = [
     {
       filename: "worldtea.jpg",
       path: root,
       cid: "00001",
     },
-  ];
+  ];*/
 
   mailSend.mailerSend(emailOptions);
 }

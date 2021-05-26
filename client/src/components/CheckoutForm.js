@@ -175,7 +175,7 @@ export default function CheckoutForm(props) {
     return (
       <div style={{ marginTop: "4%" }}>
         <Spin size="large" spinning={processing}>
-          <h3>信用卡信息：</h3>
+          <h3>Credit card:</h3>
 
           <div
             style={{
