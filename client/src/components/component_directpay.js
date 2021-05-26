@@ -588,6 +588,8 @@ export function createPaymentDetail(orderInfo, userInfo) {
   return paymentDetail;
 }
 
+import { Helmet } from "react-helmet";
+
 export function BillInfo(props) {
   const [billInfo, setBillInfo] = useState({});
   const [spinning, setSpinning] = useState(false);
@@ -651,6 +653,13 @@ export function BillInfo(props) {
   if (billInfo.TotalPrice != undefined) {
     return (
       <Spin spinning={spinning}>
+        <Helmet>
+          <title>World tea payment</title>
+          <meta
+            name="description"
+            content="世界茶饮付款支持信用卡,支付宝,微信,支持到店付款"
+          />
+        </Helmet>
         <div style={{ height: "100%" }}>
           <Affix offsetTop={5}>
             <div

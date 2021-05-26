@@ -135,10 +135,15 @@ function RegisterForm(props) {
 
 import title from "../../images/title.jpg";
 import title1 from "../../images/title1.jpg";
+import { Helmet } from "react-helmet";
 
 export function RegisterForm_container() {
   return (
     <div>
+      <Helmet>
+        <title>Create Account</title>
+        <meta name="description" content="world tea create account page" />
+      </Helmet>
       <img src={title} style={{ width: "100%" }} />
       <img src={title1} style={{ width: "100%" }} />
       <Row justify="center">

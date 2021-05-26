@@ -936,9 +936,19 @@ MainProductAmountPrice = connect(mapStateToProps_MainProductAmountPrice)(
 );
 
 /////////////////////////////////////////////////////////////////////////////////////////////////the function  used to display productList area
+
+import { Helmet } from "react-helmet";
+
 export function Home_ProductList() {
   return (
     <div>
+      <Helmet>
+        <title>World tea product introduction</title>
+        <meta
+          name="description"
+          content="FRESH FRULT TEA,TOP 3 FRUIT TEA,FRESH FRULT WITH PROBIOTICS,水果茶,奶茶,世界茶饮,莫奈花园下午茶"
+        />
+      </Helmet>
       <ListCatalog />
       <ProductByClass />
     </div>

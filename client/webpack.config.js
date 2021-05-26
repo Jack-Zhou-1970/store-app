@@ -14,6 +14,7 @@ module.exports = {
       colors: true,
     },
   },
+
   resolve: {
     extensions: [".wasm", ".mjs", ".js", ".json", ".jsx"],
   },
@@ -51,7 +52,12 @@ module.exports = {
       },
     ],
   },
+
   entry: "./src/index.js", //添加入口配置项
+
+  output: {
+    path: path.resolve(__dirname, "./build"),
+  },
 
   plugins: [
     new HtmlWebPackPlugin({

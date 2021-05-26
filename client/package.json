@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production",
+    "build": "webpack --mode production ",
+    "postbuild": "react-snap",
     "start": "webpack serve  --open"
+  },
+  "reactSnap": {
+    "skipThirdPartyRequests": true
   },
   "keywords": [],
   "author": "Zhou Chun",
@@ -20,6 +24,7 @@
     "css-loader": "^5.0.2",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.1.0",
+    "react-snap": "^1.23.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.28.0",
     "webpack-cli": "^4.6.0",
@@ -46,6 +51,7 @@
     "react": "^17.0.1",
     "react-audio-player": "^0.17.0",
     "react-dom": "^17.0.1",
+    "react-helmet": "^6.1.0",
     "react-print-tool": "^3.0.0",
     "react-redux": "^7.2.3",
     "react-router-dom": "^5.2.0",
