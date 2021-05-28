@@ -100,6 +100,10 @@ function processOrderStatus(status) {
       result = "订单已经取消";
       break;
 
+    case "afterPayment":
+      result = "到店付款，款未付";
+      break;
+
     default:
       break;
   }

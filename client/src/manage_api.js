@@ -10,12 +10,7 @@ export function processDataFromServer(data, setPlaying) {
         payload: data.orderInfo,
       });
 
-      /* setPlaying(true);
-
-      var timer = setTimeout(function () {
-        setPlaying(false);
-        clearTimeout(timer);
-      }, 5000);*/
+      console.log("receive orderInfo ");
 
       audio.currentTime = 0;
 

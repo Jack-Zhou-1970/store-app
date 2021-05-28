@@ -480,7 +480,7 @@ function PaymentMethod(props) {
           offsetBottom={15}
           style={{ marginLeft: "30%", marginTop: "10%" }}
         >
-          <div style={{ width: "40%" }}>
+          <div style={{ width: "50%" }}>
             <Button
               type="primary"
               disabled={processing}
@@ -488,7 +488,7 @@ function PaymentMethod(props) {
               block={true}
               shape="round"
             >
-              {value == 5 ? "到店支付 Pay at the Store" : "支付 Pay"}
+              {value == 5 ? "Pay at Store" : "支付 Pay"}
             </Button>
           </div>
         </Affix>

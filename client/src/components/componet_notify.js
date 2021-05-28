@@ -101,18 +101,6 @@ export function WebSocketControl(props) {
     ws_init(setPlaying);
   }, []);
 
-  /*try {
-    if (playing) {
-      audio.muted = false;
-    } else {
-      if (audio != null) {
-        audio.muted = true;
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }*/
-
   if (timerMoniter == null) {
     timerMoniter = setInterval(() => {
       /* console.log(audio.currentTime);*/
@@ -134,9 +122,6 @@ export function WebSocketControl(props) {
         console.log(link_count);
         link_count++;
         if (link_count < 5) {
-          /*audio = new Audio("alert.mp3");
-          audio.load();
-          audio.play();*/
           ws_init();
         } else {
           link_count = 0;
@@ -313,8 +298,14 @@ function createData(product) {
 
   for (var i = 0; i < product.length; i++) {
     var data = new Object();
-    data.mainProduct =
-      product[i].mainProductName + "      数量:" + product[i].amount;
+    data.mainProduct = (
+      <div>
+        <span>{product[i].mainProductName}</span> &nbsp;
+        <span style={{ color: product[i].amount > 1 ? "red" : "black" }}>
+          数量:{product[i].amount}
+        </span>
+      </div>
+    );
 
     data.smallProduct = "";
     for (var j = 0; j < product[i].smallProduct.length; j++) {
