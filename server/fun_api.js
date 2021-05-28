@@ -14,7 +14,7 @@ const fs = require("fs");
 const mailSend = require("./email");
 
 let emailOptions = {
-  from: '"worldtea"<webmaster@worldtea.ca>',
+  from: '"World Tea House"<webmaster@worldtea.ca>',
   to: "njzhch@163.com",
   subject: "Wellcome world-tea",
   text: "Thank you to register word-tea ,verified code is ",
@@ -956,7 +956,7 @@ async function judgeAcceptOrder(inputObj) {
   var minute = timeNow.getMinutes();
   var time = hour * 60 + minute;
 
-  if (time < startTime || endTime - time < 30) {
+  if (time < startTime || time > endTime) {
     reqBack.status = "notOk";
     return reqBack;
   }
@@ -994,7 +994,7 @@ function htmlEamilSent(email, orderNumber) {
   result = htmlData.replace(/%orderNumber%/g, orderNumber);
 
   emailOptions.to = email;
-  emailOptions.subject = "World Tea";
+  emailOptions.subject = "World Tea House";
   emailOptions.html = result;
   /*emailOptions.attachments = [
     {
@@ -1015,7 +1015,7 @@ function htmlEamilSent1(email, code) {
   result = htmlData.replace(/%code%/g, code);
 
   emailOptions.to = email;
-  emailOptions.subject = "World Tea";
+  emailOptions.subject = "World Tea House";
   emailOptions.html = result;
   /* emailOptions.attachments = [
     {
