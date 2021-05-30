@@ -109,11 +109,11 @@ export function Menu_1(props) {
 
     deleteLogin();
 
-    history.push("/");
+    history.push("/login");
   }
 
   function handle_login() {
-    history.push("/");
+    history.push("/login");
   }
 
   function handle_cart() {

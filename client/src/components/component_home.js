@@ -248,7 +248,9 @@ export async function checkPic(data, shopAddress, version, func) {
   obj.shopAddress = shopAddress;
 
   var result = await api.getProductVersion(obj);
+
   var result2;
+
   if (result.productVersion == version) {
     result2 == true;
   } else {
@@ -398,7 +400,7 @@ export function Home_productDetail(props) {
 
   function handle_add_cart() {
     var result = checkValidate(props.productList, props.productDetail);
-    console.log(result);
+
     if (result[0] == "success") {
       addToCart(props.productDetail);
 
@@ -798,11 +800,12 @@ function MainProduct_container() {
 }
 
 function ProductIntro(props) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    /* console.log("2222");
     checkPic(props.productList, props.shopAddress, props.version, setLoading);
-    setLoading(props.productList.length > 0 ? false : true);
+    setLoading(props.productList.length > 0 ? false : true);*/
   }, []);
 
   if (props.productList.length > 0) {
@@ -1080,9 +1083,23 @@ function findProductName(inputProduct) {
   return inputProduct.mainProductName == this.mainProductName;
 }
 /*puductList_o.push(props.data[i].product[j]);*/
+
+var mainProductName_t, price_t, productIntro_t;
+
+import { readLogin, deleteLogin } from "./component_login";
+import { object } from "prop-types";
+
 function ProductByClass(props) {
-  //when user click product
-  function handle_click(mainProductName, price, productIntro) {
+  function goShopping(
+    mainProductName,
+    price,
+    productIntro,
+    shopAddress,
+    data,
+    setMsg1,
+    setMsg2,
+    setProductDetailVisible
+  ) {
     var product = new Object();
     product.productName = mainProductName;
     product.productIntro = productIntro;
@@ -1102,7 +1119,7 @@ function ProductByClass(props) {
     /*history.push("/productDetail");*/
 
     var req = new Object();
-    req.shopAddress = props.shopAddress;
+    req.shopAddress = shopAddress;
     req.mainProductName = mainProductName;
 
     api.getAcceptOrder(req).then((result) => {
@@ -1117,11 +1134,7 @@ function ProductByClass(props) {
 
         store.dispatch({
           type: "UPDATE_PRODUCT_INFO",
-          payload: updateProductListAmount(
-            props.data,
-            mainProductName,
-            result.stock
-          ),
+          payload: updateProductListAmount(data, mainProductName, result.stock),
         });
         if (result.stock > 0) {
           setProductDetailVisible(true);
@@ -1138,6 +1151,48 @@ function ProductByClass(props) {
     });
   }
 
+  function handle_click(mainProductName, price, productIntro) {
+    mainProductName_t = mainProductName;
+    price_t = price;
+    productIntro_t = productIntro;
+
+   
+
+    if (props.userCode.charAt(0) == "T" && props.productName == "none") {
+      setRegisterVisble(true);
+    } else {
+      goShopping(
+        mainProductName,
+        price,
+        productIntro,
+        props.shopAddress,
+        props.data,
+        setMsg1,
+        setMsg2,
+        setProductDetailVisible
+      );
+    }
+  }
+
+  function handle_continue() {
+    setRegisterVisble(false);
+    goShopping(
+      mainProductName_t,
+      price_t,
+      productIntro_t,
+      props.shopAddress,
+      props.data,
+      setMsg1,
+      setMsg2,
+      setProductDetailVisible
+    );
+  }
+
+  function handle_register() {
+    history.push("/login");
+    setRegisterVisble(false);
+  }
+
   function onClose() {
     setProductDetailVisible(false);
   }
@@ -1146,9 +1201,45 @@ function ProductByClass(props) {
     setVisble(false);
   }
 
+  async function handleLogin() {
+    var login = readLogin();
+    if (login == null) {
+      console.log("no storage");
+      login = new Object();
+      login.email = "";
+      login.password = "";
+    }
+
+    if (login.password == false) {
+      login.password = "";
+    }
+
+    login.password = api.encrypt(login.password);
+
+    var result = await api.getUserInfo(login);
+
+    store.dispatch({
+      type: "UPDATE_USER_INFO",
+      payload: result,
+    });
+
+    store.dispatch({
+      type: "UPDATE_SELECT_INFO",
+      productName: "none",
+    });
+
+    checkPic(props.data, result.shopAddress, props.version, setLoading);
+    setLoading(props.data.length > 0 ? false : true);
+
+    if (result.status != "success") {
+      deleteLogin();
+    }
+  }
+
   const [loading, setLoading] = useState(true);
   const [productDetailVisible, setProductDetailVisible] = useState(false);
   const [isVisble, setVisble] = useState(false);
+  const [isRegisterVisble, setRegisterVisble] = useState(false);
   const [msg1, setMsg1] = useState("");
   const [msg2, setMsg2] = useState("");
 
@@ -1158,8 +1249,13 @@ function ProductByClass(props) {
     window.addEventListener("popstate", function (event) {
       window.history.pushState(null, document.title, window.location.href);
     });
-    checkPic(props.data, props.shopAddress, props.version, setLoading);
-    setLoading(props.data.length > 0 ? false : true);
+
+    if (props.userCode.charAt(0) == "T" || props.userCode.charAt(0) == "C") {
+      checkPic(props.data, props.shopAddress, props.version, setLoading);
+      setLoading(props.data.length > 0 ? false : true);
+    } else {
+      handleLogin();
+    }
   }, []);
 
   //ready to render
@@ -1226,6 +1322,21 @@ function ProductByClass(props) {
           <p> {msg1}</p>
           <p> {msg2}</p>
         </Modal>
+        <Modal
+          title="Message"
+          visible={isRegisterVisble}
+          onOk={handle_register}
+          onCancel={handle_continue}
+          width={400}
+          closable={false}
+          centered={true}
+          maskClosable={false}
+          okText="Sign in"
+          cancelText="Continue"
+        >
+          <p>建立账户并登陆能享受积分回馈</p>
+          <p>Create account and sign in to enjoy points rewards</p>
+        </Modal>
       </div>
     </Spin>
   );
@@ -1235,7 +1346,9 @@ const mapStateToProps_ProductList = (state) => {
   return {
     data: state.productListReducer,
     catalogName: state.actionReducer.className,
+    productName: state.actionReducer.productName,
     shopAddress: state.userInfoReducer.shopAddress,
+    userCode: state.userInfoReducer.userCode,
     version: state.userInfoReducer.productVersion,
   };
 };

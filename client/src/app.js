@@ -120,8 +120,11 @@ function Main() {
       <Route path="/notify">
         <WebSocketControl />
       </Route>
-      <Route path="/">
+      <Route path="/login">
         <Login />
+      </Route>
+      <Route path="/">
+        <Home />
       </Route>
             
     </Switch>
