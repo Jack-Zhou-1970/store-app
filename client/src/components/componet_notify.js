@@ -284,6 +284,7 @@ function Notify_container(props) {
 const mapStateToProps_Notify_container = (state) => {
   return {
     status: state.manageReducer,
+    orderList: state.orderListReducer,
   };
 };
 

@@ -349,24 +349,48 @@ export function Home_header(props) {
         </div>
         <Row style={{ marginBottom: "5%", zIndex: "-10" }}>
           <Col xs={8}>
-            <img src={b_main} style={{ width: "103%" }} />
+            <img
+              alt={"world tea ,North York"}
+              src={b_main}
+              style={{ width: "103%" }}
+            />
           </Col>
           <Col xs={16}>
             <Carousel autoplay>
               <div>
-                <img src={b_1} style={{ width: "101%" }} />
+                <img
+                  alt={"world tea,WORLD MILK TEA"}
+                  src={b_1}
+                  style={{ width: "101%" }}
+                />
               </div>
               <div>
-                <img src={b_2} style={{ width: "104%" }} />
+                <img
+                  alt={"world tea ,FRESH FRULT WITH PROBIOTICS"}
+                  src={b_2}
+                  style={{ width: "104%" }}
+                />
               </div>
               <div>
-                <img src={b_3} style={{ width: "102%" }} />
+                <img
+                  alt={"world tea,FRESH FRULT TEA"}
+                  src={b_3}
+                  style={{ width: "102%" }}
+                />
               </div>
               <div>
-                <img src={b_4} style={{ width: "102%" }} />
+                <img
+                  alt={"world tea,FRESH FRULT SLUSH"}
+                  src={b_4}
+                  style={{ width: "102%" }}
+                />
               </div>
               <div>
-                <img src={b_5} style={{ width: "101%" }} />
+                <img
+                  alt={"world tea,Monet Garden Fruit Tea"}
+                  src={b_5}
+                  style={{ width: "101%" }}
+                />
               </div>
             </Carousel>
           </Col>
@@ -946,10 +970,10 @@ export function Home_ProductList() {
   return (
     <div>
       <Helmet>
-        <title>World tea product introduction</title>
+        <title>World Tea,Bubble Tea</title>
         <meta
           name="description"
-          content="FRESH FRULT TEA,TOP 3 FRUIT TEA,FRESH FRULT WITH PROBIOTICS,水果茶,奶茶,世界茶饮,莫奈花园下午茶"
+          content="Bubble Tea,FRESH FRULT TEA,TOP 3 FRUIT TEA,FRESH FRULT WITH PROBIOTICS,珍珠奶茶,水果茶,奶茶,世界茶饮,莫奈花园下午茶"
         />
       </Helmet>
       <ListCatalog />
@@ -1123,8 +1147,8 @@ function ProductByClass(props) {
     req.mainProductName = mainProductName;
 
     api.getAcceptOrder(req).then((result) => {
-      /*result.status = "ok"; //////////////////////////////////////////////////for test,must be delete
-      result.stock = 999999; /////////////////////////////*/
+      result.status = "ok"; //////////////////////////////////////////////////for test,must be delete
+      result.stock = 999999; /////////////////////////////
 
       if (result.status == "ok") {
         store.dispatch({
@@ -1155,8 +1179,6 @@ function ProductByClass(props) {
     mainProductName_t = mainProductName;
     price_t = price;
     productIntro_t = productIntro;
-
-   
 
     if (props.userCode.charAt(0) == "T" && props.productName == "none") {
       setRegisterVisble(true);

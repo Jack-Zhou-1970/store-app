@@ -12,7 +12,9 @@ function addNewOrderList(state, inputObj) {
       if (index == -1) {
         newArray.push(inputObj[i]);
       } else {
+        var status1 = newArray[index].status1;
         newArray[index] = inputObj[i];
+        newArray[index].status1 = status1;
       }
     }
   }
