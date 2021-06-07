@@ -115,65 +115,14 @@ function UserInfo_pay(props) {
           {(props.orderInfo.totalPrice / 100).toFixed(2).toString()}
         </h3>
       </div>
-      <div style={{ marginBottom: "1%" }}>
-        <h3>User info：</h3>
-      </div>
+
       <Row>
-        <Col xs={4}>
+        <Col style={{ marginLeft: "2%" }} xs={12}>
           <Input
-            placeholder="Last Name"
+            placeholder="Name"
             onChange={handle_lastName}
             style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
           />
-        </Col>
-
-        <Col style={{ marginLeft: "2%" }} xs={4}>
-          <Input
-            placeholder="First Name"
-            onChange={handle_firstName}
-            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
-          />
-        </Col>
-      </Row>
-      <Row style={{ marginTop: "2%" }}>
-        <Col xs={10}>
-          <Input
-            placeholder="Address"
-            onChange={handle_address}
-            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
-          />
-        </Col>
-      </Row>
-      <Row style={{ marginTop: "2%" }}>
-        <Col xs={6}>
-          <Input
-            placeholder="City"
-            onChange={handle_city}
-            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
-          />
-        </Col>
-
-        <Col style={{ marginLeft: "2%" }} xs={6}>
-          <Input
-            placeholder="Postcode"
-            onChange={handle_postalCode}
-            style={{ borderTop: "0px", borderLeft: "0px", borderRight: "0px" }}
-          />
-        </Col>
-
-        <Col xs={4}>
-          <Select
-            style={{
-              width: 100,
-              borderTop: "0px",
-              borderLeft: "0px",
-              borderRight: "0px",
-            }}
-            onChange={handle_province}
-          >
-            <Option value="ON">ON</Option>
-            <Option value="BC">BC</Option>
-          </Select>
         </Col>
       </Row>
     </div>

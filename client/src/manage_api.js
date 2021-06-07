@@ -1,6 +1,6 @@
 import { store } from "./app";
 import { timer2, audio } from "./components/componet_notify";
-import { link_count } from "./components/componet_notify";
+import { link_count, alerm } from "./components/componet_notify";
 
 export function processDataFromServer(data, setPlaying) {
   switch (data.content) {
@@ -13,6 +13,7 @@ export function processDataFromServer(data, setPlaying) {
       console.log("receive orderInfo ");
 
       audio.currentTime = 0;
+      alerm = true;
 
       break;
 

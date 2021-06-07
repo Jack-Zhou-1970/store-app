@@ -539,6 +539,7 @@ function MidSmallProduct(props) {
   //event function
   function handle_smallProductNP_change(midClassName, smallProductName) {
     payload = new Object();
+
     payload.middleProductName = midClassName;
     payload.smallProductName = smallProductName;
     payload.smallPrice = 0;
@@ -596,6 +597,13 @@ function MidSmallProduct(props) {
 
               midClass_np.push(smallProduct);
             }
+
+            //important
+            midClassGroup_np.push(midClass_np);
+            midClassGroup_np_c.push(
+              props.data[i].product[j].productMiddle[k].middleProductName
+            );
+            midClass_np = [];
           } else {
             for (
               l = 0;
@@ -627,39 +635,14 @@ function MidSmallProduct(props) {
               );
               midClass_p.push(smallProduct);
             }
-          }
-          if (
-            midClassGroup_np_c.find(
-              findMiddleProductName,
-              props.data[i].product[j].productMiddle[k].middleProductName
-            ) == undefined
-          ) {
-            midClassGroup_np.push(midClass_np);
 
-            if (midClass_np.length > 0) {
-              midClassGroup_np_c.push(
-                props.data[i].product[j].productMiddle[k].middleProductName
-              );
-            }
-          }
-
-          midClass_np = [];
-
-          if (
-            midClassGroup_p_c.find(
-              findMiddleProductName,
-              props.data[i].product[j].productMiddle[k].middleProductName
-            ) == undefined
-          ) {
+            //important
             midClassGroup_p.push(midClass_p);
-
-            if (midClass_p.length > 0) {
-              midClassGroup_p_c.push(
-                props.data[i].product[j].productMiddle[k].middleProductName
-              );
-            }
+            midClassGroup_p_c.push(
+              props.data[i].product[j].productMiddle[k].middleProductName
+            );
+            midClass_p = [];
           }
-          midClass_p = [];
         }
       }
     }
@@ -1168,8 +1151,8 @@ function ProductByClass(props) {
           setVisble(true);
         }
       } else {
-        setMsg1("现在不是营业时间");
-        setMsg2("It is not business hours");
+        setMsg1("接单时间：12：00-22：00");
+        setMsg2("order time: 12:00-22:00");
         setVisble(true);
       }
     });

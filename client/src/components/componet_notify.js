@@ -50,9 +50,11 @@ export var link_count = 0;
 
 export var audio = null;
 
+export var alerm = false;
+
 function ws_init(setPlaying) {
-  ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
-  /*ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");*/
+  /*ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");*/
+  ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");
 
   ws.onopen = function () {
     //get order_by _shop
@@ -97,6 +99,7 @@ export function WebSocketControl(props) {
   }
 
   useEffect(() => {
+    alerm = false;
     audioInit();
     ws_init(setPlaying);
   }, []);
@@ -104,8 +107,9 @@ export function WebSocketControl(props) {
   if (timerMoniter == null) {
     timerMoniter = setInterval(() => {
       /* console.log(audio.currentTime);*/
+
       if (audio.currentTime > 10) {
-        audio.currentTime = 11;
+        audio.currentTime = alerm == true ? 0 : 11;
       }
     }, 2000);
   }
@@ -385,6 +389,8 @@ function UnAcceptCard(props) {
     req.orderNumber = props.orderNumber;
 
     ws.send(JSON.stringify(req));
+
+    alerm = false;
 
     setSpinning(true);
   }
