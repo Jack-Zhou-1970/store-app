@@ -459,7 +459,7 @@ function PaymentMethod(props) {
                   <img src={wechat} style={{ width: "50%" }} />
                 </Radio>
 
-                <Radio value={4} disabled={false}>
+                <Radio value={4} disabled={true}>
                   <span>
                     <img src={alipay} style={{ width: "23%" }} />
                   </span>

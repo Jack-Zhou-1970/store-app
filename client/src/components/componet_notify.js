@@ -53,8 +53,8 @@ export var audio = null;
 export var alerm = false;
 
 function ws_init(setPlaying) {
-  /*ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");*/
-  ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");
+  ws = new WebSocket("wss://www.worldtea.ca/ws/shop400001");
+  /*ws = new WebSocket("ws://127.0.0.1:4243/ws/shop400001");*/
 
   ws.onopen = function () {
     //get order_by _shop
